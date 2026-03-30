@@ -1,0 +1,251 @@
+import React, { useState, useEffect } from 'react';
+import { Play, Info, ChevronRight, PlayCircle, Star, Clock, Trophy } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
+import { Link } from 'react-router-dom';
+import { GENRES } from '../constants';
+import MovieCard from '../components/shared/MovieCard';
+import GenreCard from '../components/shared/GenreCard';
+import { usePublicMovies } from '../hooks/usePublicMovies';
+
+const Home = () => {
+  const { movies: dbMovies } = usePublicMovies();
+  const [activeHero, setActiveHero] = useState(0);
+
+  // Transform backend data to frontend format
+  const transformMovie = (movie) => ({
+    id: movie.id,
+    title: movie.title,
+    description: movie.description,
+    image: movie.avatar_url || movie.background_url,
+    rating: parseFloat(movie.rating) || 8.5,
+    year: movie.release_date ? new Date(movie.release_date).getFullYear() : 2024,
+    genre: movie.genres ? movie.genres.split(',')[0].trim() : 'Phim',
+    tag: movie.required_vip_level > 0 ? 'VIP' : 'Miễn phí',
+  });
+
+  const movies = dbMovies && dbMovies.length > 0 
+    ? dbMovies.map(transformMovie) 
+    : [];
+
+  const featuredMovies = movies.length > 0 ? movies : [];
+  const newUpdates = movies.length > 0 ? [...movies].reverse() : [];
+  const trendingMovies = movies.length > 0 ? movies : [];
+
+  // Auto-slide hero
+  useEffect(() => {
+    if (movies.length === 0) return;
+    const timer = setInterval(() => {
+      setActiveHero((prev) => (prev + 1) % movies.length);
+    }, 8000);
+    return () => clearInterval(timer);
+  }, [movies]);
+
+  const heroMovie = movies.length > 0 ? movies[activeHero] : {
+    id: 1,
+    title: 'Cinema',
+    description: 'Hãy khám phá kho phim',
+    image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2000',
+    rating: 8.5,
+    year: 2024,
+    genre: 'PHIM',
+  };
+
+  return (
+    <div className="min-h-screen bg-surface overflow-x-hidden">
+      {/* Immersive Hero Section */}
+      <section className="relative h-[95vh] w-full flex items-center">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeHero}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.5, ease: "easeInOut" }}
+            className="absolute inset-0 z-0"
+          >
+            <img
+              src={heroMovie.image}
+              alt={heroMovie.title}
+              className="w-full h-full object-cover scale-105 brightness-[0.4]"
+              referrerPolicy="no-referrer"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/20 to-transparent"></div>
+            <div className="absolute inset-x-0 bottom-0 h-96 bg-gradient-to-t from-surface to-transparent"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-surface via-transparent to-surface/40"></div>
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="relative z-10 px-8 md:px-20 max-w-[1920px] mx-auto w-full pt-20">
+          <div className="max-w-4xl space-y-8">
+            <motion.div
+              key={`meta-${activeHero}`}
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="flex items-center gap-4"
+            >
+              <span className="px-3 py-1 bg-primary text-white text-[10px] font-black tracking-[0.2em] uppercase rounded-lg shadow-lg shadow-primary/20">
+                #1 Phổ biến tuần này
+              </span>
+              <div className="flex items-center gap-2 glass px-3 py-1 rounded-lg">
+                <Star className="w-3.5 h-3.5 text-primary fill-primary" />
+                <span className="text-sm font-black text-white">{heroMovie.rating || '8.9'}</span>
+              </div>
+              <span className="text-on-surface-variant text-xs font-black uppercase tracking-[0.2em] opacity-60">
+                {heroMovie.year} • {heroMovie.genre || 'HÀNH ĐỘNG'}
+              </span>
+            </motion.div>
+
+            <motion.h1
+              key={`title-${activeHero}`}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="text-7xl md:text-9xl font-black font-manrope tracking-tighter leading-[0.85] text-white uppercase text-glow"
+            >
+              {heroMovie.title}
+            </motion.h1>
+
+            <motion.p
+              key={`desc-${activeHero}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              className="text-on-surface-variant/80 text-lg md:text-xl max-w-2xl font-medium leading-relaxed"
+            >
+              {heroMovie.description || "Một hành trình xuyên không gian đầy kịch tính, khám phá những bí ẩn chưa từng được tiết lộ của vũ trụ. Trải nghiệm kịch tính đến nghẹt thở với dàn diễn viên huyền thoại."}
+            </motion.p>
+
+            <motion.div
+              key={`btns-${activeHero}`}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              className="flex flex-wrap gap-5 pt-4"
+            >
+              <Link to={`/watch/${heroMovie.id}`} className="btn-primary px-12 py-5 text-base uppercase tracking-widest shadow-[0_20px_40px_rgba(229,9,20,0.3)]">
+                <Play className="w-6 h-6 fill-white" />
+                Xem ngay
+              </Link>
+              <Link to={`/movie/${heroMovie.id}`} className="btn-secondary px-10 py-5 text-base uppercase tracking-widest bg-white/5 hover:bg-white/10">
+                <Info className="w-6 h-6" />
+                Chi tiết
+              </Link>
+            </motion.div>
+
+            {/* Carousel Indicators */}
+            <div className="flex gap-3 pt-12">
+              {movies.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setActiveHero(i)}
+                  className={`h-1.5 transition-all duration-500 rounded-full ${i === activeHero ? 'w-12 bg-primary' : 'w-6 bg-white/20 hover:bg-white/40'}`}
+                />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <main className="relative z-20 -mt-24 space-y-32 pb-40">
+        {/* Global Movie Grids */}
+        {[
+          { title: "Phim Nổi Bật", data: featuredMovies, variant: "default" },
+          { title: "Mới Cập Nhật", data: newUpdates, variant: "horizontal" },
+        ].map((section, idx) => (
+          <section key={idx} className="pl-8 md:pl-20">
+            <div className="flex justify-between items-end mb-12 pr-8 md:pr-20">
+              <div className="space-y-2">
+                <div className="flex items-center gap-3">
+                  <div className="w-2 h-8 bg-primary rounded-full"></div>
+                  <h2 className="text-3xl font-black text-white uppercase tracking-tight">{section.title}</h2>
+                </div>
+              </div>
+              <Link to="/filter" className="text-[11px] font-black uppercase tracking-[0.2em] text-on-surface-variant hover:text-white transition-colors flex items-center gap-2">
+                Xem tất cả <ChevronRight className="w-4 h-4 text-primary" />
+              </Link>
+            </div>
+            <div className="flex gap-8 overflow-x-auto hide-scrollbar pb-10 snap-x">
+              {section.data.map(movie => (
+                <MovieCard key={movie.id} movie={movie} variant={section.variant} />
+              ))}
+            </div>
+          </section>
+        ))}
+
+        {/* Genres Grid */}
+        <section className="px-8 md:px-20">
+          <div className="flex items-center gap-3 mb-12">
+            <div className="w-2 h-8 bg-primary rounded-full"></div>
+            <h2 className="text-3xl font-black text-white uppercase tracking-tight">Khám Phá Thể Loại</h2>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
+            {GENRES.map(genre => (
+              <GenreCard key={genre.id} genre={genre} />
+            ))}
+          </div>
+        </section>
+
+        {/* Top 10 Redesign */}
+        <section className="pl-8 md:pl-20">
+          <div className="flex items-center gap-5 mb-16">
+            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
+              <Trophy className="w-6 h-6 text-primary" />
+            </div>
+            <h2 className="text-3xl font-black text-white uppercase tracking-tight leading-none">Top 10 Phim Hot Trong Tuần</h2>
+          </div>
+          <div className="flex gap-20 overflow-x-auto hide-scrollbar pb-12 snap-x px-4">
+            {trendingMovies.slice(0, 10).map((movie, index) => (
+              <Link key={movie.id} to={`/movie/${movie.id}`} className="shrink-0 flex items-end group cursor-pointer snap-start relative">
+                <span className="text-[240px] font-black font-manrope leading-[0.7] text-transparent stroke-white/20 -mr-16 z-0 transition-all duration-700 group-hover:text-white/5 group-hover:stroke-primary/40 pointer-events-none italic" style={{ WebkitTextStroke: '2px rgba(255,255,255,0.08)' }}>
+                  {index + 1}
+                </span>
+                <div className="w-56 h-80 rounded-4xl overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.6)] border border-white/5 relative z-10 group-hover:-translate-y-6 transition-all duration-700 ease-out group-hover:shadow-primary/20">
+                  <img src={movie.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={movie.title} referrerPolicy="no-referrer" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Clock className="w-3.5 h-3.5 text-primary" />
+                      <span className="text-[10px] font-black text-primary uppercase tracking-widest">{movie.tag}</span>
+                    </div>
+                    <h4 className="text-white font-black text-base uppercase leading-tight tracking-tight line-clamp-2">{movie.title}</h4>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* VIP Section Call-to-action */}
+        <section className="px-8 md:px-20 pb-20">
+          <motion.div
+            whileHover={{ y: -10 }}
+            className="w-full relative h-[500px] rounded-[4rem] overflow-hidden group cursor-pointer"
+          >
+            <img
+              src="https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2000"
+              className="w-full h-full object-cover brightness-[0.3] group-hover:scale-105 transition-transform duration-[3s]"
+              alt="VIP"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/40 to-transparent mix-blend-overlay"></div>
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-12 space-y-8">
+              <div className="px-5 py-2 glass-dark border border-primary/30 rounded-2xl">
+                <span className="text-primary font-black uppercase tracking-[0.4em] text-xs">Phân hạng đặc quyền</span>
+              </div>
+              <h2 className="text-6xl md:text-8xl font-black text-white uppercase tracking-tighter leading-none italic">
+                Nâng cấp <br /> <span className="text-glow text-primary">Gói VIP</span>
+              </h2>
+              <p className="text-xl text-white/60 font-medium max-w-xl">
+                Trải nghiệm không giới hạn kho phim khổng lồ với chất lượng 4K chuẩn rạp phim ngay tại nhà của bạn.
+              </p>
+              <Link to="/vip" className="btn-primary py-5 px-16 text-lg tracking-[0.2em] uppercase shadow-[0_32px_64px_rgba(229,9,20,0.4)]">
+                Bắt đầu ngay
+              </Link>
+            </div>
+          </motion.div>
+        </section>
+      </main>
+    </div>
+  );
+};
+
+export default Home;
