@@ -4,8 +4,8 @@ const commentController = require("../controllers/commentController");
 const { verifyToken, isAdmin } = require("../middlewares/usersMiddleware");
 
 router.post("/", verifyToken, commentController.createComment);
-router.get("/:movieId", commentController.getCommentsByMovie);
 router.get("/", verifyToken, isAdmin, commentController.getAllComments);
+router.get("/:movieId", commentController.getCommentsByMovie);
 router.delete("/:id", verifyToken, commentController.deleteComment);
 
 module.exports = router;

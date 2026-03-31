@@ -11,12 +11,18 @@ const getAuthHeaders = () => ({
   },
 });
 
-export const getCommentsByMovie = async (movieId) => {
-  return axios.get(`${API}/${movieId}`, getAuthHeaders());
+export const getCommentsByMovie = async (movieId, limit = 100) => {
+  return axios.get(`${API}/${movieId}`, {
+    params: { limit },
+    ...getAuthHeaders(),
+  });
 };
 
-export const getAllComments = async () => {
-  return axios.get(`${API}/`, getAuthHeaders());
+export const getAllComments = async (limit = 100) => {
+  return axios.get(`${API}/`, {
+    params: { limit },
+    ...getAuthHeaders(),
+  });
 };
 
 export const createComment = async (commentData) => {
