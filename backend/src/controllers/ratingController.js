@@ -14,7 +14,7 @@ exports.createOrUpdateRating = (req, res) => {
   }
 
   const selectSql = `
-    SELECT id
+    SELECT rating
     FROM ratings
     WHERE user_id = ? AND movie_id = ?
   `;
@@ -25,7 +25,7 @@ exports.createOrUpdateRating = (req, res) => {
     if (existing.length > 0) {
       const updateSql = `
         UPDATE ratings
-        SET value = ?, updated_at = NOW()
+        SET rating = ?
         WHERE user_id = ? AND movie_id = ?
       `;
 
@@ -35,13 +35,13 @@ exports.createOrUpdateRating = (req, res) => {
       });
     } else {
       const insertSql = `
-        INSERT INTO ratings (user_id, movie_id, value)
+        INSERT INTO ratings (user_id, movie_id, rating)
         VALUES (?, ?, ?)
       `;
 
       db.query(insertSql, [user_id, movieId, ratingValue], (insertErr, result) => {
         if (insertErr) return res.status(500).json(insertErr);
-        return res.json({ message: "Rating created", value: ratingValue, movieId, id: result.insertId });
+        return res.json({ message: "Rating created", value: ratingValue, movieId, userId: user_id });
       });
     }
   });
@@ -52,16 +52,14 @@ exports.getRatingsByMovie = (req, res) => {
 
   const ratingsSql = `
     SELECT
-      r.id,
       r.movie_id AS movieId,
       r.user_id AS userId,
-      r.value,
-      r.updated_at AS updatedAt,
+      r.rating AS value,
       u.username
     FROM ratings r
     JOIN users u ON r.user_id = u.id
     WHERE r.movie_id = ?
-    ORDER BY r.updated_at DESC
+    ORDER BY r.user_id ASC
   `;
 
   db.query(ratingsSql, [movieId], (err, ratings) => {
@@ -69,7 +67,7 @@ exports.getRatingsByMovie = (req, res) => {
 
     const statsSql = `
       SELECT
-        IFNULL(ROUND(AVG(value), 1), 0) AS averageRating,
+        IFNULL(ROUND(AVG(rating), 1), 0) AS averageRating,
         COUNT(*) AS ratingCount
       FROM ratings
       WHERE movie_id = ?
@@ -88,7 +86,7 @@ exports.getUserRatingByMovie = (req, res) => {
   const user_id = req.user.id;
 
   const sql = `
-    SELECT id, movie_id AS movieId, user_id AS userId, value, updated_at AS updatedAt
+    SELECT movie_id AS movieId, user_id AS userId, rating AS value
     FROM ratings
     WHERE movie_id = ? AND user_id = ?
     LIMIT 1

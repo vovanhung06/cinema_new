@@ -36,8 +36,12 @@ export const useUsers = () => {
         },
       });
 
+      const usersData = Array.isArray(res.data)
+        ? res.data
+        : res.data?.data || [];
+
       // map BE → UI
-      const mapped = res.data.map((u) => ({
+      const mapped = usersData.map((u) => ({
         id: u.id,
         name: u.username,
         email: u.email,

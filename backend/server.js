@@ -1,5 +1,5 @@
 const express = require("express");
-const cors = require("cors"); 
+const cors = require("cors");
 const path = require("path");
 const multer = require("multer");
 
@@ -44,8 +44,8 @@ const createCommentsTable = `
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     movie_id INT NOT NULL,
-    content TEXT NOT NULL,
-    create_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    comment TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -53,12 +53,11 @@ const createCommentsTable = `
 
 const createRatingsTable = `
   CREATE TABLE IF NOT EXISTS ratings (
-    id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     movie_id INT NOT NULL,
-    value TINYINT UNSIGNED NOT NULL,
+    rating TINYINT UNSIGNED NOT NULL,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE KEY unique_user_movie (user_id, movie_id),
+    PRIMARY KEY (user_id, movie_id),
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     FOREIGN KEY (movie_id) REFERENCES movies(id) ON DELETE CASCADE
   ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -83,6 +82,9 @@ db.query(createRatingsTable, (err) => {
 });
 
 const ensureRatingsSchema = () => {
+  // Temporarily disable schema modifications to avoid errors
+  // TODO: Properly handle schema migrations
+  /*
   db.query("SHOW COLUMNS FROM ratings LIKE 'value'", (err, result) => {
     if (err) return console.error('Failed to inspect ratings table:', err);
     if (result.length === 0) {
@@ -129,6 +131,7 @@ const ensureRatingsSchema = () => {
       });
     }
   });
+  */
 };
 
 ensureRatingsSchema();

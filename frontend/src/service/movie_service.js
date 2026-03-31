@@ -16,7 +16,7 @@ const getAuthHeaders = () => {
 export const getAllMovies = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/movies`, getAuthHeaders());
-    return response.data;
+    return response.data?.data || response.data || [];
   } catch (error) {
     console.error('Error fetching movies:', error);
     throw error;
@@ -29,7 +29,7 @@ export const getPublicMovies = async (params = {}) => {
     const response = await axios.get(`${API_BASE_URL}/movies/public/filter`, {
       params,
     });
-    return response.data;
+    return response.data?.data || response.data || [];
   } catch (error) {
     console.error('Error fetching public movies:', error);
     throw error;
@@ -53,7 +53,7 @@ export const searchMovies = async (query) => {
     const response = await axios.get(`${API_BASE_URL}/movies/search`, {
       params: { keyword: query },
     });
-    return response.data;
+    return response.data?.data || response.data || [];
   } catch (error) {
     console.error('Error searching movies:', error);
     throw error;
@@ -64,7 +64,7 @@ export const searchMovies = async (query) => {
 export const getMoviesByGenre = async (genreId) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/movies/genre/${genreId}`);
-    return response.data;
+    return response.data?.data || response.data || [];
   } catch (error) {
     console.error('Error fetching movies by genre:', error);
     throw error;
@@ -75,7 +75,7 @@ export const getMoviesByGenre = async (genreId) => {
 export const getMoviesByCountry = async (countryId) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/movies/country/${countryId}`);
-    return response.data;
+    return response.data?.data || response.data || [];
   } catch (error) {
     console.error('Error fetching movies by country:', error);
     throw error;

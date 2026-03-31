@@ -16,7 +16,7 @@ exports.createComment = (req, res) => {
   }
 
   const sql = `
-    INSERT INTO comments (user_id, movie_id, content, create_at)
+    INSERT INTO comments (user_id, movie_id, comment, created_at)
     VALUES (?, ?, ?, NOW())
   `;
 
@@ -42,13 +42,13 @@ exports.getCommentsByMovie = async (req, res) => {
         c.id,
         c.movie_id AS movieId,
         c.user_id AS userId,
-        c.content,
-        c.create_at AS createdAt,
+        c.comment AS content,
+        c.created_at AS createdAt,
         u.username
       FROM comments c
       JOIN users u ON c.user_id = u.id
       WHERE c.movie_id = ?
-      ORDER BY c.create_at DESC
+      ORDER BY c.created_at DESC
       LIMIT ? OFFSET ?
     `;
 
@@ -77,14 +77,14 @@ exports.getAllComments = async (req, res) => {
         c.id,
         c.movie_id AS movieId,
         c.user_id AS userId,
-        c.content,
-        c.create_at AS createdAt,
+        c.comment AS content,
+        c.created_at AS createdAt,
         u.username AS user,
         m.title AS movie
       FROM comments c
       JOIN users u ON c.user_id = u.id
       JOIN movies m ON c.movie_id = m.id
-      ORDER BY c.create_at DESC
+      ORDER BY c.created_at DESC
       LIMIT ? OFFSET ?
     `;
 

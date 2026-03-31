@@ -15,7 +15,8 @@ const getAuthHeaders = () => {
 export const getAllCountries = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/countrie`, getAuthHeaders());
-    return response.data;
+    const data = response.data;
+    return Array.isArray(data) ? data : data?.data || [];
   } catch (error) {
     console.error('Error fetching countries:', error);
     throw error;

@@ -53,8 +53,11 @@ export function useComments(movieId) {
         ? await getCommentsByMovie(movieId)
         : await getAllComments();
 
-      const data = response.data || {};
-      const rawComments = movieId ? data.comments || [] : data.comments || [];
+      const received = response.data || {};
+      const rawComments = Array.isArray(received)
+        ? received
+        : received.data || [];
+
       setComments(normalizeComments(rawComments));
     } catch (err) {
       console.error('Fetch comments failed', err);

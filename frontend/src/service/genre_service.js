@@ -15,7 +15,8 @@ const getAuthHeaders = () => {
 export const getAllGenres = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/genre`, getAuthHeaders());
-    return response.data;
+    const data = response.data;
+    return Array.isArray(data) ? data : data?.data || [];
   } catch (error) {
     console.error('Error fetching genres:', error);
     throw error;

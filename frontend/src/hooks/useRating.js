@@ -20,6 +20,7 @@ export function useRating(movieId) {
     try {
       const response = await getRatingsByMovie(movieId);
       const data = response.data || {};
+      // Handle both old { ratings: [], averageRating, ratingCount } and new { ratings: [], averageRating, ratingCount }
       setAverageRating(data.averageRating || 0);
       setRatingCount(data.ratingCount || 0);
     } catch (err) {

@@ -43,7 +43,7 @@ exports.getAllMovies = async (req, res) => {
     const [result] = await db.promise().query(sql, [limit, offset]);
     const transformedResult = result.map(movie => ({
       ...movie,
-      genre_ids: movie.genre_ids 
+      genre_ids: movie.genre_ids
         ? movie.genre_ids.split(',').map(id => parseInt(id))
         : []
     }));
@@ -316,8 +316,8 @@ exports.getMovieById = (req, res) => {
       c.name AS country,
       GROUP_CONCAT(g.name) AS genres,
       COUNT(DISTINCT f.user_id) AS likes,
-      IFNULL(ROUND(AVG(rt.value), 1), 0) AS average_rating,
-      COUNT(DISTINCT rt.id) AS review_count,
+      IFNULL(ROUND(AVG(rt.rating), 1), 0) AS average_rating,
+      COUNT(rt.movie_id) AS review_count,
       m.required_vip_level
     FROM movies m
     LEFT JOIN countries c ON m.country_id = c.id
@@ -529,23 +529,38 @@ exports.filterMovies = async (req, res) => {
     GROUP BY m.id
   `;
 
-  // ===== SORT =====
-  if (sort === "new") {
-    sql += " ORDER BY m.release_date DESC";
-  } else if (sort === "old") {
-    sql += " ORDER BY m.release_date ASC";
-  } else if (sort === "rating") {
-    sql += " ORDER BY m.rating DESC";
-  } else if (sort === "views") {
-    sql += " ORDER BY m.views DESC";
-  }
-
-  db.query(sql, params, (err, result) => {
-    if (err) {
-      console.error("SQL ERROR:", err);
-      return res.status(500).json(err);
+  db.query(countSql, params, (countErr, countResult) => {
+    if (countErr) {
+      console.error("COUNT SQL ERROR:", countErr);
+      return res.status(500).json(countErr);
     }
 
-    res.json(result);
+    const total = countResult[0]?.total || 0;
+
+    let pageSql = sql;
+    if (sort === "new") {
+      pageSql += " ORDER BY m.release_date DESC";
+    } else if (sort === "old") {
+      pageSql += " ORDER BY m.release_date ASC";
+    } else if (sort === "rating") {
+      pageSql += " ORDER BY m.rating DESC";
+    } else if (sort === "views") {
+      pageSql += " ORDER BY m.views DESC";
+    }
+
+    pageSql += " LIMIT ? OFFSET ?";
+    const pageParams = [...params, limit, offset];
+
+    db.query(pageSql, pageParams, (err, result) => {
+      if (err) {
+        console.error("SQL ERROR:", err);
+        return res.status(500).json(err);
+      }
+
+      res.json({
+        data: result,
+        pagination: buildPagination(page, limit, total)
+      });
+    });
   });
 };
