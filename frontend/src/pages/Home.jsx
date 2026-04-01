@@ -10,6 +10,8 @@ import { usePublicMovies } from '../hooks/usePublicMovies';
 const Home = () => {
   const { movies: dbMovies } = usePublicMovies();
   const [activeBackground, setActiveBackground] = useState(0);
+  const [showAll, setShowAll] = useState(false);
+
 
   // Transform backend data to frontend format
   const transformMovie = (movie) => ({
@@ -151,79 +153,137 @@ const Home = () => {
             <div class="h-15"></div>      
             {/* <div class="mt-5"></div>        */}
       <main className="relative z-20 -mt-24 space-y-32 pb-40">
-        {/* Global Movie Grids */}
-        
-        {[
-          { title: "Phim Nổi Bật", data: featuredMovies, variant: "default" },
-          { title: "Mới Cập Nhật", data: newUpdates, variant: "horizontal" },
-        ].map((section, idx) => (
-          <section key={idx} className="pl-8 md:pl-20">
-            <div className="flex justify-between items-end mb-12 pr-8 md:pr-20">
-              <div className="space-y-2">
-                <div className="flex items-center gap-3">
+        <AnimatePresence mode="wait">
+          {!showAll ? (
+            <motion.div
+              key="sections"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-32"
+            >
+              {[
+                { title: "Phim Nổi Bật", data: featuredMovies, variant: "default" },
+                { title: "Mới Cập Nhật", data: newUpdates, variant: "horizontal" },
+              ].map((section, idx) => (
+                <section key={idx} className="pl-8 md:pl-20">
+                  <div className="flex justify-between items-end mb-12 pr-8 md:pr-20">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-2 h-8 bg-primary rounded-full"></div>
+                        <h2 className="text-3xl font-black text-white uppercase tracking-tight">{section.title}</h2>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setShowAll(true);
+                        window.scrollTo({ top: 600, behavior: 'smooth' });
+                      }}
+                      className="text-[11px] font-black uppercase tracking-[0.2em] text-on-surface-variant hover:text-white transition-colors flex items-center gap-2"
+                    >
+                      Xem tất cả <ChevronRight className="w-4 h-4 text-primary" />
+                    </button>
+                  </div>
+                  <div className="flex gap-8 overflow-x-auto hide-scrollbar pb-10 snap-x">
+                    {section.data.map(movie => (
+                      <MovieCard key={movie.id} movie={movie} variant={section.variant} />
+                    ))}
+                  </div>
+                </section>
+              ))}
+
+              {/* Genres Grid */}
+              <section className="px-8 md:px-20">
+                <div className="flex items-center gap-3 mb-12">
                   <div className="w-2 h-8 bg-primary rounded-full"></div>
-                  <h2 className="text-3xl font-black text-white uppercase tracking-tight">{section.title}</h2>
+                  <h2 className="text-3xl font-black text-white uppercase tracking-tight">Khám Phá Thể Loại</h2>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
+                  {GENRES.map(genre => (
+                    <GenreCard key={genre.id} genre={genre} />
+                  ))}
+                </div>
+              </section>
+
+              {/* Top 10 Redesign */}
+              <section className="pl-8 md:pl-20">
+                <div className="flex items-center gap-5 mb-16">
+                  <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
+                    <Trophy className="w-6 h-6 text-primary" />
+                  </div>
+                  <h2 className="text-3xl font-black text-white uppercase tracking-tight leading-none">Top 10 Phim Hot Trong Tuần</h2>
+                </div>
+                <div className="flex gap-20 overflow-x-auto hide-scrollbar pb-12 snap-x px-4">
+                  {trendingMovies.slice(0, 10).map((movie, index) => (
+                    <Link key={movie.id} to={`/movie/${movie.id}`} className="shrink-0 flex items-end group cursor-pointer snap-start relative">
+                      <span className="text-[240px] font-black font-manrope leading-[0.7] text-transparent stroke-white/20 -mr-16 z-0 transition-all duration-700 group-hover:text-white/5 group-hover:stroke-primary/40 pointer-events-none italic" style={{ WebkitTextStroke: '2px rgba(255,255,255,0.08)' }}>
+                        {index + 1}
+                      </span>
+                      {movie.required_vip_level > 0 && (
+                        <div className="absolute top-4 left-10 z-30 px-2 py-1 bg-yellow-500 rounded-lg flex items-center gap-1 shadow-lg pointer-events-none">
+                          <Gem className="w-3 h-3 text-white" />
+                          <span className="text-[8px] font-black text-white uppercase tracking-widest">VIP</span>
+                        </div>
+                      )}
+                      <div className="w-56 h-80 rounded-4xl overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.6)] border border-white/5 relative z-10 group-hover:-translate-y-6 transition-all duration-700 ease-out group-hover:shadow-primary/20">
+                        <img src={movie.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={movie.title} referrerPolicy="no-referrer" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
+                          <div className="flex items-center gap-2 mb-2">
+                            {movie.required_vip_level > 0 ? <Gem className="w-3.5 h-3.5 text-yellow-500" /> : <Clock className="w-3.5 h-3.5 text-primary" />}
+                            <span className="text-[10px] font-black text-primary uppercase tracking-widest">{movie.tag}</span>
+                          </div>
+                          <h4 className="text-white font-black text-base uppercase leading-tight tracking-tight line-clamp-2">{movie.title}</h4>
+                        </div>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            </motion.div>
+          ) : (
+            <motion.div
+              key="all-movies"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="px-8 md:px-20 space-y-12"
+            >
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/5 pb-12">
+                <div className="flex items-center gap-4">
+                  <button 
+                    onClick={() => setShowAll(false)}
+                    className="p-3 bg-white/5 hover:bg-primary hover:text-white rounded-2xl transition-all group"
+                  >
+                    <ChevronRight className="w-6 h-6 rotate-180 group-hover:-translate-x-1 transition-transform" />
+                  </button>
+                  <div className="space-y-1">
+                    <h2 className="text-4xl font-black text-white uppercase tracking-tight">Tất Cả Phim</h2>
+                    <p className="text-xs font-bold text-on-surface-variant uppercase tracking-[0.2em] opacity-60">Khám phá {movies.length} bộ phim trong thư viện</p>
+                  </div>
                 </div>
               </div>
-              <Link to="/filter" className="text-[11px] font-black uppercase tracking-[0.2em] text-on-surface-variant hover:text-white transition-colors flex items-center gap-2">
-                Xem tất cả <ChevronRight className="w-4 h-4 text-primary" />
-              </Link>
-            </div>
-            <div className="flex gap-8 overflow-x-auto hide-scrollbar pb-10 snap-x">
-              {section.data.map(movie => (
-                <MovieCard key={movie.id} movie={movie} variant={section.variant} />
-              ))}
-            </div>
-          </section>
-        ))}
 
-        {/* Genres Grid */}
-        <section className="px-8 md:px-20">
-          <div className="flex items-center gap-3 mb-12">
-            <div className="w-2 h-8 bg-primary rounded-full"></div>
-            <h2 className="text-3xl font-black text-white uppercase tracking-tight">Khám Phá Thể Loại</h2>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
-            {GENRES.map(genre => (
-              <GenreCard key={genre.id} genre={genre} />
-            ))}
-          </div>
-        </section>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-12 gap-x-6 justify-items-center">
+                {movies.map(movie => (
+                  <MovieCard key={movie.id} movie={movie} variant="compact" />
+                ))}
+              </div>
 
-        {/* Top 10 Redesign */}
-        <section className="pl-8 md:pl-20">
-          <div className="flex items-center gap-5 mb-16">
-            <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
-              <Trophy className="w-6 h-6 text-primary" />
-            </div>
-            <h2 className="text-3xl font-black text-white uppercase tracking-tight leading-none">Top 10 Phim Hot Trong Tuần</h2>
-          </div>
-          <div className="flex gap-20 overflow-x-auto hide-scrollbar pb-12 snap-x px-4">
-            {trendingMovies.slice(0, 10).map((movie, index) => (
-              <Link key={movie.id} to={`/movie/${movie.id}`} className="shrink-0 flex items-end group cursor-pointer snap-start relative">
-                <span className="text-[240px] font-black font-manrope leading-[0.7] text-transparent stroke-white/20 -mr-16 z-0 transition-all duration-700 group-hover:text-white/5 group-hover:stroke-primary/40 pointer-events-none italic" style={{ WebkitTextStroke: '2px rgba(255,255,255,0.08)' }}>
-                  {index + 1}
-                </span>
-                {movie.required_vip_level > 0 && (
-                  <div className="absolute top-4 left-10 z-30 px-2 py-1 bg-yellow-500 rounded-lg flex items-center gap-1 shadow-lg pointer-events-none">
-                    <Gem className="w-3 h-3 text-white" />
-                    <span className="text-[8px] font-black text-white uppercase tracking-widest">VIP</span>
-                  </div>
-                )}
-                <div className="w-56 h-80 rounded-4xl overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.6)] border border-white/5 relative z-10 group-hover:-translate-y-6 transition-all duration-700 ease-out group-hover:shadow-primary/20">
-                  <img src={movie.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={movie.title} referrerPolicy="no-referrer" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
-                    <div className="flex items-center gap-2 mb-2">
-                      {movie.required_vip_level > 0 ? <Gem className="w-3.5 h-3.5 text-yellow-500" /> : <Clock className="w-3.5 h-3.5 text-primary" />}
-                      <span className="text-[10px] font-black text-primary uppercase tracking-widest">{movie.tag}</span>
-                    </div>
-                    <h4 className="text-white font-black text-base uppercase leading-tight tracking-tight line-clamp-2">{movie.title}</h4>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+              <div className="flex justify-center pt-20">
+                <button 
+                  onClick={() => {
+                    setShowAll(false);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
+                  className="btn-secondary px-12 py-4 bg-white/5 hover:bg-white/10 uppercase tracking-widest text-xs"
+                >
+                  Quay lại trang chủ
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
 
         {/* VIP Section Call-to-action */}
         <section className="px-8 md:px-20 pb-20">

@@ -53,7 +53,10 @@ const Login = () => {
       email: user.email,
       role_id: user.role_id,
       role: user.role_id === 1 ? 'admin' : 'user',
+      is_vip: !!user.is_vip,
+      vip_expired_at: user.vip_expired_at,
     };
+
 
     // ✅ lưu vào context và chọn storage dựa trên remember
     login(token, mappedUser, remember);

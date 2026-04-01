@@ -12,6 +12,8 @@ export const useUsers = () => {
   const [pagination, setPagination] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
+  const [filter, setFilter] = useState("all");
+
 
   // delete flow
   const [selectedUser, setSelectedUser] = useState(null);
@@ -40,7 +42,9 @@ export const useUsers = () => {
           page: page,
           limit: 10,
           search: searchTerm,
+          filter: filter,
         }
+
       });
 
       const usersData = Array.isArray(res.data)
@@ -48,16 +52,21 @@ export const useUsers = () => {
         : res.data?.data || [];
 
       // map BE → UI
-      const mapped = usersData.map((u) => ({
-        id: u.id,
-        name: u.username,
-        email: u.email,
-        role: u.role_name === "Admin" ? "Admin" : "User",
-        tier: u.is_vip ? "VIP" : "Regular",
-        avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
-          u.username
-        )}&background=random`,
-      }));
+      const mapped = usersData.map((u) => {
+        const isActive = !!u.is_vip && (!u.vip_expired_at || new Date(u.vip_expired_at) > new Date());
+        return {
+          id: u.id,
+          name: u.username,
+          email: u.email,
+          role: u.role_name === "Admin" ? "Admin" : "User",
+          tier: isActive ? "VIP" : "Regular",
+          vip_expired_at: u.vip_expired_at,
+          avatar: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+            u.username
+          )}&background=random`,
+        };
+      });
+
 
       setUsers(mapped);
       setPagination(res.data?.pagination || null);
@@ -73,7 +82,8 @@ export const useUsers = () => {
   // Reset page when search term changes
   useEffect(() => {
     setPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, filter]);
+
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -81,7 +91,8 @@ export const useUsers = () => {
     }, searchTerm ? 500 : 0);
 
     return () => clearTimeout(handler);
-  }, [page, searchTerm]);
+  }, [page, searchTerm, filter]);
+
 
   /* ================= CHANGE ROLE ================= */
   const handleRoleChange = async (userId, newRole) => {
@@ -217,5 +228,8 @@ export const useUsers = () => {
     isDeleteSuccessModalOpen,
     closeDeleteSuccessModal,
     deletedUserName,
+
+    filter,
+    setFilter,
   };
 };

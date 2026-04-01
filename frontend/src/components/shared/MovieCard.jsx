@@ -54,10 +54,10 @@ const MovieCard = ({ movie, variant = 'vertical' }) => {
 
   return (
   <Link to={`/movie/${movie.id}`}>
-    <div className={`group cursor-pointer flex-none w-48 md:w-64 snap-start relative`}>
+    <div className={`group cursor-pointer flex-none ${variant === 'compact' ? 'w-32 md:w-44' : 'w-48 md:w-64'} snap-start relative`}>
       {isVip && (
-        <div className="absolute top-3 left-3 z-20 px-2 py-1 rounded bg-yellow-500/90 text-[10px] font-black text-white backdrop-blur-md flex items-center gap-1 pointer-events-none">
-          <Gem className="w-3 h-3" />
+        <div className={`absolute ${variant === 'compact' ? 'top-2 left-2' : 'top-3 left-3'} z-20 px-2 py-1 rounded bg-yellow-500/90 text-[10px] font-black text-white backdrop-blur-md flex items-center gap-1 pointer-events-none`}>
+          <Gem className={`${variant === 'compact' ? 'w-2.5 h-2.5' : 'w-3 h-3'}`} />
           VIP
         </div>
       )}
@@ -65,7 +65,7 @@ const MovieCard = ({ movie, variant = 'vertical' }) => {
         whileHover={{ y: -12, scale: 1.05 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
-      <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-4 border border-white/5 bg-surface-container-low shadow-xl transition-shadow group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+      <div className={`relative aspect-[2/3] rounded-2xl overflow-hidden ${variant === 'compact' ? 'mb-2' : 'mb-4'} border border-white/5 bg-surface-container-low shadow-xl transition-shadow group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]`}>
         
         <img 
           src={movie.image} 
@@ -76,36 +76,29 @@ const MovieCard = ({ movie, variant = 'vertical' }) => {
 
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
-          {/* {movie.rating && (
-            <div className="flex items-center gap-2 mb-3">
-              <div className="w-8 h-8 rounded-full bg-primary/20 backdrop-blur-md flex items-center justify-center border border-primary/20">
-                <Star className="text-primary w-4 h-4 fill-primary" />
-              </div>
-              <span className="text-white text-lg font-black">{movie.rating}</span>
-            </div>
-          )} */}
-          <div className="w-full py-2.5 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-center">
+          <div className={`w-full ${variant === 'compact' ? 'py-1.5' : 'py-2.5'} bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-center`}>
             Chi tiết
           </div>
         </div>
 
         {movie.quality && (
-          <div className="absolute top-3 right-3 px-2 py-1 rounded bg-black/40 text-[10px] font-black text-white backdrop-blur-md">
+          <div className={`absolute ${variant === 'compact' ? 'top-2 right-2' : 'top-3 right-3'} px-2 py-1 rounded bg-black/40 text-[10px] font-black text-white backdrop-blur-md`}>
             {movie.quality}
           </div>
         )}
       </div>
 
       <div className="px-1">
-        <h3 className="font-bold text-on-surface group-hover:text-primary text-base md:text-lg line-clamp-1">
+        <h3 className={`font-bold text-on-surface group-hover:text-primary ${variant === 'compact' ? 'text-xs md:text-sm' : 'text-base md:text-lg'} line-clamp-1`}>
           {movie.title}
         </h3>
-        <div className="flex items-center gap-2 mt-1.5 opacity-60">
-          <span className="text-xs font-bold text-on-surface-variant">{movie.year}</span>
+        <div className={`flex items-center gap-2 ${variant === 'compact' ? 'mt-0.5' : 'mt-1.5'} opacity-60`}>
+          <span className="text-[10px] md:text-xs font-bold text-on-surface-variant">{movie.year}</span>
         </div>
       </div>
       </motion.div>
     </div>
+
   </Link>
 );
 };

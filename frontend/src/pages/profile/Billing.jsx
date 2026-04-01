@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../../hooks/useAuth';
 import { cancelVip } from '../../service/vip_service';
+import { isVipActive } from '../../utils/vip';
+
 
 const Billing = () => {
   const { user, token, refreshProfile } = useAuth();
@@ -91,7 +93,8 @@ const Billing = () => {
             className="relative rounded-[3.5rem] p-12 text-white overflow-hidden shadow-2xl min-h-[350px] flex flex-col md:flex-row justify-between items-center group shadow-primary/20"
           >
             {/* Background Layer with Premium Gradient */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${user?.is_vip ? 'from-purple-900 via-indigo-950 to-black' : 'from-primary via-primary-container to-black'} -z-10 transition-transform duration-700 group-hover:scale-110`}></div>
+            <div className={`absolute inset-0 bg-gradient-to-br ${isVipActive(user) ? 'from-purple-900 via-indigo-950 to-black' : 'from-primary via-primary-container to-black'} -z-10 transition-transform duration-700 group-hover:scale-110`}></div>
+
             <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.1)_0%,transparent_70%)] -z-10"></div>
             
             <div className="relative z-10 space-y-8 text-center md:text-left">
@@ -99,11 +102,13 @@ const Billing = () => {
                 <motion.div 
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className={`inline-block px-5 py-2 ${user?.is_vip ? 'bg-amber-400/20 text-amber-400 border-amber-400/30' : 'bg-white/10 text-white/80 border-white/10'} backdrop-blur-xl rounded-2xl text-[10px] font-black uppercase tracking-[0.4em] border`}
+                  className={`inline-block px-5 py-2 ${isVipActive(user) ? 'bg-amber-400/20 text-amber-400 border-amber-400/30' : 'bg-white/10 text-white/80 border-white/10'} backdrop-blur-xl rounded-2xl text-[10px] font-black uppercase tracking-[0.4em] border`}
                 >
-                  {user?.is_vip ? '⭐ Current Premium VIP' : 'Recommended Premium Plan'}
+                  {isVipActive(user) ? '⭐ Current Premium VIP' : 'Recommended Premium Plan'}
+
                 </motion.div>
-                <h3 className={`text-6xl md:text-7xl font-black italic truncate uppercase tracking-tighter leading-none ${user?.is_vip ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 animate-pulse-slow' : 'text-white'}`}>
+                <h3 className={`text-6xl md:text-7xl font-black italic truncate uppercase tracking-tighter leading-none ${isVipActive(user) ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 animate-pulse-slow' : 'text-white'}`}>
+
                   {vipPlan ? vipPlan.title : 'Loading...'}
                 </h3>
                 <div className="flex flex-wrap justify-center md:justify-start gap-6 pt-2">
@@ -124,7 +129,8 @@ const Billing = () => {
                       <span className="text-sm font-medium not-italic opacity-40"> / Tháng</span>
                    </p>
                 </div>
-                {user?.is_vip && user?.vip_expired_at && (
+                {isVipActive(user) && user?.vip_expired_at && (
+
                   <>
                     <div className="w-px h-12 bg-white/10 hidden md:block"></div>
                     <div className="space-y-1">
@@ -139,7 +145,8 @@ const Billing = () => {
             </div>
 
             <div className="relative z-10 flex flex-col gap-4 w-full md:w-auto mt-12 md:mt-0">
-               {user?.is_vip ? (
+               {isVipActive(user) ? (
+
                  <>
                    <div className="w-full md:w-64 py-6 rounded-[1.5rem] bg-green-500/20 text-green-400 border border-green-500/50 font-black uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-3 cursor-default shadow-[0_10px_30px_rgba(34,197,94,0.15)]">
                       <CheckCircle2 className="w-5 h-5" /> Kích Hoạt Thành Công
@@ -158,7 +165,8 @@ const Billing = () => {
                 )}
              </div>
              
-             <Zap className={`absolute -bottom-12 -left-12 w-64 h-64 ${user?.is_vip ? 'text-amber-400/10' : 'text-white/5'} -rotate-12 group-hover:scale-110 transition-transform duration-1000`} />
+              <Zap className={`absolute -bottom-12 -left-12 w-64 h-64 ${isVipActive(user) ? 'text-amber-400/10' : 'text-white/5'} -rotate-12 group-hover:scale-110 transition-transform duration-1000`} />
+
            </motion.div>
          </div>
 

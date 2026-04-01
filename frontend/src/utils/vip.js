@@ -32,6 +32,24 @@ export const getVipInfo = (user) => {
 };
 
 export const isVipActive = (user) => {
-  if (!user?.vip?.expiresAt) return false;
-  return new Date(user.vip.expiresAt) > new Date();
+  if (!user) return false;
+  
+  // Support both backend fields and potentially nested ones
+  const isVip = !!(user.is_vip || user.vip?.isActive);
+  const expirationDate = user.vip_expired_at || user.vip?.expiresAt;
+  
+  if (!isVip) return false;
+  if (!expirationDate) return true; // If is_vip is true but no expiration, assume permanent (e.g. lifetime or handled by backend)
+
+  return new Date(expirationDate) > new Date();
 };
+
+export const canWatchMovie = (user, movie) => {
+  if (!movie) return false;
+  if (!movie.required_vip_level || movie.required_vip_level === 0) return true;
+  
+  const isAdmin = user && (user.role === 'admin' || user.role_id === 1);
+  if (isAdmin) return true;
+  
+  return isVipActive(user);
+};

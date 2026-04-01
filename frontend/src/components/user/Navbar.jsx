@@ -4,6 +4,8 @@ import { Search, Bell, X, History, Clock, TrendingUp, Star, Menu } from 'lucide-
 import { motion, AnimatePresence } from 'motion/react';
 import { searchMovies } from '../../service/movie_service';
 import { useAuth } from '../../hooks/useAuth';
+import { isVipActive } from '../../utils/vip';
+
 
 const Navbar = () => {
   const { user } = useAuth();
@@ -320,7 +322,10 @@ const Navbar = () => {
                     </div>
                     <div className="hidden md:block overflow-hidden">
                       <p className="text-[10px] md:text-xs font-black text-white group-hover:text-primary transition-colors uppercase tracking-widest truncate">{user?.name || "Người dùng"}</p>
-                      <p className="text-[8px] md:text-[9px] font-black text-primary uppercase tracking-[0.2em] opacity-80">{user?.vipStatus || "STANDARD"}</p>
+                      <p className="text-[8px] md:text-[9px] font-black text-primary uppercase tracking-[0.2em] opacity-80">
+                        {isVipActive(user) ? "VIP MEMBER" : "STANDARD"}
+                      </p>
+
                     </div>
                   </Link>
                 </>

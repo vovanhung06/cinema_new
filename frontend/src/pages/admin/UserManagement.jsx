@@ -43,7 +43,10 @@ export default function UserManagement() {
     page,
     setPage,
     pagination,
+    filter,
+    setFilter,
   } = useUsers();
+
 
   const totalUsers = pagination?.total || 0;
   const totalVip = pagination?.totalVip || 0;
@@ -79,10 +82,35 @@ export default function UserManagement() {
       <div className="bg-surface-container-low rounded-2xl overflow-hidden border border-outline-variant/10">
         <div className="p-6 border-b border-surface-container-high flex items-center justify-between">
           <div className="flex gap-4">
-            <button className="text-sm font-bold text-primary-container border-b-2 border-primary-container pb-1">Tất cả</button>
-            <button className="text-sm font-bold text-on-surface-variant hover:text-on-surface transition-colors">Quản trị viên</button>
-            <button className="text-sm font-bold text-on-surface-variant hover:text-on-surface transition-colors">VIP Members</button>
+            <button 
+              onClick={() => setFilter('all')}
+              className={cn(
+                "text-sm font-bold transition-all pb-1 border-b-2",
+                filter === 'all' ? "text-primary-container border-primary-container" : "text-on-surface-variant hover:text-on-surface border-transparent"
+              )}
+            >
+              Tất cả
+            </button>
+            <button 
+              onClick={() => setFilter('admin')}
+              className={cn(
+                "text-sm font-bold transition-all pb-1 border-b-2",
+                filter === 'admin' ? "text-primary-container border-primary-container" : "text-on-surface-variant hover:text-on-surface border-transparent"
+              )}
+            >
+              Quản trị viên
+            </button>
+            <button 
+              onClick={() => setFilter('vip')}
+              className={cn(
+                "text-sm font-bold transition-all pb-1 border-b-2",
+                filter === 'vip' ? "text-primary-container border-primary-container" : "text-on-surface-variant hover:text-on-surface border-transparent"
+              )}
+            >
+              VIP Members
+            </button>
           </div>
+
           <div className="flex items-center gap-2 bg-surface-container px-3 py-1.5 rounded-lg border border-outline-variant/10">
             <Search className="w-4 h-4 text-on-surface-variant" />
             <input

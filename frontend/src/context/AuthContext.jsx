@@ -83,8 +83,10 @@ export const AuthProvider = ({ children }) => {
               ? 'admin'
               : 'user',
           is_vip: !!res.data.is_vip,
+          vip_expired_at: res.data.vip_expired_at,
           vipStatus: res.data.is_vip ? "VIP MEMBER" : "STANDARD",
         };
+
 
         setUser(userData);
 
@@ -115,6 +117,7 @@ export const AuthProvider = ({ children }) => {
         name: res.data.username,
         role_id: res.data.role_id,
         is_vip: !!res.data.is_vip,
+        vip_expired_at: res.data.vip_expired_at,
         vipStatus: res.data.is_vip ? "VIP MEMBER" : "STANDARD",
         role:
           typeof roleName === "string"
@@ -125,6 +128,7 @@ export const AuthProvider = ({ children }) => {
             ? "admin"
             : "user",
       };
+
 
       setUser(userData);
       if (localStorage.getItem("token")) {
@@ -148,6 +152,8 @@ export const AuthProvider = ({ children }) => {
         ...res.data,
         name: res.data.username,
         role_id: res.data.role_id,
+        is_vip: !!res.data.is_vip,
+        vip_expired_at: res.data.vip_expired_at,
         role:
           typeof roleName === 'string'
             ? roleName.toLowerCase() === 'admin'
@@ -157,6 +163,7 @@ export const AuthProvider = ({ children }) => {
             ? 'admin'
             : 'user',
       };
+
 
       setUser(userData);
 

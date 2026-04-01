@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import PlyrPlayer from '../components/PlyrPlayer';
+
 import { useMovieDetail } from '../hooks/useMovieDetail';
 import { useAuth } from '../hooks/useAuth';
 import Plyr from 'plyr';
@@ -30,6 +30,8 @@ import { useRating } from '../hooks/useRating';
 import CommentSection from '../components/shared/CommentSection';
 import CommentForm from '../components/shared/CommentForm';
 import StarRating from '../components/shared/StarRating';
+import { canWatchMovie } from '../utils/vip';
+
 
 const Watch = () => {
   const { id } = useParams();
@@ -162,12 +164,8 @@ const Watch = () => {
     }, 3000);
   };
 
-  const isVipMovie = movie?.required_vip_level > 0;
-  // Check if user is VIP and not expired
-  const isUserVip = user && user.is_vip === 1;
-  const isVipValid = isUserVip && (!user.vip_expired_at || new Date(user.vip_expired_at) > new Date());
-  const isAdmin = user && user.role_id === 1;
-  const canWatch = !isVipMovie || isVipValid || isAdmin;
+  const canWatch = canWatchMovie(user, movie);
+
   if (isLoading || !movie) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center">

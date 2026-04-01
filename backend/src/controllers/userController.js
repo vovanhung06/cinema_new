@@ -198,6 +198,8 @@ exports.getAllUsers = async (req, res) => {
 
   const { page, limit, offset } = parsePagination(req);
   const search = req.query.search || "";
+  const filter = req.query.filter || "all";
+
 
   try {
     // 1️⃣ Count total users (with search if provided)
@@ -207,6 +209,13 @@ exports.getAllUsers = async (req, res) => {
       countSql += ` AND (username LIKE ? OR email LIKE ?)`;
       countParams.push(`%${search}%`, `%${search}%`);
     }
+
+    if (filter === "admin") {
+      countSql += ` AND role_id = 1`;
+    } else if (filter === "vip") {
+      countSql += ` AND is_vip = 1`;
+    }
+
     const [countRows] = await db.promise().query(countSql, countParams);
     const total = countRows[0]?.total || 0;
 
@@ -234,6 +243,13 @@ exports.getAllUsers = async (req, res) => {
       sql += ` AND (users.username LIKE ? OR users.email LIKE ?)`;
       params.push(`%${search}%`, `%${search}%`);
     }
+
+    if (filter === "admin") {
+      sql += ` AND users.role_id = 1`;
+    } else if (filter === "vip") {
+      sql += ` AND users.is_vip = 1`;
+    }
+
     sql += ` ORDER BY users.id ASC LIMIT ? OFFSET ?`;
     params.push(limit, offset);
 
