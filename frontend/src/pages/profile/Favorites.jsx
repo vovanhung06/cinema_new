@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Star, X, Play, Heart, Film } from 'lucide-react';
+import { Star, X, Play, Heart, Film, Gem } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
@@ -25,11 +25,12 @@ const Favorites = () => {
 
     try {
       const response = await getFavorites();
-      const data = Array.isArray(response.data)
-        ? response.data
-        : Array.isArray(response.data?.data)
-        ? response.data.data
-        : [];
+      // Xử lý linh hoạt mọi cấu trúc dữ liệu trả về từ API
+      let data = [];
+      if (Array.isArray(response)) data = response;
+      else if (Array.isArray(response?.data)) data = response.data;
+      else if (Array.isArray(response?.data?.data)) data = response.data.data;
+
       setFavorites(data);
     } catch (error) {
       console.error('Load favorites failed', error);
@@ -125,6 +126,13 @@ const Favorites = () => {
                 whileHover={{ y: -10 }}
                 className="relative group aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border border-white/5 bg-surface-container-low"
               >
+                {movie.required_vip_level > 0 && (
+                   <div className="absolute top-6 left-6 px-3 py-1 bg-yellow-500 rounded-xl flex items-center gap-1 border border-white/10 z-20 shadow-xl pointer-events-none">
+                      <Gem className="w-3 h-3 text-white" />
+                      <span className="text-[8px] font-black text-white uppercase tracking-widest">VIP</span>
+                   </div>
+                )}
+
                 <img
                   src={movie.avatar_url || movie.background_url || movie.img || 'https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=400'}
                   className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110 brightness-105"

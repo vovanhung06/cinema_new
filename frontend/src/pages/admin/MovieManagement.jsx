@@ -14,7 +14,8 @@ import {
   Upload,
   ChevronDown,
   Globe,
-  Tag
+  Tag,
+  Gem
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils.js';
@@ -110,6 +111,7 @@ export default function MovieManagement() {
                 <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Phim & Thông tin</th>
                 <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Thể loại</th>
                 <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Ngày phát hành</th>
+                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant text-center">VIP</th>
                 <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant text-right">Thao tác</th>
               </tr>
             </thead>
@@ -165,6 +167,17 @@ export default function MovieManagement() {
                     <div className="flex items-center gap-2 text-xs font-bold text-on-surface-variant">
                       <Calendar className="w-3 h-3" />
                       {movie.release_date ? new Date(movie.release_date).toLocaleDateString('vi-VN') : '-'}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">
+                    <div className="flex justify-center">
+                      {movie.required_vip_level > 0 ? (
+                        <div className="w-8 h-8 rounded-lg bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.1)]" title={`Yêu cầu VIP Level: ${movie.required_vip_level}`}>
+                          <Gem className="w-4 h-4" />
+                        </div>
+                      ) : (
+                        <span className="text-on-surface-variant/20">—</span>
+                      )}
                     </div>
                   </td>
                   <td className="px-6 py-4">

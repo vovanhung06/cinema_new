@@ -25,9 +25,8 @@ app.use(cors({
 
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-
-// routes
+app.use('/api/hls', express.static(path.join(__dirname, 'uploads/encoded')));
+app.use('/encoded', express.static(path.join(__dirname, 'uploads/encoded')));  // Fallback para kompatibilidad
 app.use("/api/users", userRouter);
 app.use("/api/users", favoriteRouter);
 app.use("/api/movies", movieRouter);

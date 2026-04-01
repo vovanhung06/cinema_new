@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { 
-  Play, Star, ArrowLeft, Heart, MessageSquare, Share2, Clock, Plus, Info, X
+  Play, Star, ArrowLeft, Heart, MessageSquare, Share2, Clock, Plus, Info, X, Gem
 } from 'lucide-react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
@@ -171,7 +171,7 @@ const MovieDetail = () => {
               transition={{ delay: 0.2 }}
               className="space-y-4"
             >
-              <div className="flex items-center gap-3">
+              {/* <div className="flex items-center gap-3">
                 <span className="px-3 py-1 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-lg shadow-lg shadow-primary/20">
                   {movie.quality || '4K ULTRA HD'}
                 </span>
@@ -179,7 +179,19 @@ const MovieDetail = () => {
                   <Star className="w-3.5 h-3.5 text-primary fill-primary" />
                   <span className="text-sm font-black text-white tracking-tighter">{movie.rating ?? '0.0'}</span>
                 </div>
-              </div>
+              </div> */}
+
+              {movie.required_vip_level > 0 && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-500/10 border border-yellow-500/20 rounded-xl text-yellow-500 shadow-[0_0_20px_rgba(234,179,8,0.15)]"
+                >
+                  <Gem className="w-4 h-4" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.2em]">Nội dung đặc quyền VIP</span>
+                </motion.div>
+              )}
+
               <h1 className="text-5xl lg:text-7xl font-black font-manrope tracking-tighter text-white uppercase leading-[0.9] text-glow">
                 {movie.title}
               </h1>

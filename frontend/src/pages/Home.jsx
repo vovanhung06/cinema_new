@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Info, ChevronRight, PlayCircle, Star, Clock, Trophy } from 'lucide-react';
+import { Play, Info, ChevronRight, PlayCircle, Star, Clock, Trophy, Gem } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { GENRES } from '../constants';
@@ -21,6 +21,7 @@ const Home = () => {
     rating: parseFloat(movie.rating) || 0,
     year: movie.release_date ? new Date(movie.release_date).getFullYear() : 2024,
     genre: movie.genres ? movie.genres.split(',')[0].trim() : 'Phim',
+    required_vip_level: movie.required_vip_level,
     tag: movie.required_vip_level > 0 ? 'VIP' : 'Miễn phí',
   });
 
@@ -88,10 +89,10 @@ const Home = () => {
               <span className="px-3 py-1 bg-primary text-white text-[10px] font-black tracking-[0.2em] uppercase rounded-lg shadow-lg shadow-primary/20">
                 #1 Phổ biến tuần này
               </span>
-              <div className="flex items-center gap-2 glass px-3 py-1 rounded-lg">
+              {/* <div className="flex items-center gap-2 glass px-3 py-1 rounded-lg">
                 <Star className="w-3.5 h-3.5 text-primary fill-primary" />
                 <span className="text-sm font-black text-white">{backgroundMovie.rating ?? '0.0'}</span>
-              </div>
+              </div> */}
               <span className="text-on-surface-variant text-xs font-black uppercase tracking-[0.2em] opacity-60">
                 {backgroundMovie.year} • {backgroundMovie.genre || 'HÀNH ĐỘNG'}
               </span>
@@ -147,9 +148,11 @@ const Home = () => {
           </div>
         </div>
       </section>
-
+            <div class="h-15"></div>      
+            {/* <div class="mt-5"></div>        */}
       <main className="relative z-20 -mt-24 space-y-32 pb-40">
         {/* Global Movie Grids */}
+        
         {[
           { title: "Phim Nổi Bật", data: featuredMovies, variant: "default" },
           { title: "Mới Cập Nhật", data: newUpdates, variant: "horizontal" },
@@ -201,11 +204,17 @@ const Home = () => {
                 <span className="text-[240px] font-black font-manrope leading-[0.7] text-transparent stroke-white/20 -mr-16 z-0 transition-all duration-700 group-hover:text-white/5 group-hover:stroke-primary/40 pointer-events-none italic" style={{ WebkitTextStroke: '2px rgba(255,255,255,0.08)' }}>
                   {index + 1}
                 </span>
+                {movie.required_vip_level > 0 && (
+                  <div className="absolute top-4 left-10 z-30 px-2 py-1 bg-yellow-500 rounded-lg flex items-center gap-1 shadow-lg pointer-events-none">
+                    <Gem className="w-3 h-3 text-white" />
+                    <span className="text-[8px] font-black text-white uppercase tracking-widest">VIP</span>
+                  </div>
+                )}
                 <div className="w-56 h-80 rounded-4xl overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.6)] border border-white/5 relative z-10 group-hover:-translate-y-6 transition-all duration-700 ease-out group-hover:shadow-primary/20">
                   <img src={movie.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={movie.title} referrerPolicy="no-referrer" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
                     <div className="flex items-center gap-2 mb-2">
-                      <Clock className="w-3.5 h-3.5 text-primary" />
+                      {movie.required_vip_level > 0 ? <Gem className="w-3.5 h-3.5 text-yellow-500" /> : <Clock className="w-3.5 h-3.5 text-primary" />}
                       <span className="text-[10px] font-black text-primary uppercase tracking-widest">{movie.tag}</span>
                     </div>
                     <h4 className="text-white font-black text-base uppercase leading-tight tracking-tight line-clamp-2">{movie.title}</h4>

@@ -1,17 +1,24 @@
 import React from 'react';
-import { Star } from 'lucide-react';
+import { Star, Gem } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 
 const MovieCard = ({ movie, variant = 'vertical' }) => {
+  const isVip = movie.required_vip_level > 0 || movie.tag === 'VIP';
+
   if (variant === 'horizontal') {
     return (
       <Link to={`/movie/${movie.id}`}>
-        <motion.div 
-          whileHover={{ scale: 1.02 }}
-          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="flex-none w-72 md:w-[450px] snap-start group cursor-pointer"
-        >
+        <div className="flex-none w-72 md:w-[450px] snap-start group cursor-pointer relative">
+          {isVip && (
+            <div className="absolute top-4 left-4 z-20 bg-yellow-500 px-3 py-1 rounded-full text-[10px] font-bold text-white uppercase tracking-widest shadow-lg flex items-center gap-1">
+              <Gem className="w-3 h-3" /> VIP
+            </div>
+          )}
+          <motion.div 
+            whileHover={{ scale: 1.02 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          >
           <div className="relative aspect-video rounded-2xl overflow-hidden mb-4 border border-white/5 bg-surface-container-low shadow-2xl">
             <img 
               src={movie.image} 
@@ -22,7 +29,7 @@ const MovieCard = ({ movie, variant = 'vertical' }) => {
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-30 transition-opacity"></div>
             
             {movie.isNew && (
-              <div className="absolute top-4 left-4 bg-primary px-3 py-1 rounded-full text-[10px] font-bold text-white uppercase tracking-widest shadow-lg shadow-primary/20">
+              <div className={`absolute ${isVip ? 'top-12' : 'top-4'} left-4 bg-primary px-3 py-1 rounded-full text-[10px] font-bold text-white uppercase tracking-widest shadow-lg shadow-primary/20`}>
                 Mới nhất
               </div>
             )}
@@ -39,18 +46,25 @@ const MovieCard = ({ movie, variant = 'vertical' }) => {
             </h3>
             <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mt-1 opacity-60">{movie.tag}</p>
           </div>
-        </motion.div>
+          </motion.div>
+        </div>
       </Link>
     );
   }
 
   return (
   <Link to={`/movie/${movie.id}`}>
-    <motion.div 
-      whileHover={{ y: -12, scale: 1.05 }}
-      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      className={`group cursor-pointer flex-none w-48 md:w-64 snap-start`}
-    >
+    <div className={`group cursor-pointer flex-none w-48 md:w-64 snap-start relative`}>
+      {isVip && (
+        <div className="absolute top-3 left-3 z-20 px-2 py-1 rounded bg-yellow-500/90 text-[10px] font-black text-white backdrop-blur-md flex items-center gap-1 pointer-events-none">
+          <Gem className="w-3 h-3" />
+          VIP
+        </div>
+      )}
+      <motion.div 
+        whileHover={{ y: -12, scale: 1.05 }}
+        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      >
       <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-4 border border-white/5 bg-surface-container-low shadow-xl transition-shadow group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
         
         <img 
@@ -62,14 +76,14 @@ const MovieCard = ({ movie, variant = 'vertical' }) => {
 
         {/* Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
-          {movie.rating && (
+          {/* {movie.rating && (
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 rounded-full bg-primary/20 backdrop-blur-md flex items-center justify-center border border-primary/20">
                 <Star className="text-primary w-4 h-4 fill-primary" />
               </div>
               <span className="text-white text-lg font-black">{movie.rating}</span>
             </div>
-          )}
+          )} */}
           <div className="w-full py-2.5 bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-center">
             Chi tiết
           </div>
@@ -90,7 +104,8 @@ const MovieCard = ({ movie, variant = 'vertical' }) => {
           <span className="text-xs font-bold text-on-surface-variant">{movie.year}</span>
         </div>
       </div>
-    </motion.div>
+      </motion.div>
+    </div>
   </Link>
 );
 };
