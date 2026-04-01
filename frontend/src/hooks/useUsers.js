@@ -8,6 +8,8 @@ export const useUsers = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState(null);
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -34,6 +36,11 @@ export const useUsers = () => {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+        params: {
+          page: page,
+          limit: 10,
+          search: searchTerm,
+        }
       });
 
       const usersData = Array.isArray(res.data)
@@ -53,26 +60,28 @@ export const useUsers = () => {
       }));
 
       setUsers(mapped);
+      setPagination(res.data?.pagination || null);
     } catch (err) {
       console.error("FETCH USERS ERROR:", err);
-
-      setError(
-        err.response?.data?.message ||
-        err.message ||
-        "Lỗi tải danh sách user"
-      );
+      setError(err.response?.data?.message || err.message || "Lỗi tải danh sách user");
     } finally {
       setLoading(false);
     }
   };
 
-  /* ================= FILTER ================= */
-  const filteredUsers = useMemo(() => {
-    return users.filter((u) =>
-      u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      u.email.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [users, searchTerm]);
+  /* ================= INIT & SEARCH ================= */
+  // Reset page when search term changes
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      fetchUsers();
+    }, searchTerm ? 500 : 0);
+
+    return () => clearTimeout(handler);
+  }, [page, searchTerm]);
 
   /* ================= CHANGE ROLE ================= */
   const handleRoleChange = async (userId, newRole) => {
@@ -180,16 +189,15 @@ export const useUsers = () => {
     setIsDeleteSuccessModalOpen(false);
     setDeletedUserName("");
   };
-  /* ================= INIT ================= */
-  useEffect(() => {
-    fetchUsers();
-  }, []);
 
   /* ================= RETURN ================= */
   return {
-    users: filteredUsers,
+    users,
     loading,
     error,
+    page,
+    setPage,
+    pagination,
 
     searchTerm,
     setSearchTerm,

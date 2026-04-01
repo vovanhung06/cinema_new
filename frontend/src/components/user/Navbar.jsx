@@ -88,7 +88,8 @@ const Navbar = () => {
     const timer = setTimeout(async () => {
       setIsSearching(true);
       try {
-        const movies = await searchMovies(searchQuery);
+        const response = await searchMovies(searchQuery);
+        const movies = response.data || [];
         const mappedMovies = movies.map((movie) => ({
           ...movie,
           image: movie.avatar_url || movie.image,
@@ -176,7 +177,7 @@ const Navbar = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-2 md:gap-8">
             <div ref={searchRef} className="relative hidden lg:block">
               <form onSubmit={handleSearchSubmit} className={`flex items-center bg-white/5 rounded-2xl px-5 py-3 transition-all duration-500 border group ${isSearchFocused ? 'w-[500px] border-primary/50 bg-black/60 shadow-[0_0_30px_rgba(229,9,20,0.1)]' : 'w-72 border-white/10 hover:border-white/20'}`}>
                 <Search className={`w-4 h-4 mr-4 transition-colors duration-300 ${isSearchFocused ? 'text-primary shadow-primary' : 'text-on-surface-variant group-hover:text-white'}`} />
@@ -211,7 +212,7 @@ const Navbar = () => {
                     initial={{ opacity: 0, y: 15, scale: 0.98 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 15, scale: 0.98 }}
-                    className="absolute top-full mt-5 right-0 w-[500px] glass-dark rounded-3xl shadow-[0_32px_64px_rgba(0,0,0,0.8)] border border-white/10 overflow-hidden z-50"
+                    className="absolute top-full mt-5 right-0 w-[500px] max-w-[calc(100vw-32px)] glass-dark rounded-3xl shadow-[0_32px_64px_rgba(0,0,0,0.8)] border border-white/10 overflow-hidden z-50"
                   >
                     {searchQuery.trim() ? (
                       <div className="flex flex-col">
@@ -297,16 +298,16 @@ const Navbar = () => {
               </AnimatePresence>
             </div>
 
-            <div className={`flex items-center gap-6 transition-all duration-500 ${isSearchFocused ? 'opacity-20 blur-sm pointer-events-none' : 'opacity-100'}`}>
+            <div className={`flex items-center gap-3 md:gap-6 transition-all duration-500 ${isSearchFocused ? 'opacity-20 blur-sm pointer-events-none' : 'opacity-100'}`}>
               {user ? (
                 <>
-                  <Link to="/profile/notifications" className="text-on-surface-variant hover:text-primary transition-colors p-2 relative group">
-                    <Bell className="w-6 h-6 group-hover:rotate-12 transition-transform" />
-                    <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-primary rounded-full border-2 border-surface animate-pulse"></span>
+                  <Link to="/profile/notifications" className="text-on-surface-variant hover:text-primary transition-colors p-2 relative group flex-shrink-0">
+                    <Bell className="w-5 h-5 md:w-6 md:h-6 group-hover:rotate-12 transition-transform" />
+                    <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 md:w-2 md:h-2 bg-primary rounded-full border-2 border-surface animate-pulse"></span>
                   </Link>
 
-                  <Link to="/profile" className="flex items-center gap-4 group cursor-pointer bg-white/5 pl-2 pr-5 py-2 rounded-2xl border border-white/5 hover:border-primary/30 transition-all shadow-xl">
-                    <div className="w-10 h-10 rounded-xl overflow-hidden border border-white/10 group-hover:border-primary/50 transition-all shadow-lg transform group-hover:scale-95">
+                  <Link to="/profile" className="flex items-center gap-2 md:gap-4 group cursor-pointer bg-white/5 pl-1.5 pr-2 md:pr-5 py-1.5 md:py-2 rounded-2xl border border-white/5 hover:border-primary/30 transition-all shadow-xl max-w-[150px] md:max-w-none">
+                    <div className="w-8 h-8 md:w-10 md:h-10 rounded-xl overflow-hidden border border-white/10 group-hover:border-primary/50 transition-all shadow-lg transform group-hover:scale-95 flex-shrink-0">
                       <img
                         src={
                           user.avatar ||
@@ -317,23 +318,23 @@ const Navbar = () => {
                         referrerPolicy="no-referrer"
                       />
                     </div>
-                    <div className="hidden xl:block">
-                      <p className="text-xs font-black text-white group-hover:text-primary transition-colors uppercase tracking-widest">{user?.name || "Người dùng"}</p>
-                      <p className="text-[9px] font-black text-primary uppercase tracking-[0.2em] opacity-80">{user?.vipStatus || "STANDARD"}</p>
+                    <div className="hidden md:block overflow-hidden">
+                      <p className="text-[10px] md:text-xs font-black text-white group-hover:text-primary transition-colors uppercase tracking-widest truncate">{user?.name || "Người dùng"}</p>
+                      <p className="text-[8px] md:text-[9px] font-black text-primary uppercase tracking-[0.2em] opacity-80">{user?.vipStatus || "STANDARD"}</p>
                     </div>
                   </Link>
                 </>
               ) : (
-                <div className="flex items-center gap-6">
+                <div className="flex items-center gap-3 md:gap-6">
                   <Link
                     to="/login"
-                    className="text-sm font-black text-white uppercase tracking-widest hover:text-primary transition-colors px-4 py-2"
+                    className="text-[11px] md:text-sm font-black text-white uppercase tracking-widest hover:text-primary transition-colors px-2 md:px-4 py-2"
                   >
                     Đăng nhập
                   </Link>
                   <Link
                     to="/register"
-                    className="bg-primary text-white text-sm font-black uppercase tracking-widest px-8 py-3 rounded-full shadow-[0_10px_20px_rgba(229,9,20,0.3)] hover:scale-105 active:scale-95 transition-all"
+                    className="bg-primary text-white text-[11px] md:text-sm font-black uppercase tracking-widest px-4 md:px-8 py-2 md:py-3 rounded-full shadow-[0_10px_20px_rgba(229,9,20,0.3)] hover:scale-105 active:scale-95 transition-all text-center"
                   >
                     Đăng ký
                   </Link>

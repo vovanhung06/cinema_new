@@ -41,8 +41,8 @@ export const useMovieDetail = (id) => {
         setMovie(transformMovie(movieData));
         
         // Fetch all public movies for recommendations
-        const allMovies = await getPublicMovies();
-        const recommendedMovies = allMovies
+        const allMoviesResponse = await getPublicMovies();
+        const recommendedMovies = (allMoviesResponse.data || [])
           .filter(m => String(m.id) !== String(id))
           .slice(0, 6)
           .map(transformMovie);

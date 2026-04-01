@@ -82,6 +82,8 @@ export const AuthProvider = ({ children }) => {
               : res.data.role_id === 1
               ? 'admin'
               : 'user',
+          is_vip: !!res.data.is_vip,
+          vipStatus: res.data.is_vip ? "VIP MEMBER" : "STANDARD",
         };
 
         setUser(userData);
@@ -100,6 +102,40 @@ export const AuthProvider = ({ children }) => {
 
     fetchProfile();
   }, []);
+
+  const refreshProfile = async () => {
+    const savedToken = getStoredToken();
+    if (!savedToken) return;
+
+    try {
+      const res = await getProfile();
+      const roleName = res.data.role || res.data.role_name;
+      const userData = {
+        ...res.data,
+        name: res.data.username,
+        role_id: res.data.role_id,
+        is_vip: !!res.data.is_vip,
+        vipStatus: res.data.is_vip ? "VIP MEMBER" : "STANDARD",
+        role:
+          typeof roleName === "string"
+            ? roleName.toLowerCase() === "admin"
+              ? "admin"
+              : "user"
+            : res.data.role_id === 1
+            ? "admin"
+            : "user",
+      };
+
+      setUser(userData);
+      if (localStorage.getItem("token")) {
+        localStorage.setItem("user", JSON.stringify(userData));
+      } else {
+        sessionStorage.setItem("user", JSON.stringify(userData));
+      }
+    } catch (err) {
+      console.error("Lỗi làm mới profile:", err);
+    }
+  };
 
   const updateProfile = async (data) => {
     try {
@@ -170,7 +206,7 @@ const changePassword = async (data) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading, updateProfile, changePassword  }}>
+    <AuthContext.Provider value={{ user, token, login, logout, loading, updateProfile, changePassword, refreshProfile  }}>
       {children}
     </AuthContext.Provider>
   );

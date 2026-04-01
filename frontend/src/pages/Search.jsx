@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
-import { Search as SearchIcon, Filter, Play, ArrowLeft, Loader2, Sparkles, TrendingUp } from 'lucide-react';
+import { Search as SearchIcon, Filter, Play, ArrowLeft, Loader2, Sparkles, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { TRENDING_MOVIES } from '../constants';
 import { searchMovies } from '../service/movie_service';
@@ -10,7 +10,19 @@ const Search = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const [results, setResults] = useState([]);
+  const [pagination, setPagination] = useState(null);
+  const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Reset page when query changes
+  useEffect(() => {
+    setPage(1);
+  }, [query]);
+
+  // Scroll to top when query or page changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [query, page]);
 
   useEffect(() => {
     if (!query.trim()) {
@@ -23,22 +35,27 @@ const Search = () => {
 
     const loadResults = async () => {
       try {
-        const movies = await searchMovies(query);
+        const response = await searchMovies(query, { page, limit: 12 });
+        const movies = response.data || [];
         const mappedMovies = movies.map((movie) => ({
           ...movie,
           image: movie.avatar_url || movie.image,
           year: movie.release_date ? new Date(movie.release_date).getFullYear() : '',
         }));
         setResults(mappedMovies);
+        setPagination(response.pagination);
       } catch (error) {
         setResults([]);
+        setPagination(null);
       } finally {
         setIsLoading(false);
       }
     };
 
     loadResults();
-  }, [query]);
+  }, [query, page]);
+
+  const totalResults = pagination?.total || 0;
 
   return (
     <div className="min-h-screen bg-surface pt-32 pb-40 px-6 lg:px-12 max-w-[1920px] mx-auto overflow-x-hidden">
@@ -60,7 +77,7 @@ const Search = () => {
                   <span className="text-5xl md:text-7xl font-black font-manrope text-white tracking-tighter text-glow italic">"{query}"</span>
                   <div className="px-5 py-2 glass-dark rounded-2xl border border-white/10 shadow-xl self-center">
                     <span className="text-xs font-black text-white uppercase tracking-widest">
-                      {results.length} bộ phim
+                      {totalResults} bộ phim
                     </span>
                   </div>
                 </div>
@@ -94,23 +111,67 @@ const Search = () => {
                 </div>
               </motion.div>
             ) : results.length > 0 ? (
-              <motion.div 
-                key="results"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-8 gap-y-16"
-              >
-                {results.map((movie, index) => (
-                  <motion.div
-                    key={movie.id}
-                    initial={{ opacity: 0, scale: 0.9, y: 30 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: index * 0.05, ease: [0.16, 1, 0.3, 1] }}
-                  >
-                    <MovieCard movie={movie} variant="default" />
-                  </motion.div>
-                ))}
-              </motion.div>
+              <div className="space-y-24">
+                <motion.div 
+                  key="results"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-8 gap-y-16"
+                >
+                  {results.map((movie, index) => (
+                    <motion.div
+                      key={movie.id}
+                      initial={{ opacity: 0, scale: 0.9, y: 30 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      transition={{ duration: 0.6, delay: index * 0.05, ease: [0.16, 1, 0.3, 1] }}
+                    >
+                      <MovieCard movie={movie} variant="default" />
+                    </motion.div>
+                  ))}
+                </motion.div>
+
+                {/* Pagination Logic */}
+                {pagination && pagination.totalPages > 1 && (
+                  <nav className="flex justify-center items-center gap-4">
+                    <button 
+                      onClick={() => setPage(page - 1)}
+                      disabled={page <= 1}
+                      className="w-14 h-14 flex items-center justify-center rounded-2xl glass hover:bg-white/10 text-white transition-all group border border-white/5 disabled:opacity-30 disabled:pointer-events-none active:scale-90"
+                    >
+                      <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                    </button>
+                    <div className="flex items-center gap-3">
+                      {Array.from({ length: pagination.totalPages }, (_, i) => {
+                        const p = i + 1;
+                        // Basic pager logic
+                        if (pagination.totalPages > 7) {
+                          if (p !== 1 && p !== pagination.totalPages && Math.abs(p - page) > 1) {
+                            if (p === 2 || p === pagination.totalPages - 1) return <span key={p} className="text-white/20">...</span>;
+                            return null;
+                          }
+                        }
+
+                        return (
+                          <button
+                            key={p}
+                            onClick={() => setPage(p)}
+                            className={`w-14 h-14 flex items-center justify-center rounded-2xl font-black text-xs transition-all border ${p === page ? 'bg-primary border-primary text-white shadow-xl shadow-primary/30 scale-110' : 'glass border-white/5 text-on-surface-variant hover:bg-white/10 hover:text-white'}`}
+                          >
+                            {p}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <button 
+                      onClick={() => setPage(page + 1)}
+                      disabled={page >= pagination.totalPages}
+                      className="w-14 h-14 flex items-center justify-center rounded-2xl glass hover:bg-white/10 text-white transition-all group border border-white/5 disabled:opacity-30 disabled:pointer-events-none active:scale-90"
+                    >
+                      <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    </button>
+                  </nav>
+                )}
+              </div>
             ) : (
               <motion.div 
                 key="empty"
@@ -143,9 +204,9 @@ const Search = () => {
                      <h4 className="text-xs font-black text-white uppercase tracking-[0.3em]">Có thể bạn quan tâm (Xu hướng)</h4>
                      <div className="h-px flex-grow bg-white/5"></div>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8">
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 text-left">
                     {TRENDING_MOVIES.slice(0, 6).map(movie => (
-                      <Link key={movie.id} to={`/movie/${movie.id}`} className="group space-y-4 text-left">
+                      <Link key={movie.id} to={`/movie/${movie.id}`} className="group space-y-4">
                         <div className="aspect-[2/3] rounded-3xl overflow-hidden relative shadow-2xl border border-white/5">
                           <img src={movie.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={movie.title} referrerPolicy="no-referrer" />
                           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">

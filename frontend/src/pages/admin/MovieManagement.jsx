@@ -15,7 +15,8 @@ import {
   ChevronDown,
   Globe,
   Tag,
-  Gem
+  Gem,
+  RotateCcw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils.js';
@@ -23,8 +24,10 @@ import { useMovies } from '../../hooks/useMovies.js';
 import { PageHeader } from '../../components/shared/PageHeader.jsx';
 import { MultiSelectGenre } from '../../components/shared/MultiSelectGenre.jsx';
 import { toDateInput } from '../../utils/date.js';
+import { useState } from 'react';
 
 export default function MovieManagement() {
+  const [isFilterVisible, setIsFilterVisible] = useState(false);
   const {
     movies,
     genres,
@@ -55,8 +58,15 @@ export default function MovieManagement() {
     backgroundPreview,
     searchTerm,
     setSearchTerm,
+    filterGenre,
+    setFilterGenre,
+    filterCountry,
+    setFilterCountry,
     sortBy,
     setSortBy,
+    page,
+    setPage,
+    pagination,
   } = useMovies();
 
   return (
@@ -66,9 +76,17 @@ export default function MovieManagement() {
         description="Quản lý danh sách phim, lịch chiếu và nội dung đa phương tiện."
         badge="Content Library"
       >
-        <button className="px-6 py-3 bg-surface-container rounded-xl border border-outline-variant/20 text-sm font-bold text-on-surface hover:bg-surface-container-high transition-all flex items-center gap-2">
+        <button 
+          onClick={() => setIsFilterVisible(!isFilterVisible)}
+          className={cn(
+            "px-6 py-3 rounded-xl border text-sm font-bold transition-all flex items-center gap-2",
+            isFilterVisible 
+              ? "bg-primary-container/10 border-primary-container text-primary-container" 
+              : "bg-surface-container border-outline-variant/20 text-on-surface hover:bg-surface-container-high"
+          )}
+        >
           <Filter className="w-4 h-4" />
-          Bộ lọc
+          {isFilterVisible ? 'Đóng bộ lọc' : 'Bộ lọc'}
         </button>
         <button
           onClick={openAddModal}
@@ -80,15 +98,86 @@ export default function MovieManagement() {
       </PageHeader>
 
       <div className="bg-surface-container-low rounded-[2rem] overflow-hidden border border-outline-variant/10 shadow-2xl">
+        <AnimatePresence>
+          {isFilterVisible && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              className="overflow-hidden bg-surface-container-high/20 border-b border-outline-variant/10"
+            >
+              <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">Tìm kiếm</label>
+                  <div className="flex items-center gap-2 bg-surface-container px-4 py-2 rounded-xl border border-outline-variant/10 focus-within:ring-2 focus-within:ring-primary-container/30 transition-all">
+                    <Search className="w-4 h-4 text-on-surface-variant" />
+                    <input
+                      className="bg-transparent border-none text-sm focus:ring-0 outline-none w-full placeholder:text-on-surface-variant/40"
+                      placeholder="Tên phim, đạo diễn..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">Thể loại</label>
+                  <div className="relative">
+                    <Tag className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
+                    <select
+                      className="w-full bg-surface-container border border-outline-variant/10 rounded-xl pl-12 pr-10 py-2.5 text-sm font-bold text-on-surface appearance-none focus:ring-2 focus:ring-primary-container/30 transition-all"
+                      value={filterGenre}
+                      onChange={(e) => setFilterGenre(e.target.value)}
+                    >
+                      <option value="">Tất cả thể loại</option>
+                      {genres.map(g => (
+                        <option key={g.id} value={g.id}>{g.name}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant pointer-events-none" />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-[10px] font-black text-on-surface-variant uppercase tracking-widest ml-1">Quốc gia</label>
+                  <div className="flex items-center gap-3">
+                    <div className="relative flex-grow">
+                      <Globe className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
+                      <select
+                        className="w-full bg-surface-container border border-outline-variant/10 rounded-xl pl-12 pr-10 py-2.5 text-sm font-bold text-on-surface appearance-none focus:ring-2 focus:ring-primary-container/30 transition-all"
+                        value={filterCountry}
+                        onChange={(e) => setFilterCountry(e.target.value)}
+                      >
+                        <option value="">Tất cả quốc gia</option>
+                        {countries.map(c => (
+                          <option key={c.id} value={c.id}>{c.name}</option>
+                        ))}
+                      </select>
+                      <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant pointer-events-none" />
+                    </div>
+                    <button
+                      onClick={() => {
+                        setSearchTerm('');
+                        setFilterGenre('');
+                        setFilterCountry('');
+                      }}
+                      className="p-2.5 bg-surface-container rounded-xl border border-outline-variant/10 text-on-surface-variant hover:text-primary-container hover:border-primary-container/30 transition-all"
+                      title="Xóa bộ lọc"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <div className="p-6 border-b border-outline-variant/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-2 bg-surface-container px-4 py-2 rounded-xl border border-outline-variant/10 w-full md:w-96 focus-within:ring-2 focus-within:ring-primary-container/30 transition-all">
-            <Search className="w-4 h-4 text-on-surface-variant" />
-            <input
-              className="bg-transparent border-none text-sm focus:ring-0 outline-none w-full placeholder:text-on-surface-variant/40"
-              placeholder="Tìm kiếm tên phim, đạo diễn, diễn viên..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+          <div className="flex items-center gap-4">
+            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest italic">
+              Hiện có <span className="text-on-surface font-black not-italic">{pagination?.total || 0}</span> tác phẩm
+            </span>
           </div>
           <div className="flex items-center gap-4">
             <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Sắp xếp:</span>
@@ -205,20 +294,46 @@ export default function MovieManagement() {
           </table>
         </div>
 
-        <div className="p-6 border-t border-outline-variant/10 flex items-center justify-between bg-surface-container-high/10">
-          <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">Hiển thị 1-10 trên 124 phim</p>
-          <div className="flex gap-2">
-            <button className="p-2 rounded-xl bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 transition-all" disabled>
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button className="w-8 h-8 rounded-xl bg-primary-container text-white text-xs font-black shadow-lg shadow-primary-container/20">1</button>
-            <button className="w-8 h-8 rounded-xl bg-surface-container-highest text-on-surface-variant text-xs font-bold hover:bg-surface-container-high">2</button>
-            <button className="w-8 h-8 rounded-xl bg-surface-container-highest text-on-surface-variant text-xs font-bold hover:bg-surface-container-high">3</button>
-            <button className="p-2 rounded-xl bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high transition-all">
-              <ChevronRight className="w-4 h-4" />
-            </button>
+        {pagination && pagination.total > 0 && (
+          <div className="p-6 border-t border-outline-variant/10 flex flex-col md:flex-row items-center justify-between gap-4 bg-surface-container-high/10">
+            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
+              Hiển thị {(pagination.page - 1) * pagination.limit + 1}-
+              {Math.min(pagination.page * pagination.limit, pagination.total)} 
+              {` `}trên {pagination.total} phim
+            </p>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setPage(page - 1)}
+                disabled={page <= 1}
+                className="p-2 rounded-xl bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 transition-all"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              
+              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => (
+                <button 
+                  key={p}
+                  onClick={() => setPage(p)}
+                  className={`w-8 h-8 rounded-xl text-xs font-bold transition-all ${
+                    p === page 
+                      ? 'bg-primary-container text-white shadow-lg shadow-primary-container/20 font-black' 
+                      : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+
+              <button 
+                onClick={() => setPage(page + 1)}
+                disabled={page >= pagination.totalPages}
+                className="p-2 rounded-xl bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 transition-all"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Add Movie Modal */}

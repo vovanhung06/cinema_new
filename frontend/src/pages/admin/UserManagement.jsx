@@ -11,7 +11,9 @@ import {
   UserPlus,
   Users,
   UserCheck,
-  AlertTriangle
+  AlertTriangle,
+  ChevronLeft,
+  ChevronRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils.js';
@@ -38,13 +40,17 @@ export default function UserManagement() {
     searchTerm,
     setSearchTerm,
     deletedUserName,
+    page,
+    setPage,
+    pagination,
   } = useUsers();
 
-  const vipCount = users.filter(u => u.tier !== 'Regular').length;
+  const totalUsers = pagination?.total || 0;
+  const totalVip = pagination?.totalVip || 0;
 
   const stats = [
-    { label: 'Tổng thành viên', value: users.length, sub: '+4 thành viên mới', icon: Users, color: 'text-blue-400' },
-    { label: 'Thành viên VIP', value: vipCount, sub: `${Math.round((vipCount / users.length) * 100)}% tổng số`, icon: Crown, color: 'text-yellow-400' },
+    { label: 'Tổng thành viên', value: totalUsers, sub: '+4 thành viên mới', icon: Users, color: 'text-blue-400' },
+    { label: 'Thành viên VIP', value: totalVip, sub: `${totalUsers > 0 ? Math.round((totalVip / totalUsers) * 100) : 0}% tổng số`, icon: Crown, color: 'text-yellow-400' },
   ];
 
   return (
@@ -140,6 +146,47 @@ export default function UserManagement() {
             </tbody>
           </table>
         </div>
+
+        {pagination && pagination.total > 0 && (
+          <div className="p-6 border-t border-outline-variant/10 flex flex-col md:flex-row items-center justify-between gap-4 bg-surface-container-high/10">
+            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
+              Hiển thị {(pagination.page - 1) * pagination.limit + 1}-
+              {Math.min(pagination.page * pagination.limit, pagination.total)} 
+              {` `}trên {pagination.total} thành viên
+            </p>
+            <div className="flex gap-2">
+              <button 
+                onClick={() => setPage(page - 1)}
+                disabled={page <= 1}
+                className="p-2 rounded-xl bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 transition-all"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              
+              {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => (
+                <button 
+                  key={p}
+                  onClick={() => setPage(p)}
+                  className={`w-8 h-8 rounded-xl text-xs font-bold transition-all ${
+                    p === page 
+                      ? 'bg-primary-container text-white shadow-lg shadow-primary-container/20 font-black' 
+                      : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
+                  }`}
+                >
+                  {p}
+                </button>
+              ))}
+
+              <button 
+                onClick={() => setPage(page + 1)}
+                disabled={page >= pagination.totalPages}
+                className="p-2 rounded-xl bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 transition-all"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
 

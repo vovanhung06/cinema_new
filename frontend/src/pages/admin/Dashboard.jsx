@@ -1,4 +1,5 @@
 import { 
+  Crown,
   Users, 
   Film, 
   Eye, 
@@ -23,15 +24,19 @@ import { PageHeader } from '../../components/shared/PageHeader';
 const { recentActivity, announcements } = dashboardData;
 
 export default function Dashboard() {
-  const { movies } = useMovies();
-  const { users } = useUsers();
+  const { movies, pagination: moviePagination } = useMovies();
+  const { users, pagination: userPagination } = useUsers();
   const { comments } = useComments();
 
+  const totalMovies = moviePagination?.total || 0;
+  const totalUsers = userPagination?.total || 0;
+  const totalVip = userPagination?.totalVip || 0;
+
   const stats = [
-    { label: 'Phim đang quản lý', value: movies.length, trend: '+4', icon: Film, color: 'text-primary-container' },
-    { label: 'Tổng thành viên', value: users.length.toLocaleString(), trend: '+12.5%', icon: Users, color: 'text-blue-400' },
+    { label: 'Phim đang quản lý', value: totalMovies, trend: '+4', icon: Film, color: 'text-primary-container' },
+    { label: 'Tổng thành viên', value: totalUsers.toLocaleString(), trend: '+12.5%', icon: Users, color: 'text-blue-400' },
+    { label: 'Thành viên VIP', value: totalVip.toLocaleString(), trend: '+5.4%', icon: Crown, color: 'text-yellow-400' },
     { label: 'Bình luận mới', value: comments.length, trend: '+24%', icon: MessageSquare, color: 'text-purple-400' },
-    { label: 'Doanh thu tháng', value: '$42,500', trend: '+8.2%', icon: TrendingUp, color: 'text-green-400' },
   ];
 
   const trendingMovies = movies.slice(0, 2);

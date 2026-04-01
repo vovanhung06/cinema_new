@@ -11,16 +11,16 @@ const getAuthHeaders = () => ({
   },
 });
 
-export const getCommentsByMovie = async (movieId, limit = 100) => {
+export const getCommentsByMovie = async (movieId, { page = 1, limit = 10, search = "" } = {}) => {
   return axios.get(`${API}/${movieId}`, {
-    params: { limit },
+    params: { page, limit, search },
     ...getAuthHeaders(),
   });
 };
 
-export const getAllComments = async (limit = 100) => {
+export const getAllComments = async ({ page = 1, limit = 10, search = "" } = {}) => {
   return axios.get(`${API}/`, {
-    params: { limit },
+    params: { page, limit, search },
     ...getAuthHeaders(),
   });
 };

@@ -8,7 +8,7 @@ exports.getProfile = (req, res) => {
   const userId = req.user.id;
 
   const sql = `
-    SELECT u.id, u.username, u.email, u.role_id, r.name AS role_name
+    SELECT u.id, u.username, u.email, u.role_id, u.is_vip, u.vip_expired_at, r.name AS role_name
     FROM users u
     LEFT JOIN roles r ON u.role_id = r.id
     WHERE u.id = ?
@@ -110,6 +110,8 @@ exports.login = (req, res) => {
         username: user.username,
         email: user.email,
         role_id: user.role_id,
+        is_vip: user.is_vip,
+        vip_expired_at: user.vip_expired_at
       },
     });
   });
@@ -195,15 +197,28 @@ exports.getAllUsers = async (req, res) => {
   }
 
   const { page, limit, offset } = parsePagination(req);
+  const search = req.query.search || "";
 
   try {
-    const [countRows] = await db.promise().query(
-      `SELECT COUNT(*) AS total FROM users`
-    );
+    // 1️⃣ Count total users (with search if provided)
+    let countSql = `SELECT COUNT(*) AS total FROM users WHERE 1=1`;
+    let countParams = [];
+    if (search) {
+      countSql += ` AND (username LIKE ? OR email LIKE ?)`;
+      countParams.push(`%${search}%`, `%${search}%`);
+    }
+    const [countRows] = await db.promise().query(countSql, countParams);
     const total = countRows[0]?.total || 0;
 
-    const [results] = await db.promise().query(
-      `SELECT 
+    // 2️⃣ Count total VIP users (always global, not affected by current search)
+    const [vipRows] = await db.promise().query(
+      `SELECT COUNT(*) AS totalVip FROM users WHERE is_vip = 1`
+    );
+    const totalVip = vipRows[0]?.totalVip || 0;
+
+    // 3️⃣ Get users for current page
+    let sql = `
+      SELECT 
         users.id,
         users.username,
         users.email,
@@ -212,14 +227,24 @@ exports.getAllUsers = async (req, res) => {
         users.vip_expired_at
        FROM users
        JOIN roles ON users.role_id = roles.id
-       ORDER BY users.id ASC
-       LIMIT ? OFFSET ?`,
-      [limit, offset]
-    );
+       WHERE 1=1
+    `;
+    let params = [];
+    if (search) {
+      sql += ` AND (users.username LIKE ? OR users.email LIKE ?)`;
+      params.push(`%${search}%`, `%${search}%`);
+    }
+    sql += ` ORDER BY users.id ASC LIMIT ? OFFSET ?`;
+    params.push(limit, offset);
+
+    const [results] = await db.promise().query(sql, params);
 
     res.json({
       data: results,
-      pagination: buildPagination(page, limit, total),
+      pagination: {
+        ...buildPagination(page, limit, total),
+        totalVip,
+      },
     });
   } catch (err) {
     res.status(500).json(err);

@@ -13,10 +13,16 @@ const getAuthHeaders = () => {
 };
 
 // Get all movies 
-export const getAllMovies = async () => {
+export const getAllMovies = async (params = {}) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/movies`, getAuthHeaders());
-    return response.data?.data || response.data || [];
+    const response = await axios.get(`${API_BASE_URL}/movies`, {
+      ...getAuthHeaders(),
+      params,
+    });
+    return {
+      data: response.data?.data || response.data || [],
+      pagination: response.data?.pagination || null,
+    };
   } catch (error) {
     console.error('Error fetching movies:', error);
     throw error;
@@ -29,7 +35,10 @@ export const getPublicMovies = async (params = {}) => {
     const response = await axios.get(`${API_BASE_URL}/movies/public/filter`, {
       params,
     });
-    return response.data?.data || response.data || [];
+    return {
+      data: response.data?.data || response.data || [],
+      pagination: response.data?.pagination || null,
+    };
   } catch (error) {
     console.error('Error fetching public movies:', error);
     throw error;
@@ -48,12 +57,15 @@ export const getMovieById = async (id) => {
 };
 
 // Search movies
-export const searchMovies = async (query) => {
+export const searchMovies = async (query, { page = 1, limit = 10 } = {}) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/movies/search`, {
-      params: { keyword: query },
+      params: { keyword: query, page, limit },
     });
-    return response.data?.data || response.data || [];
+    return {
+      data: response.data?.data || response.data || [],
+      pagination: response.data?.pagination || null,
+    };
   } catch (error) {
     console.error('Error searching movies:', error);
     throw error;

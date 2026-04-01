@@ -11,36 +11,80 @@ exports.getAllMovies = async (req, res) => {
   }
 
   const { page, limit, offset } = parsePagination(req);
-
-  const countSql = `SELECT COUNT(*) AS total FROM movies`;
-  const sql = `
-    SELECT 
-      m.id,
-      m.title,
-      m.description,
-      m.release_date,
-      m.movie_url,
-      m.trailer_url,
-      m.avatar_url,
-      m.background_url,
-      m.country_id,
-      c.name AS country,
-      GROUP_CONCAT(g.id) AS genre_ids,
-      GROUP_CONCAT(g.name) AS genres,
-      m.required_vip_level,
-      m.created_at
-    FROM movies m
-    LEFT JOIN countries c ON m.country_id = c.id
-    LEFT JOIN movie_genres mg ON m.id = mg.movie_id
-    LEFT JOIN genres g ON mg.genre_id = g.id
-    GROUP BY m.id
-    ORDER BY m.created_at DESC
-    LIMIT ? OFFSET ?
-  `;
+  const search = req.query.search || "";
+  const genreId = req.query.genreId;
+  const countryId = req.query.countryId;
 
   try {
-    const [countRows] = await db.promise().query(countSql);
-    const [result] = await db.promise().query(sql, [limit, offset]);
+    // 1️⃣ Count total movies with filters
+    let countSql = `
+      SELECT COUNT(DISTINCT m.id) AS total 
+      FROM movies m
+      LEFT JOIN movie_genres mg ON m.id = mg.movie_id
+      LEFT JOIN genres g ON mg.genre_id = g.id
+      WHERE 1=1
+    `;
+    let countParams = [];
+
+    if (search) {
+      countSql += ` AND (m.title LIKE ? OR g.name LIKE ?)`;
+      countParams.push(`%${search}%`, `%${search}%`);
+    }
+    if (genreId) {
+      countSql += ` AND mg.genre_id = ?`;
+      countParams.push(genreId);
+    }
+    if (countryId) {
+      countSql += ` AND m.country_id = ?`;
+      countParams.push(countryId);
+    }
+
+    const [countRows] = await db.promise().query(countSql, countParams);
+    const total = countRows[0]?.total || 0;
+
+    // 2️⃣ Get movies for current page with filters
+    let sql = `
+      SELECT 
+        m.id,
+        m.title,
+        m.description,
+        m.release_date,
+        m.movie_url,
+        m.trailer_url,
+        m.avatar_url,
+        m.background_url,
+        m.country_id,
+        c.name AS country,
+        GROUP_CONCAT(g.id) AS genre_ids,
+        GROUP_CONCAT(g.name) AS genres,
+        m.required_vip_level,
+        m.created_at
+      FROM movies m
+      LEFT JOIN countries c ON m.country_id = c.id
+      LEFT JOIN movie_genres mg ON m.id = mg.movie_id
+      LEFT JOIN genres g ON mg.genre_id = g.id
+      WHERE 1=1
+    `;
+    let params = [];
+    
+    if (search) {
+      sql += ` AND (m.title LIKE ? OR g.name LIKE ?)`;
+      params.push(`%${search}%`, `%${search}%`);
+    }
+    if (genreId) {
+      sql += ` AND m.id IN (SELECT movie_id FROM movie_genres WHERE genre_id = ?)`;
+      params.push(genreId);
+    }
+    if (countryId) {
+      sql += ` AND m.country_id = ?`;
+      params.push(countryId);
+    }
+
+    sql += ` GROUP BY m.id ORDER BY m.created_at DESC LIMIT ? OFFSET ?`;
+    params.push(limit, offset);
+
+    const [result] = await db.promise().query(sql, params);
+    
     const transformedResult = result.map(movie => ({
       ...movie,
       genre_ids: movie.genre_ids
@@ -50,7 +94,7 @@ exports.getAllMovies = async (req, res) => {
 
     res.json({
       data: transformedResult,
-      pagination: buildPagination(page, limit, countRows[0]?.total || 0),
+      pagination: buildPagination(page, limit, total),
     });
   } catch (err) {
     res.status(500).json(err);
@@ -60,13 +104,34 @@ exports.getAllMovies = async (req, res) => {
 // ================= PUBLIC: GET ALL MOVIES (NO AUTH) =================
 exports.getPublicMovies = async (req, res) => {
   const { page, limit, offset } = parsePagination(req);
+  const { genre, country, sort } = req.query;
 
   try {
-    const [countRows] = await db.promise().query(
-      `SELECT COUNT(*) AS total FROM movies`
-    );
+    let countSql = `
+      SELECT COUNT(DISTINCT m.id) AS total 
+      FROM movies m
+      LEFT JOIN movie_genres mg ON m.id = mg.movie_id
+      LEFT JOIN genres g ON mg.genre_id = g.id
+      LEFT JOIN countries c ON m.country_id = c.id
+      WHERE 1=1
+    `;
+    let countParams = [];
 
-    const sql = `
+    // Filter logic for count
+    if (genre) {
+      countSql += ` AND g.name = ?`;
+      countParams.push(genre);
+    }
+    if (country) {
+      countSql += ` AND c.name = ?`;
+      countParams.push(country);
+    }
+
+    const [countRows] = await db.promise().query(countSql, countParams);
+    const total = countRows[0]?.total || 0;
+
+    // Main query
+    let sql = `
       SELECT 
         m.id,
         m.title,
@@ -77,22 +142,56 @@ exports.getPublicMovies = async (req, res) => {
         m.trailer_url,
         c.name AS country,
         GROUP_CONCAT(g.name) AS genres,
-        m.required_vip_level
+        m.required_vip_level,
+        (SELECT AVG(rating) FROM reviews r WHERE r.movie_id = m.id) AS rating,
+        (SELECT COUNT(*) FROM movie_views mv WHERE mv.movie_id = m.id) AS views
       FROM movies m
       LEFT JOIN countries c ON m.country_id = c.id
       LEFT JOIN movie_genres mg ON m.id = mg.movie_id
       LEFT JOIN genres g ON mg.genre_id = g.id
-      GROUP BY m.id
-      ORDER BY m.release_date DESC
-      LIMIT ? OFFSET ?
+      WHERE 1=1
     `;
+    let params = [];
 
-    const [result] = await db.promise().query(sql, [limit, offset]);
+    if (genre) {
+      sql += ` AND m.id IN (
+        SELECT mg2.movie_id FROM movie_genres mg2 
+        JOIN genres g2 ON mg2.genre_id = g2.id 
+        WHERE g2.name = ?
+      )`;
+      params.push(genre);
+    }
+
+    if (country) {
+      sql += ` AND c.name = ?`;
+      params.push(country);
+    }
+
+    sql += ` GROUP BY m.id`;
+
+    // Sort mapping
+    if (sort === 'new') {
+      sql += ` ORDER BY m.release_date DESC`;
+    } else if (sort === 'old') {
+      sql += ` ORDER BY m.release_date ASC`;
+    } else if (sort === 'rating') {
+      sql += ` ORDER BY rating DESC`;
+    } else if (sort === 'views') {
+      sql += ` ORDER BY views DESC`;
+    } else {
+      sql += ` ORDER BY m.created_at DESC`;
+    }
+
+    sql += ` LIMIT ? OFFSET ?`;
+    params.push(limit, offset);
+
+    const [result] = await db.promise().query(sql, params);
     res.json({
       data: result,
-      pagination: buildPagination(page, limit, countRows[0]?.total || 0),
+      pagination: buildPagination(page, limit, total),
     });
   } catch (err) {
+    console.error("GET PUBLIC MOVIES ERROR:", err);
     res.status(500).json(err);
   }
 };

@@ -25,15 +25,35 @@ import { useAuth } from '../hooks/useAuth';
 import Plyr from 'plyr';
 import 'plyr/dist/plyr.css';
 import Hls from 'hls.js';
+import { useComments } from '../hooks/useComments';
+import { useRating } from '../hooks/useRating';
+import CommentSection from '../components/shared/CommentSection';
+import CommentForm from '../components/shared/CommentForm';
+import StarRating from '../components/shared/StarRating';
 
 const Watch = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
   const { movie, recommendations, isLoading } = useMovieDetail(id);
+  const {
+    comments,
+    newComment,
+    setNewComment,
+    addComment,
+    loading: commentLoading,
+    error: commentError,
+  } = useComments(id);
+  const {
+    userRating,
+    averageRating,
+    ratingCount,
+    loading: ratingLoading,
+    error: ratingError,
+    updateRating,
+  } = useRating(id);
   const [isPlaying, setIsPlaying] = useState(false);
   const [activeServer, setActiveServer] = useState(0);
-  const [comment, setComment] = useState('');
   const [showControls, setShowControls] = useState(true);
   const controlsTimeoutRef = useRef(null);
   const videoRef = useRef(null);
@@ -142,8 +162,12 @@ const Watch = () => {
     }, 3000);
   };
 
-
-
+  const isVipMovie = movie?.required_vip_level > 0;
+  // Check if user is VIP and not expired
+  const isUserVip = user && user.is_vip === 1;
+  const isVipValid = isUserVip && (!user.vip_expired_at || new Date(user.vip_expired_at) > new Date());
+  const isAdmin = user && user.role_id === 1;
+  const canWatch = !isVipMovie || isVipValid || isAdmin;
   if (isLoading || !movie) {
     return (
       <div className="min-h-screen bg-surface flex items-center justify-center">
@@ -176,11 +200,35 @@ const Watch = () => {
             {/* Premium Video Player Container */}
             <section
               className="relative z-40 aspect-video rounded-[3rem] overflow-hidden bg-black shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/5 group"
-              onMouseMove={handleMouseMove}
-              onMouseLeave={() => isPlaying && setShowControls(false)}
+              onMouseMove={canWatch ? handleMouseMove : undefined}
+              onMouseLeave={() => canWatch && isPlaying && setShowControls(false)}
             >
               {/* Video Player - Plyr with HLS Support */}
-              {movie.movie_url ? (
+              {!canWatch ? (
+                <div className="absolute inset-0 z-0">
+                  <img
+                    src={movie.image}
+                    className="w-full h-full object-cover brightness-[0.3]"
+                    alt={movie.title}
+                    referrerPolicy="no-referrer"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-black/40"></div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center z-20 gap-6 p-6 text-center">
+                    <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-yellow-500 to-yellow-300 shadow-[0_0_50px_rgba(234,179,8,0.4)] flex items-center justify-center mb-4">
+                      <Star className="w-10 h-10 text-black fill-black" />
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-black uppercase tracking-[0.2em] text-white">Nội dung VIP</h2>
+                      <p className="text-sm font-medium text-white/70 mt-4 max-w-md mx-auto leading-relaxed">
+                        Phim <strong>{movie.title}</strong> yêu cầu tài khoản VIP. Hãy nâng cấp ngay để trải nghiệm không giới hạn với chất lượng cao nhất.
+                      </p>
+                    </div>
+                    <Link to="/vip" className="mt-4 inline-flex items-center gap-2 bg-gradient-to-r from-yellow-500 to-yellow-400 text-black px-10 py-4 rounded-xl font-bold uppercase tracking-wider hover:scale-105 transition-transform shadow-xl shadow-yellow-500/20">
+                      Nâng cấp VIP ngay
+                    </Link>
+                  </div>
+                </div>
+              ) : movie.movie_url ? (
                 <>
                   <video
                     ref={videoRef}
@@ -256,47 +304,72 @@ const Watch = () => {
                   <div>
                     <h3 className="text-3xl font-black uppercase tracking-tight text-white flex items-center gap-4">
                       <MessageSquare className="w-7 h-7 text-primary" />
-                      Bình luận
+                      Bình luận & Đánh giá
+                      <span className="text-primary font-manrope text-2xl">{comments.length}</span>
                     </h3>
                   </div>
                 </div>
               </div>
 
               {user ? (
-                <div className="flex gap-8">
-                  <div className="w-16 h-16 rounded-[1.25rem] bg-surface overflow-hidden border border-white/10 shrink-0 shadow-2xl">
-                    <img src={
-                      user.avatar ||
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}&background=random`
-                    } className="w-full h-full object-cover" alt="User" />
-                  </div>
-                  <div className="flex-grow space-y-4">
-                    <textarea
-                      value={comment}
-                      onChange={(e) => setComment(e.target.value)}
-                      className="w-full bg-surface-container-low border border-white/5 rounded-[2rem] p-8 text-sm focus:ring-2 focus:ring-primary/20 min-h-[160px] resize-none outline-none placeholder:text-white/10 transition-all font-medium text-white shadow-inner"
-                      placeholder="Cùng thảo luận về siêu phẩm này..."
-                    ></textarea>
-                    <div className="flex justify-end gap-6 items-center">
-                      <span className="text-[10px] font-black uppercase tracking-widest text-white/20">Tuân thủ quy tắc cộng đồng CINEMA+</span>
-                      <button className="btn-primary py-4 px-12 text-xs uppercase tracking-[0.3em] font-black group">
-                        <Send className="w-4 h-4 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
-                        Gửi bình luận
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                <CommentForm
+                  value={newComment}
+                  setValue={setNewComment}
+                  onSubmit={addComment}
+                  loading={commentLoading}
+                />
               ) : (
                 <Link to="/login" className="flex items-center gap-6 p-8 glass-dark rounded-[2rem] border border-white/5 hover:border-primary/30 transition-all group">
                   <div className="w-16 h-16 rounded-[1.25rem] bg-surface-container flex items-center justify-center border border-white/10 shrink-0">
                     <MessageSquare className="w-7 h-7 text-on-surface-variant group-hover:text-primary transition-colors" />
                   </div>
                   <div>
-                    <p className="text-base font-black text-white uppercase tracking-wide">Đăng nhập để bình luận</p>
+                    <p className="text-base font-black text-white uppercase tracking-wide">Đăng nhập để bình luận & đánh giá</p>
                     <p className="text-xs text-on-surface-variant/60 font-medium mt-1">Chia sẻ cảm nhận của bạn về bộ phim này cùng cộng đồng Cinema+</p>
                   </div>
                 </Link>
               )}
+
+              {commentError && (
+                <div className="p-4 rounded-3xl bg-red-500/10 border border-red-500/20 text-red-200 text-sm">
+                  {commentError}
+                </div>
+              )}
+
+              {ratingError && (
+                <div className="p-4 rounded-3xl bg-red-500/10 border border-red-500/20 text-red-200 text-sm">
+                  {ratingError}
+                </div>
+              )}
+
+              <div className="glass p-6 rounded-3xl border border-white/10 mb-10">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                  <div>
+                    <p className="text-sm uppercase tracking-[0.3em] text-primary font-black mb-2">Đánh giá của bạn</p>
+                    <p className="text-xs text-on-surface-variant">Chọn số sao để đánh giá phim này</p>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    <StarRating value={userRating || 0} editable onChange={async (value) => {
+                      if (!user) {
+                        navigate('/login');
+                        return;
+                      }
+                      await updateRating(value);
+                    }} />
+                    <span className="text-sm font-black text-white">
+                      {userRating ? `Bạn đã đánh giá ${userRating} sao` : 'Chưa đánh giá'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <CommentSection
+                comments={comments}
+                averageRating={averageRating ?? movie.average_rating ?? movie.rating ?? 0}
+                ratingCount={ratingCount}
+              />
+
+
             </div>
           </div>
 

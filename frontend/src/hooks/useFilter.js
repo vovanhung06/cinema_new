@@ -10,6 +10,8 @@ export const useFilter = () => {
 
   const [filteredMovies, setFilteredMovies] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState(null);
 
   // ===== MAP UI -> BE =====
   const genreMap = {
@@ -40,17 +42,20 @@ export const useFilter = () => {
 
   useEffect(() => {
     const timeout = setTimeout(() => {
-      fetchMovies();
+      fetchMovies(page);
     }, 300);
 
     return () => clearTimeout(timeout);
-  }, [activeFilters]);
+  }, [activeFilters, page]);
 
-  const fetchMovies = async () => {
+  const fetchMovies = async (currentPage) => {
     try {
       setLoading(true);
 
-      const params = {};
+      const params = {
+        page: currentPage,
+        limit: 12,
+      };
 
       // ===== FILTER =====
       if (activeFilters.genre !== "Tất cả") {
@@ -67,7 +72,8 @@ export const useFilter = () => {
 
       console.log("FILTER PARAMS:", params);
 
-      const data = await getPublicMovies(params);
+      const response = await getPublicMovies(params);
+      const data = response.data || [];
 
       // ===== MAP DATA CHO MovieCard =====
       const mappedData = data.map(movie => ({
@@ -80,6 +86,7 @@ export const useFilter = () => {
       }));
 
       setFilteredMovies(mappedData);
+      setPagination(response.pagination || null);
 
     } catch (err) {
       console.error(err);
@@ -93,6 +100,7 @@ export const useFilter = () => {
       ...prev,
       [type]: value,
     }));
+    setPage(1); // Reset to page 1 on filter change
   };
 
   return {
@@ -100,5 +108,8 @@ export const useFilter = () => {
     filteredMovies,
     updateFilter,
     loading,
+    page,
+    setPage,
+    pagination,
   };
 };

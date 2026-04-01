@@ -1,17 +1,16 @@
 import {
-  CheckCircle2,
-  XCircle,
-  Search,
-  MoreVertical,
-  ThumbsUp,
-  ThumbsDown,
-  Flag,
+  MessageSquare,
   Sparkles,
-  Megaphone,
   ArrowRight,
   Trash2,
   AlertTriangle,
-  Star
+  Clock,
+  Film,
+  ChevronLeft,
+  ChevronRight,
+  X,
+  CheckCircle2,
+  Search
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../../lib/utils.js';
@@ -32,154 +31,228 @@ export default function CommentManagement() {
     closeDeleteSuccessModal,
     searchTerm,
     setSearchTerm,
+    page,
+    setPage,
+    pagination,
+    loading
   } = useComments();
 
-  const pendingCount = comments.filter(c => c.status === 'Trung lập').length;
-  const violationCount = comments.filter(c => c.status === 'Vi phạm').length;
+  const totalComments = pagination?.total || 0;
 
   const stats = [
-    { label: 'Tổng bình luận', value: comments.length, sub: '+24% hôm nay', color: 'text-green-400' },
-    ];
+    { label: 'Tổng số bình luận', value: totalComments, sub: 'Toàn hệ thống', color: 'text-blue-400', icon: MessageSquare },
+    { label: 'Bình luận mới', value: comments.length, sub: 'Trên trang này', color: 'text-green-400', icon: Sparkles },
+    { label: 'Cần kiểm duyệt', value: '0', sub: 'Tự động lọc', color: 'text-yellow-400', icon: AlertTriangle },
+  ];
 
   return (
     <div className="p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
       <PageHeader
-        title="QUẢN LÝ BÌNH LUẬN"
-        description="Hệ thống kiểm duyệt nội dung bình luận."
-        badge="Comment Control"
-      >
-      </PageHeader>
+        title="Quản Lý Bình Luận"
+        description="Theo dõi và kiểm duyệt các phản hồi từ cộng đồng người xem phim."
+        badge="Community Control"
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {stats.map((stat, i) => (
-          <div key={i} className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/10">
-            <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest mb-1">{stat.label}</p>
-            <h3 className="text-3xl font-black text-on-surface font-headline">{stat.value}</h3>
-            <p className={cn("text-xs mt-2 font-semibold", stat.color)}>{stat.sub}</p>
-          </div>
+          <motion.div 
+            key={i}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10 hover:border-primary-container/30 transition-all group relative overflow-hidden"
+          >
+             <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
+              <stat.icon className="w-24 h-24" />
+            </div>
+            <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] mb-1">{stat.label}</p>
+            <h3 className="text-4xl font-black text-on-surface font-headline italic tracking-tight">{stat.value}</h3>
+            <p className={cn("text-xs mt-2 font-bold uppercase tracking-widest", stat.color)}>{stat.sub}</p>
+          </motion.div>
         ))}
       </div>
 
-      <div className="grid grid-cols-12 gap-6">
-        <div className="col-span-12 lg:col-span-9 bg-surface-container-low rounded-2xl overflow-hidden border border-outline-variant/10">
-          <div className="p-6 border-b border-surface-container-high flex items-center justify-between">
-            <div className="flex items-center gap-2 bg-surface-container px-3 py-1.5 rounded-lg border border-outline-variant/10">
-              <Search className="w-4 h-4 text-on-surface-variant" />
-              <input
-                className="bg-transparent border-none text-xs focus:ring-0 outline-none w-48"
-                placeholder="Tìm kiếm bình luận..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+      <div className="bg-surface-container-low rounded-[2rem] overflow-hidden border border-outline-variant/10 shadow-2xl">
+        <div className="p-6 border-b border-surface-container-high flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3 bg-surface-container px-5 py-3 rounded-2xl border border-outline-variant/10 w-full md:w-96 focus-within:ring-2 focus-within:ring-primary-container/30 transition-all">
+            <Search className="w-4 h-4 text-on-surface-variant" />
+            <input
+              className="bg-transparent border-none text-sm focus:ring-0 outline-none w-full placeholder:text-on-surface-variant/40 font-bold"
+              placeholder="Tìm kiếm nội dung, người dùng..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
+        </div>
 
-          <div className="divide-y divide-surface-container-high">
-            {comments.map((comment) => (
-              <div key={comment.id} className="p-6 hover:bg-surface-container-high/20 transition-colors group">
-                <div className="flex gap-4">
-                  <img alt={comment.user} className="w-12 h-12 rounded-full border border-outline-variant/20 shrink-0" src={comment.avatar} referrerPolicy="no-referrer" />
-                  <div className="flex-1">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-on-surface">{comment.user}</span>
-                          <span className="text-[10px] text-on-surface-variant uppercase font-bold tracking-tighter"> đã bình luận trong phim </span>
-                          <span className="text-xs font-bold text-primary-container hover:underline cursor-pointer">{comment.movie}</span>
+        <div className="divide-y divide-outline-variant/5">
+          {loading && (
+            <div className="p-12 text-center text-on-surface-variant font-bold uppercase tracking-widest animate-pulse">
+               Đang tải dữ liệu...
+            </div>
+          )}
+          {!loading && comments.length === 0 && (
+            <div className="p-12 text-center text-on-surface-variant font-bold uppercase tracking-widest">
+               Không tìm thấy bình luận nào
+            </div>
+          )}
+          {!loading && comments.map((comment) => (
+            <motion.div 
+              layout
+              key={comment.id} 
+              className="p-8 hover:bg-surface-container-high/20 transition-all group border-l-4 border-l-transparent hover:border-l-primary-container"
+            >
+              <div className="flex gap-6">
+                <div className="relative shrink-0">
+                  <img 
+                    alt={comment.user} 
+                    className="w-14 h-14 rounded-2xl border-2 border-outline-variant/10 group-hover:border-primary-container/50 transition-colors object-cover" 
+                    src={comment.avatar} 
+                    referrerPolicy="no-referrer" 
+                  />
+                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-surface-container rounded-full flex items-center justify-center border border-outline-variant/10">
+                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                  </div>
+                </div>
+                
+                <div className="flex-1">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <div className="flex items-center gap-3 flex-wrap">
+                        <span className="font-black text-on-surface text-lg">{comment.user}</span>
+                        <div className="flex items-center gap-2 px-3 py-1 bg-primary-container/10 rounded-full border border-primary-container/20">
+                          <Film className="w-3 h-3 text-primary-container" />
+                          <span className="text-[10px] font-black text-primary-container uppercase tracking-tight">{comment.movie}</span>
                         </div>
-                        <p className="text-xs text-on-surface-variant mt-0.5">{comment.time}</p>
                       </div>
-                      <div className="flex gap-2">
-                        <button
-                          onClick={() => handleDeleteClick(comment)}
-                          className="p-2 rounded-lg bg-surface-container-high text-primary-container hover:bg-primary-container hover:text-white transition-all shadow-sm"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      <div className="flex items-center gap-4 mt-1">
+                        <div className="flex items-center gap-1.5 text-[10px] font-bold text-on-surface-variant uppercase tracking-widest">
+                          <Clock className="w-3 h-3" />
+                          {comment.time}
+                        </div>
                       </div>
                     </div>
-                    <p className={cn(
-                      "mt-3 text-sm leading-relaxed",
-                      comment.isSpam ? "text-primary-container font-medium italic" : "text-on-surface"
-                    )}>
-                      {comment.content}
-                    </p>
+                    
+                    <div className="flex gap-2">
+                       <button
+                        onClick={() => handleDeleteClick(comment)}
+                        className="p-3 rounded-xl bg-surface-container-highest text-primary-container hover:bg-primary-container hover:text-white transition-all shadow-lg active:scale-95"
+                        title="Xóa bình luận"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 p-5 bg-surface-container/50 rounded-2xl border border-outline-variant/5 group-hover:border-primary-container/10 transition-all font-medium text-on-surface leading-relaxed relative">
+                    <div className="absolute -top-2 left-6 w-4 h-4 bg-surface-container/50 border-l border-t border-outline-variant/5 rotate-45"></div>
+                    {comment.content}
                   </div>
                 </div>
               </div>
-            ))}
-          </div>
-
-          <div className="p-6 bg-surface-container border-t border-surface-container-high flex items-center justify-center">
-            <button className="text-xs font-bold text-on-surface-variant hover:text-on-surface flex items-center gap-2 transition-all group">
-              Xem thêm bình luận cũ hơn
-              <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </div>
+            </motion.div>
+          ))}
         </div>
+
+        {pagination && pagination.total > 0 && (
+          <div className="p-8 bg-surface-container-high/30 border-t border-outline-variant/10 flex flex-col md:flex-row items-center justify-between gap-6">
+            <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em]">
+              Hiển thị {(pagination.page - 1) * pagination.limit + 1}-
+              {Math.min(pagination.page * pagination.limit, pagination.total)} 
+              {` `}trên {pagination.total} bình luận
+            </p>
+            
+            <div className="flex items-center gap-3">
+              <button 
+                onClick={() => setPage(page - 1)}
+                disabled={page <= 1}
+                className="w-10 h-10 rounded-2xl bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high disabled:opacity-20 transition-all flex items-center justify-center border border-outline-variant/10"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+              
+              <div className="flex gap-2">
+                {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => {
+                  // logic to show only few pages if totalPages is large
+                  if (pagination.totalPages > 5) {
+                    if (p > 1 && p < pagination.totalPages && Math.abs(p - page) > 1) {
+                      if (p === 2 || p === pagination.totalPages - 1) return <span key={p} className="text-on-surface-variant">...</span>;
+                      return null;
+                    }
+                  }
+
+                  return (
+                    <button 
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`w-10 h-10 rounded-2xl text-[10px] font-black transition-all ${
+                        p === page 
+                          ? 'bg-primary-container text-white shadow-xl shadow-primary-container/30 scale-110' 
+                          : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <button 
+                onClick={() => setPage(page + 1)}
+                disabled={page >= pagination.totalPages}
+                className="w-10 h-10 rounded-2xl bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high disabled:opacity-20 transition-all flex items-center justify-center border border-outline-variant/10"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Delete Confirmation Modal */}
       <AnimatePresence>
         {isDeleteModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-surface-container-lowest/60 backdrop-blur-sm">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={closeDeleteModal}
-              className="absolute inset-0"
-            ></motion.div>
-
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-surface-dim/80 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md bg-surface-container-high rounded-[2rem] shadow-[0_20px_40px_rgba(229,9,20,0.15)] border border-outline-variant/10 overflow-hidden"
+              className="relative w-full max-w-md bg-surface-container p-10 rounded-[3rem] shadow-[0_32px_64px_rgba(0,0,0,0.6)] border border-outline-variant/10 text-center relative overflow-hidden"
             >
-              {/* Red Warning Header Accent */}
-              <div className="h-1.5 w-full bg-gradient-to-r from-primary-container via-primary-container/80 to-primary-container"></div>
-
-              <div className="p-8">
-                {/* Warning Icon */}
-                <div className="mb-6 flex justify-center">
-                  <div className="w-16 h-16 rounded-full bg-primary-container/10 flex items-center justify-center relative">
-                    <AlertTriangle className="w-8 h-8 text-primary-container relative z-10" />
-                    <div className="absolute inset-0 rounded-full border border-primary-container/40 animate-ping opacity-20 scale-125"></div>
-                  </div>
+              <div className="absolute -top-24 -left-24 w-48 h-48 bg-primary-container/10 blur-[100px] rounded-full"></div>
+              
+              <div className="relative z-10">
+                <div className="w-24 h-24 bg-red-500/10 rounded-full flex items-center justify-center mb-8 mx-auto relative">
+                  <div className="absolute inset-0 bg-red-500/20 blur-2xl rounded-full animate-pulse"></div>
+                  <Trash2 className="w-12 h-12 text-red-400" />
                 </div>
 
-                {/* Text Content */}
-                <div className="text-center mb-10">
-                  <h2 className="text-2xl font-headline font-extrabold text-white mb-3 tracking-tight uppercase italic">Xác nhận xóa bình luận</h2>
-                  <p className="text-on-surface-variant font-body leading-relaxed px-2 text-sm">
-                    Bạn có chắc chắn muốn xóa bình luận của <span className="text-white font-semibold">{selectedComment?.user}</span> không? Hành động này <span className="text-white font-semibold">không thể hoàn tác</span>.
-                  </p>
-                </div>
+                <h2 className="text-2xl font-headline font-black text-on-surface mb-3 tracking-tight uppercase italic">Xác nhận xóa</h2>
+                <p className="text-on-surface-variant font-bold text-xs uppercase tracking-widest leading-relaxed mb-10 max-w-[280px] mx-auto">
+                  Bạn có chắc chắn muốn xóa bình luận của <span className="text-on-surface font-black">"{selectedComment?.user}"</span>? Hành động này không thể hoàn tác.
+                </p>
 
-                {/* Action Buttons */}
-                <div className="grid grid-cols-2 gap-4">
-                  <button
-                    onClick={closeDeleteModal}
-                    className="px-6 py-3.5 rounded-xl border-2 border-outline-variant/20 hover:bg-surface-bright text-on-surface font-headline font-bold text-sm transition-all active:scale-95 duration-200"
-                  >
-                    Hủy bỏ
-                  </button>
+                <div className="flex flex-col gap-3">
                   <button
                     onClick={handleConfirmDelete}
-                    className="px-6 py-3.5 rounded-xl bg-primary-container hover:bg-primary-container/90 text-white font-headline font-bold text-sm shadow-lg shadow-primary-container/30 transition-all active:scale-95 duration-200"
+                    className="w-full py-5 bg-red-500 text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-red-500/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
                   >
                     Xác nhận xóa
+                  </button>
+                  <button
+                    onClick={closeDeleteModal}
+                    className="w-full py-5 bg-surface-container-high text-on-surface font-black rounded-2xl uppercase tracking-widest text-sm hover:bg-surface-container-highest transition-all"
+                  >
+                    Hủy bỏ
                   </button>
                 </div>
               </div>
 
-              {/* Close Button (X) */}
               <button
                 onClick={closeDeleteModal}
-                className="absolute top-4 right-4 text-on-surface-variant hover:text-white transition-colors"
+                className="absolute top-6 right-6 p-2 text-on-surface-variant hover:text-on-surface"
               >
-                <XCircle className="w-5 h-5" />
+                <X className="w-5 h-5" />
               </button>
             </motion.div>
           </div>
@@ -189,46 +262,29 @@ export default function CommentManagement() {
       {/* Delete Success Modal */}
       <AnimatePresence>
         {isDeleteSuccessModalOpen && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-surface-dim/90 backdrop-blur-sm">
+          <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 bg-surface-dim/80 backdrop-blur-md">
             <motion.div
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-md mx-4"
+              className="w-full max-w-md bg-surface-container p-10 rounded-[3rem] shadow-[0_32px_64px_rgba(0,0,0,0.6)] border border-outline-variant/10 text-center relative overflow-hidden"
             >
-              {/* Tinted Glow Background */}
-              <div className="absolute inset-0 bg-primary-container/5 blur-3xl rounded-full"></div>
-
-              <div className="relative bg-surface-container-low/80 backdrop-blur-2xl rounded-xl border border-outline-variant/10 p-10 flex flex-col items-center text-center shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
-                {/* Success Icon with Radial Glow */}
-                <div className="mb-8 relative">
-                  <div className="absolute inset-0 bg-green-500/20 blur-2xl rounded-full scale-150"></div>
-                  <div className="w-24 h-24 bg-surface-container-highest rounded-full flex items-center justify-center border border-green-500/30 relative z-10">
-                    <CheckCircle2 className="w-12 h-12 text-green-400" />
-                  </div>
+               <div className="w-24 h-24 bg-green-500/10 rounded-full flex items-center justify-center mb-8 mx-auto relative">
+                  <div className="absolute inset-0 bg-green-500/20 blur-2xl rounded-full animate-pulse"></div>
+                  <CheckCircle2 className="w-12 h-12 text-green-400" />
                 </div>
 
-                {/* Content */}
-                <div className="space-y-3 mb-10">
-                  <h2 className="text-2xl font-headline font-bold text-on-surface tracking-tight uppercase italic">
-                    Xóa bình luận thành công!
-                  </h2>
-                  <p className="text-on-surface-variant font-body text-sm leading-relaxed max-w-[280px] mx-auto">
-                    Phản hồi đã được loại bỏ vĩnh viễn khỏi hệ thống quản lý nội dung của bạn.
-                  </p>
-                </div>
+                <h2 className="text-2xl font-headline font-black text-on-surface mb-3 tracking-tight uppercase italic">Thành công!</h2>
+                <p className="text-on-surface-variant font-bold text-xs uppercase tracking-widest leading-relaxed mb-10 mx-auto">
+                  Bình luận đã được xóa vĩnh viễn khỏi hệ thống.
+                </p>
 
-                {/* Action Button */}
                 <button
                   onClick={closeDeleteSuccessModal}
-                  className="w-full py-4 bg-primary-container hover:bg-primary-container/90 text-white font-headline font-bold rounded-xl transition-all duration-300 scale-100 active:scale-95 shadow-lg shadow-primary-container/20 group"
+                  className="w-full py-5 bg-primary-container text-white rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-primary-container/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
                 >
-                  <span className="flex items-center justify-center gap-2">
-                    Đóng
-                    <XCircle className="w-4 h-4 group-hover:rotate-90 transition-transform" />
-                  </span>
+                  Xong
                 </button>
-              </div>
             </motion.div>
           </div>
         )}

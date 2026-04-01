@@ -66,13 +66,27 @@ exports.getCommentsByMovie = async (req, res) => {
 // ================= GET ALL COMMENTS (ADMIN) =================
 exports.getAllComments = async (req, res) => {
   const { page, limit, offset } = parsePagination(req);
+  const search = req.query.search || "";
 
   try {
-    const countSql = `SELECT COUNT(*) AS total FROM comments`;
-    const [countRows] = await db.promise().query(countSql);
+    // 1️⃣ Count total comments (with search if provided)
+    let countSql = `
+      SELECT COUNT(*) AS total 
+      FROM comments c
+      JOIN users u ON c.user_id = u.id
+      JOIN movies m ON c.movie_id = m.id
+      WHERE 1=1
+    `;
+    let countParams = [];
+    if (search) {
+      countSql += ` AND (c.comment LIKE ? OR u.username LIKE ? OR m.title LIKE ?)`;
+      countParams.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    }
+    const [countRows] = await db.promise().query(countSql, countParams);
     const total = countRows[0]?.total || 0;
 
-    const sql = `
+    // 2️⃣ Get comments for current page
+    let sql = `
       SELECT
         c.id,
         c.movie_id AS movieId,
@@ -84,11 +98,17 @@ exports.getAllComments = async (req, res) => {
       FROM comments c
       JOIN users u ON c.user_id = u.id
       JOIN movies m ON c.movie_id = m.id
-      ORDER BY c.created_at DESC
-      LIMIT ? OFFSET ?
+      WHERE 1=1
     `;
+    let params = [];
+    if (search) {
+      sql += ` AND (c.comment LIKE ? OR u.username LIKE ? OR m.title LIKE ?)`;
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    }
+    sql += ` ORDER BY c.created_at DESC LIMIT ? OFFSET ?`;
+    params.push(limit, offset);
 
-    const [comments] = await db.promise().query(sql, [limit, offset]);
+    const [comments] = await db.promise().query(sql, params);
 
     res.json({
       data: comments,

@@ -1,107 +1,198 @@
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import PricingCard from '../components/user/Pricing/PricingCard.jsx';
 import ComparisonTable from '../components/user/Pricing/ComparisonTable.jsx';
 import Benefits from '../components/user/Pricing/Benefits.jsx';
+import { useAuth } from '../hooks/useAuth';
+import { motion } from 'motion/react';
+import { ChevronDown } from 'lucide-react';
 
 export default function VIPSelection() {
-  const plans = [
+  const { user } = useAuth();
+  const [vipPlan, setVipPlan] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchVip = async () => {
+      try {
+        const res = await axios.get('http://localhost:3000/api/vip');
+        if (res.data.success && res.data.vip) {
+          setVipPlan(res.data.vip);
+        }
+      } catch (err) {
+        console.error('Lỗi khi tải gói VIP:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchVip();
+  }, []);
+
+  const plans = vipPlan ? [
     {
-      title: 'Gói Tháng',
-      description: 'Trải nghiệm linh hoạt',
-      price: '79.000đ',
+      title: vipPlan.title,
+      description: 'Trải nghiệm linh hoạt và cao cấp nhất dành cho tín đồ điện ảnh thực thụ.',
+      price: `${parseInt(vipPlan.price).toLocaleString('vi-VN')}₫`,
       period: 'tháng',
-      features: ['Tất cả quyền lợi VIP', 'Tự động gia hạn hàng tháng', 'Hủy bất cứ lúc nào'],
-      isFeatured: false
-    },
-    {
-      title: 'Gói Năm',
-      description: 'Tiết kiệm 30% hàng năm',
-      price: '660.000đ',
-      period: 'năm',
-      subPrice: 'Chỉ ~55.000đ/tháng',
-      features: ['Đặc quyền xem trước phim mới', 'Ưu đãi voucher CGV/Lotte', 'Chất lượng hình ảnh tốt nhất'],
+      features: [
+        'Tất cả quyền lợi VIP không giới hạn', 
+        'Đặc quyền xem trước phim mới nhất', 
+        'Chất lượng 4K Ultra HD + Dolby Atmos', 
+        'Không quảng cáo 100%',
+        'Tải phim xem offline mọi lúc'
+      ],
       isFeatured: true,
-      badge: 'Phổ biến nhất'
-    },
-    {
-      title: 'Gói Gia đình',
-      description: 'Dành cho 6 người dùng',
-      price: '149.000đ',
-      period: 'tháng',
-      features: ['Chia sẻ tối đa 6 tài khoản', 'Hồ sơ trẻ em bảo mật', 'Mỗi người một danh sách riêng'],
-      isFeatured: false
+      badge: 'Gói Phổ Biến Nhất'
     }
-  ];
+  ] : [];
 
   return (
-    <div className="animate-in fade-in duration-700 pt-20">
-      {/* Hero Section */}
-      <section className="relative min-h-[500px] flex items-center justify-center overflow-hidden px-6">
+    <div className="bg-[#0a0a0a] min-h-screen pb-32 overflow-x-hidden">
+      {/* Hero Section - High Impact */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden px-6">
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-t from-[#131313] via-[#131313]/60 to-transparent"></div>
-          <img 
-            className="w-full h-full object-cover opacity-30" 
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCNFusLKRJ-AGoOVSEHj5J23HUC7Dq99K5b2p02hW0W5bR90CIB2gSggU3BIXeTlzV3AzFxKyafZ2UClZxiI_IVsgYHVXGTb1kIUrhhwgOfKQM8aeHToHOiVtY-Px9RSLejiwbSE6ZFEexOwSAC9CefvC_cBgRU4aZRCegBSOFkR2IjajOrEWyOrhNE07kZNk8DwYnHg3ntmIz2IZz7-seJ5ueErhGercA10vistraA4LmGjt2ehWDIa19gnf5FeC-ZzxDhSW_RbNw" 
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a0a0a]/80 to-[#0a0a0a] z-10"></div>
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(220,38,38,0.2),transparent_70%)] z-10"></div>
+          <motion.img 
+            initial={{ scale: 1.1, opacity: 0 }}
+            animate={{ scale: 1, opacity: 0.4 }}
+            transition={{ duration: 2 }}
+            className="w-full h-full object-cover grayscale-[30%]" 
+            src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&q=80&w=2070" 
             alt="Cinema background"
-            referrerPolicy="no-referrer"
           />
         </div>
-        <div className="relative z-10 text-center max-w-4xl py-20">
-          <span className="inline-block py-1 px-4 rounded-full border border-red-500/30 text-red-500 text-xs tracking-[0.2em] uppercase mb-6 bg-red-500/5">
-            Cinema+ Premium
-          </span>
-          <h1 className="text-5xl md:text-6xl font-extrabold tracking-tighter text-white mb-6 leading-[1.1]">
-            Nâng cấp trải nghiệm với <span className="bg-gradient-to-r from-yellow-400 to-red-400 bg-clip-text text-transparent">Gói VIP</span>
-          </h1>
-          <p className="text-neutral-400 text-lg max-w-2xl mx-auto leading-relaxed mb-8">
-            Đắm chìm trong không gian điện ảnh không giới hạn. Xem phim bom tấn sớm nhất, chất lượng tuyệt đỉnh và hoàn toàn không bị làm phiền bởi quảng cáo.
-          </p>
+
+        <div className="relative z-20 text-center max-w-5xl py-20">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <span className="inline-flex items-center gap-2 py-2 px-6 rounded-full border border-red-500/30 text-red-500 text-[10px] font-black tracking-[0.3em] uppercase mb-10 bg-red-500/5 backdrop-blur-xl">
+              <span className="w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
+              Cinema+ Premium Experience
+            </span>
+            <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-white mb-10 leading-[0.95] italic uppercase">
+              Định nghĩa lại <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-orange-400 to-red-500 animate-gradient-x">Giải trí đỉnh cao.</span>
+            </h1>
+            <p className="text-neutral-400 text-lg md:text-xl max-w-2xl mx-auto leading-relaxed mb-12 font-medium italic">
+              Đắm chìm trong không gian điện ảnh không giới hạn. Xem phim bom tấn sớm nhất, chất lượng tuyệt đỉnh và hoàn toàn không quảng cáo.
+            </p>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 1, duration: 1 }}
+            className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer opacity-40 hover:opacity-100 transition-opacity"
+            onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+          >
+             <span className="text-[10px] font-black uppercase tracking-widest text-white">Khám phá gói cước</span>
+             <ChevronDown className="w-5 h-5 animate-bounce" />
+          </motion.div>
         </div>
       </section>
 
       {/* Pricing Section */}
-      <section className="max-w-7xl mx-auto px-6 py-12">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">Các gói VIP linh hoạt</h2>
-          <p className="text-neutral-400">Tiết kiệm hơn với các gói đăng ký dài hạn</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
-          {plans.map((plan, index) => (
-            <PricingCard key={index} {...plan} />
-          ))}
+      <section className="max-w-7xl mx-auto px-6 relative z-30 -mt-20">
+        <motion.div 
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-16"
+        >
+          <h2 className="text-sm font-black text-red-500 uppercase tracking-[0.4em] mb-4">Lựa chọn của bạn</h2>
+          <h3 className="text-4xl md:text-5xl font-black text-white italic uppercase tracking-tighter">Gói VIP <span className="text-glow">Đặc quyền.</span></h3>
+        </motion.div>
+
+        <div className="max-w-xl mx-auto">
+          {loading ? (
+             <div className="flex flex-col items-center justify-center py-20 gap-4">
+                <div className="w-12 h-12 border-4 border-red-600/20 border-t-red-600 rounded-full animate-spin"></div>
+                <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Đang khởi tạo cấu hình...</p>
+             </div>
+          ) : plans.length > 0 ? (
+            plans.map((plan, index) => (
+              <PricingCard key={index} {...plan} isVip={user?.is_vip} vipExpiry={user?.vip_expired_at} />
+            ))
+          ) : (
+             <div className="text-neutral-400 text-center py-20 glass-dark rounded-[2rem] border border-white/5">
+                <p className="font-black uppercase text-[10px] tracking-widest">Hiện chưa có gói VIP khả dụng.</p>
+             </div>
+          )}
         </div>
       </section>
 
       {/* Comparison Section */}
-      <section className="max-w-5xl mx-auto px-6 py-24">
-        <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">So sánh quyền lợi</h2>
-          <p className="text-neutral-400">Lựa chọn gói dịch vụ phù hợp nhất với nhu cầu giải trí của bạn</p>
-        </div>
-        <ComparisonTable />
+      <section className="max-w-6xl mx-auto px-6 py-40">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-20"
+        >
+          <h2 className="text-[10px] font-black text-red-500 uppercase tracking-[0.4em] mb-4">Minh bạch & Rõ ràng</h2>
+          <h3 className="text-4xl md:text-5xl font-black text-white italic uppercase tracking-tighter">Giá trị <span className="text-glow">vượt trội.</span></h3>
+        </motion.div>
+        
+        <motion.div
+           initial={{ opacity: 0, scale: 0.95 }}
+           whileInView={{ opacity: 1, scale: 1 }}
+           viewport={{ once: true }}
+        >
+          <ComparisonTable />
+        </motion.div>
       </section>
 
       {/* Benefits Section */}
-      <section className="max-w-7xl mx-auto px-6 py-24">
+      <section className="max-w-7xl mx-auto px-6 py-20">
+        <motion.div 
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="text-center mb-20"
+        >
+          <h2 className="text-[10px] font-black text-red-500 uppercase tracking-[0.4em] mb-4">Trải nghiệm đỉnh cao</h2>
+          <h3 className="text-4xl md:text-5xl font-black text-white italic uppercase tracking-tighter">Đặc quyền <span className="text-glow">Vô hạn.</span></h3>
+        </motion.div>
         <Benefits />
       </section>
 
       {/* Final CTA */}
-      <section className="max-w-5xl mx-auto px-6 py-24 text-center">
-        <div className="p-12 rounded-[2rem] bg-gradient-to-br from-red-600/20 to-neutral-800 border border-neutral-700 relative overflow-hidden">
-          <div className="absolute -right-20 -top-20 w-64 h-64 bg-red-600/10 rounded-full blur-[100px]"></div>
-          <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-orange-600/10 rounded-full blur-[100px]"></div>
-          <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-6 relative z-10">
-            Bạn đã sẵn sàng cho trải nghiệm mới?
-          </h2>
-          <p className="text-neutral-400 mb-10 text-lg relative z-10 max-w-2xl mx-auto">
-            Tham gia cộng đồng CINEMA+ VIP ngay hôm nay để nhận ưu đãi dùng thử 7 ngày hoàn toàn miễn phí.
-          </p>
-          <div className="flex justify-center relative z-10">
-            <button className="bg-white text-black font-bold py-5 px-12 rounded-2xl hover:bg-neutral-200 transition-colors">
-              Dùng thử miễn phí
-            </button>
+      <section className="max-w-6xl mx-auto px-6 py-20">
+        <motion.div 
+          initial={{ opacity: 0, y: 50 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="p-16 md:p-24 rounded-[4rem] bg-gradient-to-br from-red-600 via-red-900 to-black relative overflow-hidden group"
+        >
+          <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.1)_0%,transparent_70%)] -z-0"></div>
+          <motion.div 
+            animate={{ 
+              scale: [1, 1.2, 1],
+              opacity: [0.1, 0.2, 0.1]
+            }} 
+            transition={{ duration: 10, repeat: Infinity }}
+            className="absolute -right-20 -top-20 w-96 h-96 bg-red-400 rounded-full blur-[120px]"
+          ></motion.div>
+          
+          <div className="relative z-10 text-center max-w-3xl mx-auto space-y-10">
+            <h2 className="text-5xl md:text-7xl font-black text-white italic uppercase tracking-tighter leading-tight">
+              Sẵn sàng cho <br />
+              <span className="text-glow">Kỷ nguyên mới?</span>
+            </h2>
+            <p className="text-white/60 text-lg font-medium italic">
+              Đừng để những quảng cáo phiền nhiễu làm gián đoạn cảm xúc của bạn. Gia nhập cộng đồng Cinema+ VIP ngay hôm nay.
+            </p>
+            <div className="flex justify-center pt-6">
+              <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="px-16 py-7 bg-white text-black font-black uppercase text-xs tracking-widest rounded-3xl hover:bg-black hover:text-white transition-all transform hover:scale-105 active:scale-95 shadow-2xl shadow-black/40">
+                BẮT ĐẦU NGAY BÂY GIỜ
+              </button>
+            </div>
           </div>
-        </div>
+        </motion.div>
       </section>
     </div>
   );

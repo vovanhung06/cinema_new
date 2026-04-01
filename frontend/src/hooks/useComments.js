@@ -36,10 +36,14 @@ const normalizeComments = (rawComments) =>
 
 export function useComments(movieId) {
   const [comments, setComments] = useState([]);
-  const [newComment, setNewComment] = useState('');
-  const [searchTerm, setSearchTerm] = useState('');
+  const [newComment, setNewComment] = useState("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState(null);
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isDeleteSuccessModalOpen, setIsDeleteSuccessModalOpen] = useState(false);
+  const [isDeleteSuccessModalOpen, setIsDeleteSuccessModalOpen] =
+    useState(false);
   const [selectedComment, setSelectedComment] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -50,32 +54,46 @@ export function useComments(movieId) {
 
     try {
       const response = movieId
-        ? await getCommentsByMovie(movieId)
-        : await getAllComments();
+        ? await getCommentsByMovie(movieId, { page, search: searchTerm })
+        : await getAllComments({ page, search: searchTerm });
 
+      // response format handle
       const received = response.data || {};
       const rawComments = Array.isArray(received)
         ? received
         : received.data || [];
 
       setComments(normalizeComments(rawComments));
+      if (response.pagination || received.pagination) {
+        setPagination(response.pagination || received.pagination);
+      }
     } catch (err) {
-      console.error('Fetch comments failed', err);
-      setError('Không thể tải bình luận. Vui lòng thử lại.');
+      console.error("Fetch comments failed", err);
+      setError("Không thể tải bình luận. Vui lòng thử lại.");
       setComments([]);
     } finally {
       setLoading(false);
     }
   };
 
+  /* ================= INIT & SEARCH ================= */
+  // Reset page when search term changes
   useEffect(() => {
-    fetchComments();
-  }, [movieId]);
+    setPage(1);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      fetchComments();
+    }, searchTerm ? 500 : 0);
+
+    return () => clearTimeout(handler);
+  }, [movieId, page, searchTerm]);
 
   const addComment = async () => {
     if (!movieId) return;
     if (!newComment.trim()) {
-      setError('Nội dung bình luận không được để trống');
+      setError("Nội dung bình luận không được để trống");
       return;
     }
 
@@ -84,11 +102,11 @@ export function useComments(movieId) {
 
     try {
       await createComment({ movieId, content: newComment.trim() });
-      setNewComment('');
+      setNewComment("");
       await fetchComments();
     } catch (err) {
-      console.error('Add comment failed', err);
-      setError('Gửi bình luận thất bại. Vui lòng thử lại');
+      console.error("Add comment failed", err);
+      setError("Gửi bình luận thất bại. Vui lòng thử lại");
     } finally {
       setLoading(false);
     }
@@ -109,8 +127,8 @@ export function useComments(movieId) {
       setIsDeleteModalOpen(false);
       setIsDeleteSuccessModalOpen(true);
     } catch (err) {
-      console.error('Delete comment failed', err);
-      setError('Xoá bình luận thất bại. Vui lòng thử lại');
+      console.error("Delete comment failed", err);
+      setError("Xoá bình luận thất bại. Vui lòng thử lại");
     } finally {
       setLoading(false);
     }
@@ -119,23 +137,15 @@ export function useComments(movieId) {
   const closeDeleteModal = () => setIsDeleteModalOpen(false);
   const closeDeleteSuccessModal = () => setIsDeleteSuccessModalOpen(false);
 
-  const filteredComments = useMemo(() => {
-    if (!searchTerm) return comments;
-    const term = searchTerm.toLowerCase();
-    return comments.filter(
-      (c) =>
-        c.user.toLowerCase().includes(term) ||
-        c.movie.toLowerCase().includes(term) ||
-        c.content.toLowerCase().includes(term)
-    );
-  }, [comments, searchTerm]);
-
   return {
-    comments: filteredComments,
+    comments,
     newComment,
     setNewComment,
     searchTerm,
     setSearchTerm,
+    page,
+    setPage,
+    pagination,
     isDeleteModalOpen,
     isDeleteSuccessModalOpen,
     selectedComment,

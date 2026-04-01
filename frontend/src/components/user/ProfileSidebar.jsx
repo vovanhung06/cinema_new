@@ -31,7 +31,7 @@ const ProfileSidebar = ({ onEditProfile }) => {
   ];
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-80 glass-dark border-r border-white/5 z-40 flex flex-col pt-32 pb-10 px-6">
+    <aside className="fixed left-0 top-0 h-full w-80 glass-dark border-r border-white/5 z-40 lg:flex hidden flex-col pt-32 pb-10 px-6">
       {/* Decorative background glow */}
       <div className="absolute top-0 left-0 w-full h-64 bg-primary/5 blur-[100px] -z-10"></div>
 
@@ -65,9 +65,11 @@ const ProfileSidebar = ({ onEditProfile }) => {
           <div className="space-y-1">
             <h3 className="text-xl font-black text-white italic tracking-tight">{user?.name || "User"}</h3>
             <div className="flex items-center justify-center gap-2">
-              <div className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 rounded-full border border-primary/20">
-                <Crown className="w-3 h-3 text-primary" />
-                <span className="text-[10px] font-black text-primary uppercase tracking-widest">{user?.vipStatus || "STANDARD"} MEMBER</span>
+              <div className={`flex items-center gap-1.5 px-3 py-1 rounded-full border ${user?.is_vip ? 'bg-yellow-500/10 border-yellow-500/20' : 'bg-primary/10 border-primary/20'}`}>
+                <Crown className={`w-3 h-3 ${user?.is_vip ? 'text-yellow-400' : 'text-primary'}`} />
+                <span className={`text-[10px] font-black uppercase tracking-widest ${user?.is_vip ? 'text-yellow-400' : 'text-primary'}`}>
+                  {user?.is_vip ? 'VIP MEMBER' : 'STANDARD'}
+                </span>
               </div>
             </div>
           </div>

@@ -10,6 +10,8 @@ import {
   Wallet,
   Smartphone
 } from 'lucide-react';
+import { upgradeVip } from '../service/vip_service';
+import { useAuth } from '../hooks/useAuth';
 
 export default function Checkout() {
   const location = useLocation();
@@ -18,6 +20,7 @@ export default function Checkout() {
   const [paymentMethod, setPaymentMethod] = useState('card');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const { refreshProfile } = useAuth();
 
   const plan = location.state?.plan;
 
@@ -33,18 +36,28 @@ export default function Checkout() {
     );
   }
 
-  const handlePayment = (e) => {
+  const handlePayment = async (e) => {
     e.preventDefault();
     setIsProcessing(true);
 
-    setTimeout(() => {
+    try {
+      // Gọi API nâng cấp VIP thực tế
+      await upgradeVip();
+      
+      // Làm mới profile để cập nhật header ngay lập tức
+      await refreshProfile();
+
       setIsProcessing(false);
       setIsSuccess(true);
 
       setTimeout(() => {
         navigate('/');
       }, 2000);
-    }, 2000);
+    } catch (err) {
+      console.error('Lỗi nâng cấp VIP:', err);
+      alert('Có lỗi xảy ra trong quá trình nâng cấp VIP. Vui lòng thử lại.');
+      setIsProcessing(false);
+    }
   };
 
   if (isSuccess) {

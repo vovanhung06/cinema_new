@@ -10,7 +10,11 @@ export function useMovies() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
   
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [filterGenre, setFilterGenre] = useState('');
+  const [filterCountry, setFilterCountry] = useState('');
   const [sortBy, setSortBy] = useState('Mới nhất');
   
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -39,18 +43,34 @@ export function useMovies() {
   const [avatarPreview, setAvatarPreview] = useState('');
   const [backgroundPreview, setBackgroundPreview] = useState('');
 
-  // Fetch initial data
+  // Reset page when search or filters change
   useEffect(() => {
-    const fetchInitialData = async () => {
+    setPage(1);
+  }, [searchTerm, filterGenre, filterCountry]);
+
+  // Fetch data
+  useEffect(() => {
+    const fetchData = async () => {
       setIsLoading(true);
       try {
-        const [moviesData, genresData, countriesData] = await Promise.all([
-          getAllMovies(),
+        // Fetch movies with pagination, search, and filters
+        const params = {
+          page,
+          limit: 10,
+          search: searchTerm,
+        };
+
+        if (filterGenre) params.genreId = filterGenre;
+        if (filterCountry) params.countryId = filterCountry;
+
+        const moviesResponse = await getAllMovies(params);
+        const [genresData, countriesData] = await Promise.all([
           getAllGenres(),
           getAllCountries()
         ]);
         
-        setMovies(moviesData);
+        setMovies(moviesResponse.data || []);
+        setPagination(moviesResponse.pagination || null);
         setGenres(genresData);
         setCountries(countriesData);
         setError(null);
@@ -62,22 +82,18 @@ export function useMovies() {
       }
     };
 
-    fetchInitialData();
-  }, []);
+    // Debounce search
+    const handler = setTimeout(() => {
+      fetchData();
+    }, (searchTerm || filterGenre || filterCountry) ? 500 : 0);
 
-  const filteredMovies = useMemo(() => {
+    return () => clearTimeout(handler);
+  }, [page, searchTerm, filterGenre, filterCountry]);
+
+  // Sort (Client-side sorting remains for now as it's on the paginated result)
+  const sortedMovies = useMemo(() => {
     let result = [...movies];
     
-    // Search
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      result = result.filter(m => 
-        m.title.toLowerCase().includes(term) || 
-        (m.genres && m.genres.toLowerCase().includes(term))
-      );
-    }
-
-    // Sort
     if (sortBy === 'Mới nhất') {
       result.sort((a, b) => new Date(b.release_date) - new Date(a.release_date));
     } else if (sortBy === 'Lượt xem cao') {
@@ -87,7 +103,7 @@ export function useMovies() {
     }
 
     return result;
-  }, [movies, searchTerm, sortBy]);
+  }, [movies, sortBy]);
 
   const resetFormData = () => {
     setFormData({
@@ -295,13 +311,20 @@ export function useMovies() {
   };
 
   return {
-    movies: filteredMovies,
+    movies: sortedMovies,
     genres,
     countries,
     isLoading,
     error,
+    page,
+    setPage,
+    pagination,
     searchTerm,
     setSearchTerm,
+    filterGenre,
+    setFilterGenre,
+    filterCountry,
+    setFilterCountry,
     sortBy,
     setSortBy,
     isAddModalOpen,

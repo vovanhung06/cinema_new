@@ -12,8 +12,8 @@ export const usePublicMovies = () => {
       setError(null);
 
       try {
-        const data = await getPublicMovies();
-        setMovies(data || []);
+        const response = await getPublicMovies();
+        setMovies(response.data || []);
       } catch (err) {
         console.error('Error fetching public movies:', err);
         setError(err.message || 'Failed to load movies');

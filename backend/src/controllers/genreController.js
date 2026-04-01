@@ -3,13 +3,6 @@ const db = require("../db");
 /* ================= GET ALL GENRES ================= */
 exports.getAllGenres = (req, res) => {
   try {
-    // kiểm tra quyền admin
-    if (!req.user || req.user.role_id !== 1) {
-      return res.status(403).json({
-        message: "Chỉ admin mới có quyền xem"
-      });
-    }
-
     db.query("SELECT * FROM genres", (err, genres) => {
       if (err) {
         return res.status(500).json(err);

@@ -5,7 +5,7 @@ import { useFilter } from '../hooks/useFilter';
 import MovieCard from '../components/shared/MovieCard';
 
 const Filter = () => {
-  const { activeFilters, filteredMovies, updateFilter } = useFilter();
+  const { activeFilters, filteredMovies, updateFilter, page, setPage, pagination } = useFilter();
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
 
@@ -28,6 +28,11 @@ const Filter = () => {
     activeFilters.year !== 'Tất cả' ||
     activeFilters.country !== 'Tất cả quốc gia' ||
     activeFilters.sort !== 'Mới nhất';
+
+  // Scroll to top when page or filters change
+  React.useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [page, activeFilters]);
 
   return (
     <div className="min-h-screen bg-surface pt-32 pb-40 px-6 lg:px-12 max-w-[1920px] mx-auto">
@@ -204,26 +209,40 @@ const Filter = () => {
           </motion.div>
 
           {/* Pagination - Premium Design */}
-          <nav className="pt-24 flex justify-center items-center gap-4">
-            <button className="w-14 h-14 flex items-center justify-center rounded-2xl glass hover:bg-white/10 text-white transition-all group border border-white/5 active:scale-90">
-              <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-            </button>
-            <div className="flex items-center gap-3">
-              {[1, 2, 3].map(page => (
-                <button
-                  key={page}
-                  className={`w-14 h-14 flex items-center justify-center rounded-2xl font-black text-xs transition-all border ${page === 1 ? 'bg-primary border-primary text-white shadow-xl shadow-primary/30 scale-110' : 'glass border-white/5 text-on-surface-variant hover:bg-white/10 hover:text-white'}`}
-                >
-                  {page}
-                </button>
-              ))}
-              <span className="mx-2 text-white/20 font-black">•••</span>
-              <button className="w-14 h-14 flex items-center justify-center rounded-2xl glass border border-white/5 text-on-surface-variant hover:bg-white/10 hover:text-white font-black text-xs">12</button>
-            </div>
-            <button className="w-14 h-14 flex items-center justify-center rounded-2xl glass hover:bg-white/10 text-white transition-all group border border-white/5 active:scale-90">
-              <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </button>
-          </nav>
+          {pagination && pagination.totalPages > 1 && (
+            <nav className="pt-24 flex justify-center items-center gap-4">
+              <button 
+                onClick={() => setPage(page - 1)}
+                disabled={page <= 1}
+                className="w-14 h-14 flex items-center justify-center rounded-2xl glass hover:bg-white/10 text-white transition-all group border border-white/5 disabled:opacity-30 disabled:pointer-events-none active:scale-90"
+              >
+                <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+              </button>
+              <div className="flex items-center gap-3">
+                {Array.from({ length: Math.min(pagination.totalPages, 7) }, (_, i) => {
+                  // Hiển thị max 7 trang để tránh vỡ UI nếu data quá lớn
+                  // Tạm thời hiển thị các trang đầu do ko có logic spread phức tạp theo yêu cầu
+                  const p = i + 1;
+                  return (
+                    <button
+                      key={p}
+                      onClick={() => setPage(p)}
+                      className={`w-14 h-14 flex items-center justify-center rounded-2xl font-black text-xs transition-all border ${p === page ? 'bg-primary border-primary text-white shadow-xl shadow-primary/30 scale-110' : 'glass border-white/5 text-on-surface-variant hover:bg-white/10 hover:text-white'}`}
+                    >
+                      {p}
+                    </button>
+                  );
+                })}
+              </div>
+              <button 
+                onClick={() => setPage(page + 1)}
+                disabled={page >= pagination.totalPages}
+                className="w-14 h-14 flex items-center justify-center rounded-2xl glass hover:bg-white/10 text-white transition-all group border border-white/5 disabled:opacity-30 disabled:pointer-events-none active:scale-90"
+              >
+                <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </button>
+            </nav>
+          )}
         </div>
       </div>
     </div>

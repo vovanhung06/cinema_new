@@ -53,7 +53,7 @@ const ProfileOverview = ({ user, setIsEditing }) => {
               <div className="flex-1 space-y-8">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12">
                   <div className="space-y-1">
-                    <label className="text-[10px] uppercase tracking-[0.3em] text-on-surface-variant/40 font-black">Họ và tên thành viên</label>
+                    <label className="text-[10px] uppercase tracking-[0.3em] text-on-surface-variant/40 font-black">Họ và tên</label>
                     <p className="text-2xl font-black text-white italic">{user?.name || "User"}</p>
                   </div>
                   <div className="space-y-1">
@@ -93,7 +93,7 @@ const ProfileOverview = ({ user, setIsEditing }) => {
             className="relative rounded-[3rem] p-10 text-white overflow-hidden shadow-2xl shadow-primary/30 min-h-[400px] flex flex-col justify-between"
           >
             {/* Background Layer */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary-container to-black -z-10"></div>
+            <div className={`absolute inset-0 bg-gradient-to-br ${user?.is_vip ? 'from-yellow-600 via-yellow-700 to-black' : 'from-primary via-primary-container to-black'} -z-10`}></div>
             <div className="absolute top-0 right-0 p-4 opacity-5 translate-x-1/4 -translate-y-1/4">
               <Star className="w-64 h-64 fill-white animate-spin-slow" />
             </div>
@@ -102,35 +102,48 @@ const ProfileOverview = ({ user, setIsEditing }) => {
               <div className="inline-block px-4 py-2 bg-white/10 backdrop-blur-xl rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] mb-8 border border-white/10">
                 Premium Status
               </div>
-              <h3 className="text-5xl font-black italic tracking-tighter mb-2 uppercase leading-none">{user.vipStatus}</h3>
-              <p className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em] mb-10">Hiệu lực đến {user.vipExpiry}</p>
+              <h3 className={`text-5xl font-black italic tracking-tighter mb-2 uppercase leading-none ${user?.is_vip ? 'text-yellow-400' : 'text-white'}`}>
+                {user?.is_vip ? 'VIP MEMBER' : 'STANDARD'}
+              </h3>
+              <p className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em] mb-10">
+                {user?.is_vip && user?.vip_expired_at 
+                  ? `Hiệu lực đến ${new Date(user.vip_expired_at).toLocaleDateString('vi-VN')}` 
+                  : 'Tài khoản miễn phí'
+                }
+              </p>
 
               <ul className="space-y-4 mb-10">
-                <li className="flex items-center gap-3 text-xs font-black uppercase tracking-widest">
-                  <div className="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center">
-                    <CheckCircle2 className="w-3 h-3 text-white" />
+                <li className={`flex items-center gap-3 text-xs font-black uppercase tracking-widest ${user?.is_vip ? 'text-white' : 'text-white/40'}`}>
+                  <div className={`w-6 h-6 rounded-lg ${user?.is_vip ? 'bg-yellow-500/20' : 'bg-white/10'} flex items-center justify-center`}>
+                    <CheckCircle2 className={`w-3 h-3 ${user?.is_vip ? 'text-yellow-400' : 'text-white/40'}`} />
                   </div>
-                  4K / Dolby Atmos
+                  Kho phim VIP Độc Quyền
                 </li>
-                <li className="flex items-center gap-3 text-xs font-black uppercase tracking-widest">
-                  <div className="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center">
-                    <CheckCircle2 className="w-3 h-3 text-white" />
+                <li className={`flex items-center gap-3 text-xs font-black uppercase tracking-widest ${user?.is_vip ? 'text-white' : 'text-white/40'}`}>
+                  <div className={`w-6 h-6 rounded-lg ${user?.is_vip ? 'bg-yellow-500/20' : 'bg-white/10'} flex items-center justify-center`}>
+                    <CheckCircle2 className={`w-3 h-3 ${user?.is_vip ? 'text-yellow-400' : 'text-white/40'}`} />
                   </div>
                   Zero Ads Experience
                 </li>
-                <li className="flex items-center gap-3 text-xs font-black uppercase tracking-widest">
-                  <div className="w-6 h-6 rounded-lg bg-white/10 flex items-center justify-center">
-                    <CheckCircle2 className="w-3 h-3 text-white" />
+                <li className={`flex items-center gap-3 text-xs font-black uppercase tracking-widest ${user?.is_vip ? 'text-white' : 'text-white/40'}`}>
+                  <div className={`w-6 h-6 rounded-lg ${user?.is_vip ? 'bg-yellow-500/20' : 'bg-white/10'} flex items-center justify-center`}>
+                    <CheckCircle2 className={`w-3 h-3 ${user?.is_vip ? 'text-yellow-400' : 'text-white/40'}`} />
                   </div>
-                  Unlimited Screens
+                  4K / Dolby Atmos
                 </li>
               </ul>
             </div>
 
-            <button className="relative w-full py-5 bg-white text-black hover:bg-black hover:text-white rounded-[1.5rem] font-black uppercase text-[10px] tracking-[0.3em] transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.15)] group flex items-center justify-center gap-3">
-              Nâng cấp trải nghiệm
-              <CreditCard className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
-            </button>
+            {user?.is_vip ? (
+              <div className="relative w-full py-5 bg-green-500/20 text-green-400 border border-green-500/50 rounded-[1.5rem] font-black uppercase text-[10px] tracking-[0.3em] shadow-[0_10px_30px_rgba(34,197,94,0.1)] flex items-center justify-center gap-3 cursor-default">
+                <CheckCircle2 className="w-4 h-4" /> Kích Hoạt Thành Công
+              </div>
+            ) : (
+              <Link to="/profile/billing" className="relative w-full py-5 bg-white text-black hover:bg-black hover:text-white rounded-[1.5rem] font-black uppercase text-[10px] tracking-[0.3em] transition-all duration-300 shadow-[0_10px_30px_rgba(0,0,0,0.15)] group flex items-center justify-center gap-3">
+                Nâng cấp trải nghiệm
+                <CreditCard className="w-4 h-4 group-hover:rotate-12 transition-transform duration-300" />
+              </Link>
+            )}
           </motion.div>
 
           {/* Recently Viewed */}

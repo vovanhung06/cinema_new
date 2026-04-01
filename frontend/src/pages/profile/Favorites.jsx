@@ -10,6 +10,7 @@ const Favorites = () => {
   const location = useLocation();
   const [favorites, setFavorites] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [fetchError, setFetchError] = useState(null);
 
   const fetchFavorites = async () => {
@@ -20,24 +21,28 @@ const Favorites = () => {
       return;
     }
 
-    setIsLoading(true);
+    if (isInitialLoad) setIsLoading(true);
     setFetchError(null);
 
     try {
       const response = await getFavorites();
-      // Xử lý linh hoạt mọi cấu trúc dữ liệu trả về từ API
       let data = [];
       if (Array.isArray(response)) data = response;
       else if (Array.isArray(response?.data)) data = response.data;
       else if (Array.isArray(response?.data?.data)) data = response.data.data;
 
-      setFavorites(data);
+      // Đảm bảo không có ID trùng lặp có thể gây lỗi key
+      const uniqueData = Array.from(new Map(data.map(item => [item.id, item])).values());
+      setFavorites(uniqueData);
     } catch (error) {
       console.error('Load favorites failed', error);
-      setFavorites([]);
-      setFetchError('Không thể tải danh sách yêu thích. Vui lòng thử lại.');
+      if (favorites.length === 0) {
+         setFavorites([]);
+         setFetchError('Không thể tải danh sách yêu thích. Vui lòng thử lại.');
+      }
     } finally {
       setIsLoading(false);
+      setIsInitialLoad(false);
     }
   };
 
@@ -84,10 +89,12 @@ const Favorites = () => {
       </header>
 
       <AnimatePresence mode="popLayout">
-        {isLoading ? (
+        {isLoading && isInitialLoad ? (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
+            key="loading-spinner"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             className="min-h-[60vh] flex items-center justify-center"
           >
             <div className="flex flex-col items-center gap-4 text-center text-on-surface-variant">
@@ -95,10 +102,12 @@ const Favorites = () => {
               <p className="text-sm font-black uppercase tracking-[0.2em]">Đang tải danh sách yêu thích...</p>
             </div>
           </motion.div>
-        ) : fetchError ? (
+        ) : fetchError && favorites.length === 0 ? (
           <motion.div
+            key="error-message"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
             className="min-h-[60vh] flex items-center justify-center"
           >
             <div className="max-w-md p-8 rounded-3xl bg-white/5 border border-red-500/20 text-center">
@@ -113,6 +122,7 @@ const Favorites = () => {
           </motion.div>
         ) : favorites.length > 0 ? (
           <motion.div 
+            key="favorites-grid"
             layout
             className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8"
           >
@@ -122,7 +132,7 @@ const Favorites = () => {
                 layout
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8, filter: 'blur(10px)' }}
+                exit={{ opacity: 0, scale: 0.8 }} // Removed blur(10px) to prevent "mờ câm" issue
                 whileHover={{ y: -10 }}
                 className="relative group aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border border-white/5 bg-surface-container-low"
               >
@@ -184,8 +194,10 @@ const Favorites = () => {
           </motion.div>
         ) : (
           <motion.div 
+            key="empty-state"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
             className="flex flex-col items-center justify-center py-32 text-center space-y-8"
           >
             <div className="w-40 h-40 glass-dark rounded-[3rem] flex items-center justify-center border border-white/5 relative">
