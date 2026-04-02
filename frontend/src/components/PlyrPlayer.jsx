@@ -2,16 +2,25 @@ import React, { useEffect, useRef, useState } from 'react';
 import Plyr from 'plyr';
 import Hls from 'hls.js';
 import { deobfuscate } from '../utils/obfuscate';
+import { addToHistory } from '../service/history_service';
 import 'plyr/dist/plyr.css';
 
-const PlyrPlayer = ({ url, poster, title, onPlayStateChange = () => {} }) => {
+const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => {} }) => {
   const videoRef = useRef(null);
   const plyrRef = useRef(null);
   const hlsRef = useRef(null);
+  const watchTimerRef = useRef(null);
+  const watchSecondsRef = useRef(0);
+  const hasLoggedHistoryRef = useRef(false);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
+    // Reset watch tracking on new movie
+    watchSecondsRef.current = 0;
+    hasLoggedHistoryRef.current = false;
+    if (watchTimerRef.current) clearInterval(watchTimerRef.current);
+
     if (!videoRef.current || !url) {
       console.warn('PlyrPlayer: Missing video ref or URL', { hasRef: !!videoRef.current, hasUrl: !!url });
       return;
@@ -63,6 +72,25 @@ const PlyrPlayer = ({ url, poster, title, onPlayStateChange = () => {} }) => {
       newPlyr.on('play', () => onPlayStateChange(true));
       newPlyr.on('pause', () => onPlayStateChange(false));
       
+      // History tracking logic (10 seconds cumulative)
+      newPlyr.on('playing', () => {
+        if (!hasLoggedHistoryRef.current && movieId) {
+          watchTimerRef.current = setInterval(() => {
+            watchSecondsRef.current += 1;
+            if (watchSecondsRef.current >= 10) {
+              clearInterval(watchTimerRef.current);
+              hasLoggedHistoryRef.current = true;
+              addToHistory(movieId).catch(err => console.error("History log failed:", err));
+            }
+          }, 1000);
+        }
+      });
+
+      const stopTimer = () => clearInterval(watchTimerRef.current);
+      newPlyr.on('pause', stopTimer);
+      newPlyr.on('waiting', stopTimer);
+      newPlyr.on('ended', stopTimer);
+
       newPlyr.on('error', (err) => {
         console.error('Plyr error:', err);
         // Don't show fatal error for minor Plyr issues unless it's constant
@@ -161,8 +189,11 @@ const PlyrPlayer = ({ url, poster, title, onPlayStateChange = () => {} }) => {
         plyrRef.current.destroy();
         plyrRef.current = null;
       }
+      if (watchTimerRef.current) {
+        clearInterval(watchTimerRef.current);
+      }
     };
-  }, [url, title]); // Re-init on URL or title change
+  }, [url, title, movieId]); // Re-init on URL or title change
 
   return (
     <div key={url} className="relative w-full h-full bg-black rounded-3xl lg:rounded-[3rem] overflow-hidden group/player shadow-2xl">

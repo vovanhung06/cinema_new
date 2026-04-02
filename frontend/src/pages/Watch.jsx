@@ -148,6 +148,7 @@ const Watch = () => {
                   url={obfuscate(movie.movie_url)} 
                   poster={movie.image} 
                   title={movie.title}
+                  movieId={movie.id}
                   onPlayStateChange={setIsPlaying}
                 />
               ) : (
