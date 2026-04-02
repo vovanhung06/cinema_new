@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Film, 
@@ -7,10 +7,11 @@ import {
   BarChart3, 
   Settings as SettingsIcon, 
   LogOut,
-  Search,
   Bell
 } from 'lucide-react';
 import { cn } from '../../lib/utils.js';
+import { getUnreadCount } from '../../service/notification_service';
+import { useEffect, useState } from 'react';
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
@@ -66,22 +67,31 @@ export function Sidebar() {
 }
 
 export function Header() {
+  const location = useLocation();
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const fetchUnread = async () => {
+      try {
+        const res = await getUnreadCount();
+        setUnreadCount(res.data.unreadCount || 0);
+      } catch (_) {}
+    };
+    fetchUnread();
+  }, [location.pathname]);
+
   return (
     <header className="w-full h-16 sticky top-0 z-50 bg-surface/80 backdrop-blur-xl flex justify-between items-center px-8 border-b border-surface-container-high font-sans text-sm font-medium">
       <div className="flex items-center gap-4 bg-surface-container-low/50 px-4 py-2 rounded-full border border-outline-variant/10 focus-within:ring-1 focus-within:ring-primary-container/30">
-        {/* <Search className="w-4 h-4 text-on-surface-variant" /> */}
-        {/* <input 
-          className="bg-transparent border-none focus:ring-0 text-on-surface w-64 placeholder:text-on-surface-variant/40 outline-none" 
-          placeholder="Tìm kiếm dữ liệu..." 
-          type="text"
-        /> */}
       </div>
 
       <div className="flex items-center gap-6">
-        <button className="relative p-2 text-on-surface-variant hover:text-on-surface transition-colors">
+        <Link to="/admin/notifications" className="relative p-2 text-on-surface-variant hover:text-on-surface transition-colors">
           <Bell className="w-5 h-5" />
-          <span className="absolute top-2 right-2 w-2 h-2 bg-primary-container rounded-full"></span>
-        </button>
+          {unreadCount > 0 && (
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-primary-container rounded-full animate-pulse" />
+          )}
+        </Link>
         
         <div className="flex items-center gap-3 pl-4 border-l border-surface-container-high">
           <div className="text-right">

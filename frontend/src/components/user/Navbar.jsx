@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { searchMovies } from '../../service/movie_service';
 import { useAuth } from '../../hooks/useAuth';
 import { isVipActive } from '../../utils/vip';
+import { getUnreadCount } from '../../service/notification_service';
 
 
 const Navbar = () => {
@@ -23,6 +24,19 @@ const Navbar = () => {
   const MAX_HISTORY_ITEMS = 6;
 
   const [searchHistory, setSearchHistory] = useState([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    if (user && !isAuthPage) {
+      const fetchUnread = async () => {
+        try {
+          const res = await getUnreadCount();
+          setUnreadCount(res.data.unreadCount || 0);
+        } catch (error) {}
+      };
+      fetchUnread();
+    }
+  }, [user, location.pathname]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
@@ -305,7 +319,9 @@ const Navbar = () => {
                 <>
                   <Link to="/profile/notifications" className="text-on-surface-variant hover:text-primary transition-colors p-2 relative group flex-shrink-0">
                     <Bell className="w-5 h-5 md:w-6 md:h-6 group-hover:rotate-12 transition-transform" />
-                    <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 md:w-2 md:h-2 bg-primary rounded-full border-2 border-surface animate-pulse"></span>
+                    {unreadCount > 0 && (
+                       <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 md:w-2 md:h-2 bg-primary rounded-full border-2 border-surface animate-pulse"></span>
+                    )}
                   </Link>
 
                   <Link to="/profile" className="flex items-center gap-2 md:gap-4 group cursor-pointer bg-white/5 pl-1.5 pr-2 md:pr-5 py-1.5 md:py-2 rounded-2xl border border-white/5 hover:border-primary/30 transition-all shadow-xl max-w-[150px] md:max-w-none">

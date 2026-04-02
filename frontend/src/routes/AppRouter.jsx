@@ -13,6 +13,7 @@ import UserManagement from '../pages/admin/UserManagement';
 import CommentManagement from '../pages/admin/CommentManagement';
 import Statistics from '../pages/admin/Statistics';
 import AdminSettings from '../pages/admin/Settings';
+import AdminNotifications from '../pages/admin/AdminNotifications';
 
 // User Pages
 import Home from '../pages/Home';
@@ -43,6 +44,7 @@ export default function AppRouter() {
             <Route path="/admin/comments" element={<CommentManagement />} />
             <Route path="/admin/stats" element={<Statistics />} />
             <Route path="/admin/settings" element={<AdminSettings />} />
+            <Route path="/admin/notifications" element={<AdminNotifications />} />
           </Route>
           <Route path="/admin/*" element={<Navigate to="/admin" replace />} />
         </Routes>

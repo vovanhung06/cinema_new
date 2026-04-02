@@ -15,7 +15,6 @@ const reviewRouter = require("./src/routes/reviewRouter");
 const commentRouter = require("./src/routes/commentRouter");
 const uploadRouter = require("./src/routes/uploadRouter");
 const vipRouter = require("./src/routes/vipRouter");
-const historyRouter = require("./src/routes/historyRouter");
 
 require("dotenv").config();
 
@@ -39,7 +38,6 @@ app.use("/api/comments", commentRouter);
 app.use("/api/ratings", require("./src/routes/ratingRouter"));
 app.use("/api/upload", uploadRouter);
 app.use("/api/vip", vipRouter);
-app.use("/api/history", historyRouter);
 
 app.use((err, req, res, next) => {
   console.error("Global error handler:", err);

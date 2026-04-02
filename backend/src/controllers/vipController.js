@@ -56,6 +56,20 @@ exports.upgradeVip = async (req, res) => {
             [userId, vip.id, vip.price, startDate, expireDate]
         );
 
+        // 5. Thêm thông báo
+        const notifTitle = 'Nâng cấp VIP thành công';
+        const notifMessage = `Chúc mừng bạn đã nâng cấp gói VIP. Hạn sử dụng đến ngày ${expireDate.toLocaleDateString('vi-VN')}.`;
+        await db.promise().query(
+            'INSERT INTO notifications (user_id, title, message, type) VALUES (?, ?, ?, ?)',
+            [userId, notifTitle, notifMessage, 'billing']
+        );
+
+        // 6. Thông báo Admin kèm tên user
+        const { sendToAdmins } = require("../utils/notificationUtils");
+        const [userRows] = await db.promise().query('SELECT username FROM users WHERE id = ?', [userId]);
+        const username = userRows[0]?.username || `User #${userId}`;
+        sendToAdmins('VIP Mới', `${username} vừa nâng cấp / mua gói VIP Cinema+.`, 'billing');
+
         res.status(200).json({
             success: true,
             message: 'Nâng cấp VIP thành công!',

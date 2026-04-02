@@ -55,6 +55,9 @@ exports.register = async (req, res) => {
       db.query(insertSql, [username, email, hashedPassword], (err, result) => {
         if (err) return res.status(500).json(err);
 
+        const { sendToAdmins } = require("../utils/notificationUtils");
+        sendToAdmins('Tài khoản mới', `User ${username} (${email}) vừa đăng ký tài khoản mới.`, 'new');
+
         const user = {
           id: result.insertId,
           username,
