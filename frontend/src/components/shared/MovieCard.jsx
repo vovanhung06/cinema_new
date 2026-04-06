@@ -38,7 +38,7 @@ const MovieCard = ({ movie, variant = 'vertical' }) => {
             whileHover={{ scale: 1.02 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           >
-          <div className="relative aspect-video rounded-2xl overflow-hidden mb-4 border border-white/5 bg-surface-container-low shadow-2xl">
+          <div className="relative aspect-video rounded-2xl overflow-hidden mb-4 border border-outline-variant/20 bg-surface-container shadow-2xl">
             <img 
               src={movie.image} 
               alt={movie.title} 
@@ -84,7 +84,7 @@ const MovieCard = ({ movie, variant = 'vertical' }) => {
         whileHover={{ y: -12, scale: 1.05 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
-      <div className={`relative aspect-[2/3] rounded-2xl overflow-hidden ${variant === 'compact' ? 'mb-2' : 'mb-4'} border border-white/5 bg-surface-container-low shadow-xl transition-shadow group-hover:shadow-[0_20px_40px_rgba(0,0,0,0.4)]`}>
+      <div className={`relative aspect-[2/3] rounded-2xl overflow-hidden ${variant === 'compact' ? 'mb-2' : 'mb-4'} border border-outline-variant/20 bg-surface-container shadow-xl transition-shadow group-hover:shadow-2xl`}>
         
         <img 
           src={movie.image} 

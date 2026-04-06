@@ -68,12 +68,12 @@ export default function AppRouter() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/movie/:id" element={<MovieDetail />} />
-        <Route path="/watch/:id" element={<Watch />} />
         <Route path="/filter" element={<Filter />} />
         <Route path="/vip" element={<VIPSelection />} />
         <Route path="/checkout" element={<Checkout />} />
         <Route element={<ProtectedRoute />}>
           <Route path="/profile/*" element={<Profile />} />
+          <Route path="/watch/:id" element={<Watch />} />
         </Route>
         <Route path="/search" element={<Search />} />
         <Route path="/success" element={<Success />} />

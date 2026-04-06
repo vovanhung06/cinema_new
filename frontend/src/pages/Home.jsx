@@ -1,16 +1,72 @@
 import React, { useState, useEffect } from 'react';
-import { Play, Info, ChevronRight, PlayCircle, Star, Clock, Trophy, Gem } from 'lucide-react';
+import { Play, Info, ChevronRight, PlayCircle, Star, Clock, Trophy, Gem, Swords, Heart, Skull, Smile, Tv, Camera, Sparkles, Film, Ghost, Music, Drama, Footprints } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link } from 'react-router-dom';
-import { GENRES } from '../constants';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import MovieCard from '../components/shared/MovieCard';
 import GenreCard from '../components/shared/GenreCard';
 import { usePublicMovies } from '../hooks/usePublicMovies';
+import { getAllGenresPublic } from '../service/genre_service';
+import { useAuth } from '../hooks/useAuth';
 
 const Home = () => {
+  const { user, setLoginModalOpen } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { movies: dbMovies, isLoading } = usePublicMovies();
   const [activeBackground, setActiveBackground] = useState(0);
   const [showAll, setShowAll] = useState(false);
+  const [dbGenres, setDbGenres] = useState([]);
+
+  // Mapping genre names to icons
+  const genreIconMap = {
+    'Hành động': Swords,
+    'Hành Động': Swords,
+    'Tình cảm': Heart,
+    'Romance': Heart,
+    'Kinh dị': Skull,
+    'Horror': Skull,
+    'Hài hước': Smile,
+    'Comedy': Smile,
+    'Hài': Smile,
+    'Anime': Tv,
+    'Animation': Tv,
+    'Hoạt hình': Tv,
+    'Tài liệu': Camera,
+    'Documentary': Camera,
+    'Khoa học viễn tưởng': Sparkles,
+    'Sci-Fi': Sparkles,
+    'Phiêu lưu': Footprints,
+    'Adventure': Footprints,
+    'Music': Music,
+    'Âm nhạc': Music,
+    'Drama': Drama,
+    'Chính kịch': Drama,
+    'Ghost': Ghost,
+    'Ma': Ghost,
+  };
+
+  // Fetch Genres
+  useEffect(() => {
+    const fetchGenres = async () => {
+      try {
+        const data = await getAllGenresPublic();
+        
+        // Shuffle genres to show random selection
+        const shuffled = [...data].sort(() => 0.5 - Math.random());
+        // Take top 6
+        const selected = shuffled.slice(0, 6);
+
+        const mappedGenres = selected.map(g => ({
+          ...g,
+          icon: genreIconMap[g.name] || Film // Default icon if not mapped
+        }));
+        setDbGenres(mappedGenres);
+      } catch (error) {
+        console.error("Error fetching homepage genres:", error);
+      }
+    };
+    fetchGenres();
+  }, []);
 
 
   // Transform backend data to frontend format
@@ -49,8 +105,8 @@ const Home = () => {
 
   const backgroundMovie = movies.length > 0 ? movies[activeBackground] : {
     id: 1,
-    title: 'Cinema',
-    description: 'Hãy khám phá kho phim',
+    title: 'Đang tải...',
+    description: 'Đang kết nối hệ thống...',
     image: 'https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2000',
     rating: 0,
     year: 2024,
@@ -119,9 +175,9 @@ const Home = () => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="text-on-surface-variant/80 text-lg md:text-xl max-w-2xl font-medium leading-relaxed"
+              className="text-on-surface-variant/80 text-lg md:text-xl max-w-2xl font-medium leading-relaxed line-clamp-3 md:line-clamp-none"
             >
-              {backgroundMovie.description || "Một hành trình xuyên không gian đầy kịch tính, khám phá những bí ẩn chưa từng được tiết lộ của vũ trụ. Trải nghiệm kịch tính đến nghẹt thở với dàn diễn viên huyền thoại."}
+              {backgroundMovie.description || "Khám phá ngay siêu phẩm điện ảnh với chất lượng đỉnh cao và nội dung kịch tính chỉ có tại Cinema+."}
             
             </motion.p>
 
@@ -133,11 +189,20 @@ const Home = () => {
               transition={{ duration: 0.8, delay: 0.8 }}
               className="flex flex-wrap gap-5 pt-4"
             >
-              <Link to={`/watch/${backgroundMovie.id}`} className="btn-primary px-12 py-5 text-base uppercase tracking-widest shadow-[0_20px_40px_rgba(229,9,20,0.3)]">
+              <button 
+                onClick={() => {
+                  if (!user) {
+                    setLoginModalOpen(true);
+                    return;
+                  }
+                  navigate(`/watch/${backgroundMovie.id}`);
+                }}
+                className="btn-primary px-12 py-5 text-base uppercase tracking-widest shadow-[0_20px_40px_rgba(229,9,20,0.3)]"
+              >
                 <Play className="w-6 h-6 fill-white" />
                 Xem ngay
-              </Link>
-              <Link to={`/movie/${backgroundMovie.id}`} className="btn-secondary px-10 py-5 text-base uppercase tracking-widest bg-white/5 hover:bg-white/10">
+              </button>
+              <Link to={`/movie/${backgroundMovie.id}`} className="btn-secondary px-10 py-5 text-base uppercase tracking-widest">
                 <Info className="w-6 h-6" />
                 Chi tiết
               </Link>
@@ -178,7 +243,7 @@ const Home = () => {
                     <div className="space-y-2">
                       <div className="flex items-center gap-3">
                         <div className="w-2 h-8 bg-primary rounded-full"></div>
-                        <h2 className="text-3xl font-black text-white uppercase tracking-tight">{section.title}</h2>
+                        <h2 className="text-3xl font-black text-on-surface uppercase tracking-tight">{section.title}</h2>
                       </div>
                     </div>
                     <button 
@@ -186,7 +251,7 @@ const Home = () => {
                         setShowAll(true);
                         window.scrollTo({ top: 600, behavior: 'smooth' });
                       }}
-                      className="text-[11px] font-black uppercase tracking-[0.2em] text-on-surface-variant hover:text-white transition-colors flex items-center gap-2"
+                      className="text-[11px] font-black uppercase tracking-[0.2em] text-on-surface-variant hover:text-on-surface transition-colors flex items-center gap-2"
                     >
                       Xem tất cả <ChevronRight className="w-4 h-4 text-primary" />
                     </button>
@@ -203,10 +268,10 @@ const Home = () => {
               <section className="px-8 md:px-20">
                 <div className="flex items-center gap-3 mb-12">
                   <div className="w-2 h-8 bg-primary rounded-full"></div>
-                  <h2 className="text-3xl font-black text-white uppercase tracking-tight">Khám Phá Thể Loại</h2>
+                  <h2 className="text-3xl font-black text-on-surface uppercase tracking-tight">Khám Phá Thể Loại</h2>
                 </div>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-6">
-                  {GENRES.map(genre => (
+                  {dbGenres.map(genre => (
                     <GenreCard key={genre.id} genre={genre} />
                   ))}
                 </div>
@@ -218,14 +283,14 @@ const Home = () => {
                   <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
                     <Trophy className="w-6 h-6 text-primary" />
                   </div>
-                  <h2 className="text-3xl font-black text-white uppercase tracking-tight leading-none">Top 10 Phim Hot Trong Tuần</h2>
+                  <h2 className="text-3xl font-black text-on-surface uppercase tracking-tight leading-none">Top 10 Phim Hot Trong Tuần</h2>
                 </div>
                 <div className="flex gap-20 overflow-x-auto hide-scrollbar pb-12 snap-x px-4">
                   {trendingMovies.slice(0, 10).map((movie, index) => {
                     if (movie.isSkeleton) {
                       return (
                         <div key={`top-${index}`} className="shrink-0 flex items-end group cursor-pointer snap-start relative">
-                          <span className="text-[240px] font-black font-manrope leading-[0.7] text-transparent stroke-white/20 -mr-16 z-0 pointer-events-none italic" style={{ WebkitTextStroke: '2px rgba(255,255,255,0.08)' }}>
+                          <span className="text-[240px] font-black font-manrope leading-[0.7] text-transparent -mr-16 z-0 pointer-events-none italic opacity-30" style={{ WebkitTextStroke: '2px var(--color-outline-variant)' }}>
                             {index + 1}
                           </span>
                           <div className="w-56 h-80 rounded-4xl bg-surface-container-high/50 animate-pulse relative z-10"></div>
@@ -234,7 +299,7 @@ const Home = () => {
                     }
                     return (
                       <Link key={movie.id} to={`/movie/${movie.id}`} className="shrink-0 flex items-end group cursor-pointer snap-start relative">
-                        <span className="text-[240px] font-black font-manrope leading-[0.7] text-transparent stroke-white/20 -mr-16 z-0 transition-all duration-700 group-hover:text-white/5 group-hover:stroke-primary/40 pointer-events-none italic" style={{ WebkitTextStroke: '2px rgba(255,255,255,0.08)' }}>
+                        <span className="text-[240px] font-black font-manrope leading-[0.7] text-transparent -mr-16 z-0 transition-all duration-700 pointer-events-none italic opacity-30 group-hover:opacity-60" style={{ WebkitTextStroke: '2px var(--color-outline-variant)' }}>
                           {index + 1}
                         </span>
                         <div className="w-56 h-80 rounded-4xl overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.6)] border border-white/5 relative z-10 group-hover:-translate-y-6 transition-all duration-700 ease-out group-hover:shadow-primary/20">
@@ -265,12 +330,12 @@ const Home = () => {
                 <div className="flex items-center gap-4">
                   <button 
                     onClick={() => setShowAll(false)}
-                    className="p-3 bg-white/5 hover:bg-primary hover:text-white rounded-2xl transition-all group"
+                    className="p-3 bg-surface-container hover:bg-primary hover:text-white rounded-2xl transition-all group border border-outline-variant/20"
                   >
                     <ChevronRight className="w-6 h-6 rotate-180 group-hover:-translate-x-1 transition-transform" />
                   </button>
                   <div className="space-y-1">
-                    <h2 className="text-4xl font-black text-white uppercase tracking-tight">Tất Cả Phim</h2>
+                    <h2 className="text-4xl font-black text-on-surface uppercase tracking-tight">Tất Cả Phim</h2>
                     <p className="text-xs font-bold text-on-surface-variant uppercase tracking-[0.2em] opacity-60">Khám phá {movies.length} bộ phim trong thư viện</p>
                   </div>
                 </div>
@@ -288,7 +353,7 @@ const Home = () => {
                     setShowAll(false);
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="btn-secondary px-12 py-4 bg-white/5 hover:bg-white/10 uppercase tracking-widest text-xs"
+                  className="btn-secondary px-12 py-4 uppercase tracking-widest text-xs"
                 >
                   Quay lại trang chủ
                 </button>
@@ -320,9 +385,18 @@ const Home = () => {
               <p className="text-xl text-white/60 font-medium max-w-xl">
                 Trải nghiệm không giới hạn kho phim khổng lồ với chất lượng 4K chuẩn rạp phim ngay tại nhà của bạn.
               </p>
-              <Link to="/vip" className="btn-primary py-5 px-16 text-lg tracking-[0.2em] uppercase shadow-[0_32px_64px_rgba(229,9,20,0.4)]">
+              <button 
+                onClick={() => {
+                  if (!user) {
+                    setLoginModalOpen(true);
+                    return;
+                  }
+                  navigate('/vip');
+                }}
+                className="btn-primary py-5 px-16 text-lg tracking-[0.2em] uppercase shadow-[0_32px_64px_rgba(229,9,20,0.4)]"
+              >
                 Bắt đầu ngay
-              </Link>
+              </button>
             </div>
           </motion.div>
         </section>

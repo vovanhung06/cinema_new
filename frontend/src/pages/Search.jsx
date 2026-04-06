@@ -2,17 +2,36 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Search as SearchIcon, Filter, Play, ArrowLeft, Loader2, Sparkles, TrendingUp, ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { TRENDING_MOVIES } from '../constants';
-import { searchMovies } from '../service/movie_service';
+import { searchMovies, getPublicMovies } from '../service/movie_service';
 import MovieCard from '../components/shared/MovieCard';
 
 const Search = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
   const [results, setResults] = useState([]);
+  const [featuredMovies, setFeaturedMovies] = useState([]);
   const [pagination, setPagination] = useState(null);
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+
+  // Fetch featured movies for recommendations
+  useEffect(() => {
+    const fetchFeatured = async () => {
+      try {
+        const response = await getPublicMovies({ limit: 6 });
+        const movies = response.data || [];
+        const mapped = movies.map(m => ({
+          ...m,
+          image: m.avatar_url || m.image,
+          year: m.release_date ? new Date(m.release_date).getFullYear() : ''
+        }));
+        setFeaturedMovies(mapped);
+      } catch (err) {
+        console.error("Error loading featured movies in search:", err);
+      }
+    };
+    fetchFeatured();
+  }, []);
 
   // Reset page when query changes
   useEffect(() => {
@@ -143,7 +162,6 @@ const Search = () => {
                     <div className="flex items-center gap-3">
                       {Array.from({ length: pagination.totalPages }, (_, i) => {
                         const p = i + 1;
-                        // Basic pager logic
                         if (pagination.totalPages > 7) {
                           if (p !== 1 && p !== pagination.totalPages && Math.abs(p - page) > 1) {
                             if (p === 2 || p === pagination.totalPages - 1) return <span key={p} className="text-white/20">...</span>;
@@ -201,11 +219,11 @@ const Search = () => {
                 <div className="pt-32 w-full max-w-6xl">
                   <div className="flex items-center gap-4 mb-12">
                      <TrendingUp className="w-5 h-5 text-primary" />
-                     <h4 className="text-xs font-black text-white uppercase tracking-[0.3em]">Có thể bạn quan tâm (Xu hướng)</h4>
+                     <h4 className="text-xs font-black text-white uppercase tracking-[0.3em]">Có thể bạn quan tâm (Phim nổi bật)</h4>
                      <div className="h-px flex-grow bg-white/5"></div>
                   </div>
                   <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 text-left">
-                    {TRENDING_MOVIES.slice(0, 6).map(movie => (
+                    {featuredMovies.map(movie => (
                       <Link key={movie.id} to={`/movie/${movie.id}`} className="group space-y-4">
                         <div className="aspect-[2/3] rounded-3xl overflow-hidden relative shadow-2xl border border-white/5">
                           <img src={movie.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt={movie.title} referrerPolicy="no-referrer" />
@@ -222,7 +240,7 @@ const Search = () => {
                            <h5 className="font-black text-xs text-white group-hover:text-primary transition-colors line-clamp-1 uppercase tracking-tight">{movie.title}</h5>
                            <div className="flex items-center gap-2 opacity-40">
                               <Sparkles className="w-3 h-3 text-primary" />
-                              <span className="text-[9px] font-black text-white uppercase tracking-tighter">Gợi ý top đầu</span>
+                              <span className="text-[9px] font-black text-white uppercase tracking-tighter">Từ kho lưu trữ</span>
                            </div>
                         </div>
                       </Link>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   Play, Star, ArrowLeft, Heart, MessageSquare, Share2, Clock, Plus, Info, X, Gem
 } from 'lucide-react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useMovieDetail } from '../hooks/useMovieDetail';
 import { useComments } from '../hooks/useComments';
@@ -18,6 +18,7 @@ import StarRating from '../components/shared/StarRating';
 const MovieDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [showTrailerModal, setShowTrailerModal] = useState(false);
 
   const { movie, recommendations, isLoading, error: movieError } = useMovieDetail(id);
@@ -32,7 +33,7 @@ const MovieDetail = () => {
     setPage,
     pagination,
   } = useComments(id);
-  const { user } = useAuth();
+  const { user, setLoginModalOpen } = useAuth();
   const {
     userRating,
     averageRating,
@@ -214,10 +215,19 @@ const MovieDetail = () => {
               transition={{ delay: 0.5, duration: 0.8 }}
               className="flex flex-wrap items-center justify-center md:justify-start gap-5 pt-4"
             >
-              <Link to={`/watch/${movie.id}`} className="btn-primary group px-12 py-5 text-base uppercase tracking-widest shadow-[0_20px_50px_rgba(229,9,20,0.45)] hover:shadow-primary/60 min-w-[220px]">
+              <button 
+                onClick={() => {
+                  if (!user) {
+                    setLoginModalOpen(true);
+                    return;
+                  }
+                  navigate(`/watch/${movie.id}`);
+                }}
+                className="btn-primary group px-12 py-5 text-base uppercase tracking-widest shadow-[0_20px_50px_rgba(229,9,20,0.45)] hover:shadow-primary/60 min-w-[220px]"
+              >
                 <Play className="w-6 h-6 fill-white group-hover:scale-110 transition-transform" />
                 <span className="relative">Xem ngay</span>
-              </Link>
+              </button>
               <button
                 onClick={() => setShowTrailerModal(true)}
                 className="btn-primary group px-12 py-5 text-base uppercase tracking-widest shadow-[0_20px_50px_rgba(255,255,255,0.05)] bg-surface-container border border-outline-variant/20 min-w-[200px] hover:bg-surface-container-high"

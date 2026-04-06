@@ -1,21 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Filter as FilterIcon, Globe, Calendar, ChevronLeft, ChevronRight, X, LayoutGrid, List, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useFilter } from '../hooks/useFilter';
 import MovieCard from '../components/shared/MovieCard';
+import { getAllGenresPublic } from '../service/genre_service';
+import { getAllCountriesPublic } from '../service/country_service';
+import { getMovieYears } from '../service/movie_service';
 
 const Filter = () => {
   const { activeFilters, filteredMovies, updateFilter, page, setPage, pagination } = useFilter();
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
 
-  const genres = [
-    'Tất cả', 'Hành động', 'Hài hước', 'Kinh dị', 'Tình cảm', 'Khoa học viễn tưởng', 'Tài liệu', 'Anime'
-  ];
-
-  const years = ['Tất cả', '2024', '2023', '2022', 'Trước 2022'];
-  const countries = ['Tất cả quốc gia', 'Việt Nam', 'Hoa Kỳ', 'Hàn Quốc', 'Nhật Bản', 'Trung Quốc', 'Thái Lan'];
+  const [genres, setGenres] = useState(['Tất cả']);
+  const [countries, setCountries] = useState(['Tất cả quốc gia']);
+  const [years, setYears] = useState(['Tất cả']);
   const sortOptions = ['Mới nhất', 'Cũ nhất', 'Đánh giá cao', 'Xem nhiều nhất'];
+
+  // Fetch dynamic filters
+  useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        const [genresData, countriesData, yearsData] = await Promise.all([
+          getAllGenresPublic(),
+          getAllCountriesPublic(),
+          getMovieYears()
+        ]);
+
+        setGenres(['Tất cả', ...genresData.map(g => g.name)]);
+        setCountries(['Tất cả quốc gia', ...countriesData.map(c => c.name)]);
+        setYears(['Tất cả', ...yearsData]);
+      } catch (error) {
+        console.error("Error loading filters:", error);
+      }
+    };
+
+    fetchFilters();
+  }, []);
 
   const clearFilters = () => {
     updateFilter('genre', 'Tất cả');
@@ -30,7 +51,7 @@ const Filter = () => {
     activeFilters.sort !== 'Mới nhất';
 
   // Scroll to top when page or filters change
-  React.useEffect(() => {
+  useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [page, activeFilters]);
 
@@ -95,7 +116,7 @@ const Filter = () => {
                   <FilterIcon className="text-primary w-4 h-4" />
                   <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Thể loại</span>
                 </div>
-                <div className="flex flex-col gap-1.5 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="flex flex-col gap-1.5 max-h-[250px] overflow-y-auto pr-2 custom-scrollbar">
                   {genres.map((genre) => (
                     <button
                       key={genre}
@@ -106,6 +127,24 @@ const Filter = () => {
                       <span className="text-[11px] font-black uppercase tracking-widest">{genre}</span>
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* Năm phát hành */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <Calendar className="text-primary w-4 h-4" />
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Năm phát hành</span>
+                </div>
+                <div className="relative group/sel">
+                  <select
+                    value={activeFilters.year}
+                    onChange={(e) => updateFilter('year', e.target.value)}
+                    className="w-full bg-surface border border-white/5 rounded-2xl py-4 px-5 text-[10px] font-black uppercase tracking-widest focus:ring-2 focus:ring-primary/20 appearance-none outline-none cursor-pointer hover:bg-white/5 transition-all text-white shadow-xl"
+                  >
+                    {years.map(y => <option key={y} value={y} className="bg-surface-container-high">{y}</option>)}
+                  </select>
+                  <ChevronLeft className="absolute right-5 top-1/2 -translate-y-1/2 w-4 h-4 -rotate-90 pointer-events-none text-white/40 group-hover/sel:text-primary transition-colors" />
                 </div>
               </div>
 
@@ -148,6 +187,16 @@ const Filter = () => {
                     <X
                       className="w-3 h-3 cursor-pointer"
                       onClick={() => updateFilter('genre', 'Tất cả')}
+                    />
+                  </div>
+                )}
+
+                {activeFilters.year !== 'Tất cả' && (
+                  <div className="px-4 py-2 bg-primary/10 text-primary rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
+                    {activeFilters.year}
+                    <X
+                      className="w-3 h-3 cursor-pointer"
+                      onClick={() => updateFilter('year', 'Tất cả')}
                     />
                   </div>
                 )}
@@ -220,8 +269,6 @@ const Filter = () => {
               </button>
               <div className="flex items-center gap-3">
                 {Array.from({ length: Math.min(pagination.totalPages, 7) }, (_, i) => {
-                  // Hiển thị max 7 trang để tránh vỡ UI nếu data quá lớn
-                  // Tạm thời hiển thị các trang đầu do ko có logic spread phức tạp theo yêu cầu
                   const p = i + 1;
                   return (
                     <button

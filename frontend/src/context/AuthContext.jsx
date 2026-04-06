@@ -212,8 +212,10 @@ const changePassword = async (data) => {
     sessionStorage.removeItem("user");
   };
 
+  const [isLoginModalOpen, setLoginModalOpen] = useState(false);
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading, updateProfile, changePassword, refreshProfile  }}>
+    <AuthContext.Provider value={{ user, token, login, logout, loading, updateProfile, changePassword, refreshProfile, isLoginModalOpen, setLoginModalOpen }}>
       {children}
     </AuthContext.Provider>
   );

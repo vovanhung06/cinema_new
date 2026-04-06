@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 import { motion } from 'motion/react';
+import { useAuth } from '../../../hooks/useAuth';
 
 function cn(...inputs) {
   return twMerge(clsx(inputs));
@@ -21,8 +22,13 @@ export default function PricingCard({
   vipExpiry
 }) {
   const navigate = useNavigate();
+  const { token, setLoginModalOpen } = useAuth();
 
   const handleClick = () => {
+    if (!token) {
+      setLoginModalOpen(true);
+      return;
+    }
     if (isVip) return; 
     navigate('/checkout', {
       state: {

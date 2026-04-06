@@ -59,10 +59,21 @@ const Navbar = () => {
     if (!trimmedQuery) return;
 
     setSearchHistory((prev) => {
-      const next = [trimmedQuery, ...prev.filter((item) => item !== trimmedQuery)];
+      // Case-insensitive check: filter out items that match the new query ignoring case
+      const filtered = prev.filter((item) => item.toLowerCase() !== trimmedQuery.toLowerCase());
+      const next = [trimmedQuery, ...filtered];
       const limited = next.slice(0, MAX_HISTORY_ITEMS);
       saveSearchHistory(limited);
       return limited;
+    });
+  };
+
+  const removeSearchHistoryItem = (e, termToRemove) => {
+    e.stopPropagation(); // Biến nút X không kích hoạt sự kiện click của button cha
+    setSearchHistory((prev) => {
+      const next = prev.filter((item) => item !== termToRemove);
+      saveSearchHistory(next);
+      return next;
     });
   };
 
@@ -142,7 +153,7 @@ const Navbar = () => {
           <Link to="/" className="text-2xl font-black tracking-tighter text-primary-container font-manrope">
             CINEMA+
           </Link>
-          <Link to="#" className="text-on-surface-variant hover:text-white transition-colors text-sm font-medium tracking-wide">
+          <Link to="#" className="text-on-surface-variant hover:text-on-surface transition-colors text-sm font-medium tracking-wide">
             Trợ giúp?
           </Link>
         </div>
@@ -164,7 +175,7 @@ const Navbar = () => {
         )}
       </AnimatePresence>
 
-      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${isSearchFocused ? 'bg-black/40 backdrop-blur-3xl border-b border-white/5' : 'bg-surface/40 premium-blur border-b border-white/5'}`}>
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${isSearchFocused ? 'bg-surface-container-high/90 backdrop-blur-3xl border-b border-outline-variant/20' : 'bg-surface/40 premium-blur border-b border-outline-variant/20'}`}>
         <div className="flex justify-between items-center px-8 py-3 max-w-[1920px] mx-auto h-20">
           <div className="flex items-center gap-4 md:gap-12">
             <button className="md:hidden text-on-surface hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
@@ -215,7 +226,7 @@ const Navbar = () => {
                       exit={{ scale: 0, opacity: 0 }}
                       type="button"
                       onClick={() => setSearchQuery('')}
-                      className="text-on-surface-variant hover:text-white transition-colors ml-2"
+                      className="text-on-surface-variant hover:text-on-surface transition-colors ml-2"
                     >
                       <X className="w-4 h-4" />
                     </motion.button>
@@ -230,11 +241,11 @@ const Navbar = () => {
                     initial={{ opacity: 0, y: 15, scale: 0.98 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 15, scale: 0.98 }}
-                    className="absolute top-full mt-5 right-0 w-[500px] max-w-[calc(100vw-32px)] glass-dark rounded-3xl shadow-[0_32px_64px_rgba(0,0,0,0.8)] border border-white/10 overflow-hidden z-50"
+                    className="absolute top-full mt-5 right-0 w-[500px] max-w-[calc(100vw-32px)] glass-dark rounded-3xl shadow-2xl border border-outline-variant/20 overflow-hidden z-50"
                   >
                     {searchQuery.trim() ? (
                       <div className="flex flex-col">
-                        <div className="p-5 border-b border-white/5 flex justify-between items-center bg-white/5">
+                        <div className="p-5 border-b border-outline-variant/20 flex justify-between items-center bg-surface-container-high">
                           <span className="text-[10px] uppercase tracking-[0.2em] font-black text-on-surface-variant/60">Kết quả tìm kiếm</span>
                           <Link to="/filter" className="text-[11px] text-primary font-black uppercase tracking-widest hover:underline decoration-primary/30">Xem tất cả</Link>
                         </div>
@@ -250,9 +261,9 @@ const Navbar = () => {
                                 key={movie.id}
                                 to={`/movie/${movie.id}`}
                                 onClick={() => setIsSearchFocused(false)}
-                                className="flex gap-5 px-5 py-4 hover:bg-white/5 transition-all group"
+                                className="flex gap-5 px-5 py-4 hover:bg-surface-container-high transition-all group"
                               >
-                                <div className="w-16 h-24 rounded-xl overflow-hidden flex-shrink-0 shadow-2xl border border-white/5">
+                                <div className="w-16 h-24 rounded-xl overflow-hidden flex-shrink-0 shadow-2xl border border-outline-variant/20">
                                   <img src={movie.image} alt={movie.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" referrerPolicy="no-referrer" />
                                 </div>
                                 <div className="flex flex-col justify-center py-1">
@@ -300,11 +311,16 @@ const Navbar = () => {
                                   <Clock className="w-4 h-4 text-on-surface-variant group-hover:text-primary transition-colors" />
                                   <span className="text-sm font-bold text-on-surface/80 group-hover:text-primary">{item}</span>
                                 </div>
-                                <X className="w-4 h-4 text-on-surface-variant/20 group-hover:text-red-500 transition-colors" />
+                                <div 
+                                  onClick={(e) => removeSearchHistoryItem(e, item)}
+                                  className="p-2 -mr-2 hover:bg-red-500/10 rounded-lg transition-colors group/del"
+                                >
+                                  <X className="w-4 h-4 text-on-surface-variant/20 group-hover/del:text-red-500 transition-colors" />
+                                </div>
                               </button>
                             ))
                           ) : (
-                            <div className="p-8 rounded-3xl bg-white/5 text-center opacity-70">
+                            <div className="p-8 rounded-3xl bg-surface-container-high text-center opacity-70">
                               <p className="text-sm font-bold uppercase tracking-[0.2em] text-on-surface-variant">Chưa có lịch sử tìm kiếm</p>
                             </div>
                           )}
@@ -376,7 +392,7 @@ const Navbar = () => {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="fixed top-20 left-0 w-full bg-black/95 backdrop-blur-3xl border-b border-white/10 z-40 md:hidden flex flex-col p-6 gap-6 shadow-2xl"
+            className="fixed top-20 left-0 w-full bg-surface/95 backdrop-blur-3xl border-b border-outline-variant/20 z-40 md:hidden flex flex-col p-6 gap-6 shadow-2xl"
           >
             <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black text-on-surface hover:text-primary transition-colors uppercase tracking-widest border-b border-outline-variant/10 pb-4">Trang chủ</Link>
             <Link to="/filter" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black text-on-surface hover:text-primary transition-colors uppercase tracking-widest border-b border-outline-variant/10 pb-4">Lọc Phim</Link>

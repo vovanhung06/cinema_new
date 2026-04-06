@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import Chatbox from '../Chatbox/Chatbox';
+import LoginPromptModal from '../shared/LoginPromptModal';
 
 export default function UserLayout({ children }) {
   const location = useLocation();
@@ -18,6 +19,7 @@ export default function UserLayout({ children }) {
         <Footer />
       </div>
       <Chatbox />
+      <LoginPromptModal />
     </div>
   );
 }

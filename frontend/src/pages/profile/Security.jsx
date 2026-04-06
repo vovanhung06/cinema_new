@@ -66,7 +66,7 @@ const Security = ({ showPassword, setShowPassword }) => {
            animate={{ opacity: 1, y: 0 }}
         >
           <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Privacy & Protection</p>
-          <h2 className="text-5xl font-black text-white italic tracking-tighter uppercase">
+          <h2 className="text-5xl font-black text-on-surface italic tracking-tighter uppercase">
             Bảo mật <span className="text-glow text-primary">Tài khoản.</span>
           </h2>
           <div className="absolute -bottom-4 left-0 w-20 h-1 bg-primary rounded-full"></div>
@@ -82,12 +82,12 @@ const Security = ({ showPassword, setShowPassword }) => {
       >
         <div className="flex items-center gap-3">
            <Key className="w-5 h-5 text-primary" />
-           <h3 className="text-xs font-black text-white uppercase tracking-[0.3em]">
+           <h3 className="text-xs font-black text-on-surface uppercase tracking-[0.3em]">
              Quản lý Mật khẩu
            </h3>
         </div>
 
-        <div className="glass-dark rounded-[3.5rem] p-10 border border-white/5 shadow-2xl space-y-8">
+        <div className="glass-dark rounded-[3.5rem] p-10 border border-outline-variant/20 shadow-2xl space-y-8">
 
           {/* OLD PASSWORD */}
           <div className="space-y-4">
@@ -98,13 +98,13 @@ const Security = ({ showPassword, setShowPassword }) => {
               <input
                 value={form.oldPass}
                 onChange={(e) => setForm({ ...form, oldPass: e.target.value })}
-                className="w-full bg-surface border border-white/5 rounded-2xl py-5 px-6 text-sm font-black text-white tracking-widest focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                className="w-full bg-surface border border-outline-variant/20 rounded-2xl py-5 px-6 text-sm font-black text-on-surface tracking-widest focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                 placeholder="••••••••"
                 type={showPassword ? "text" : "password"}
               />
               <button
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 hover:text-primary transition-colors"
+                className="absolute right-6 top-1/2 -translate-y-1/2 text-on-surface/20 hover:text-primary transition-colors"
               >
                 {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
               </button>
@@ -120,7 +120,7 @@ const Security = ({ showPassword, setShowPassword }) => {
               <input
                 value={form.newPass}
                 onChange={(e) => setForm({ ...form, newPass: e.target.value })}
-                className="w-full bg-surface border border-white/5 rounded-2xl py-5 px-6 text-sm font-black text-white tracking-widest focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                className="w-full bg-surface border border-outline-variant/20 rounded-2xl py-5 px-6 text-sm font-black text-on-surface tracking-widest focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                 placeholder="Min. 8 characters"
                 type="password"
               />
@@ -134,7 +134,7 @@ const Security = ({ showPassword, setShowPassword }) => {
               <input
                 value={form.confirmPass}
                 onChange={(e) => setForm({ ...form, confirmPass: e.target.value })}
-                className="w-full bg-surface border border-white/5 rounded-2xl py-5 px-6 text-sm font-black text-white tracking-widest focus:ring-2 focus:ring-primary/20 transition-all outline-none"
+                className="w-full bg-surface border border-outline-variant/20 rounded-2xl py-5 px-6 text-sm font-black text-on-surface tracking-widest focus:ring-2 focus:ring-primary/20 transition-all outline-none"
                 placeholder="Repeat new password"
                 type="password"
               />
@@ -171,7 +171,7 @@ const Security = ({ showPassword, setShowPassword }) => {
           <button
             onClick={handleChangePassword}
             disabled={loading}
-            className="w-full py-5 bg-white text-black rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] hover:bg-primary hover:text-white transition-all shadow-xl flex items-center justify-center gap-3 group"
+            className="w-full py-5 bg-white text-black rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] hover:bg-primary hover:text-on-surface transition-all shadow-xl flex items-center justify-center gap-3 group"
           >
             {loading ? "Đang xử lý..." : "Cập nhật bảo mật"}
             <Check className="w-4 h-4 group-hover:scale-110 transition-transform" />
@@ -187,7 +187,7 @@ const Security = ({ showPassword, setShowPassword }) => {
       >
          <ShieldAlert className="w-8 h-8 text-red-500 shrink-0" />
          <div className="space-y-2">
-            <h4 className="text-lg font-black text-white italic uppercase tracking-tight">
+            <h4 className="text-lg font-black text-on-surface italic uppercase tracking-tight">
               Vùng riêng tư quan trọng
             </h4>
             <p className="text-on-surface-variant/60 text-sm font-medium leading-relaxed">

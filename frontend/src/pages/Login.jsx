@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, Lock, ArrowRight, Check, Sparkles, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
@@ -8,6 +8,7 @@ import API_BASE_URL from '../config/api';
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
 
   const [email, setEmail] = useState('');
@@ -62,12 +63,9 @@ const Login = () => {
     // ✅ lưu vào context và chọn storage dựa trên remember
     login(token, mappedUser, remember);
 
-    // ✅ redirect theo role
-    if (mappedUser.role === 'admin') {
-      navigate('/admin');
-    } else {
-      navigate('/');
-    }
+    // ✅ redirect back to previous page or home
+    const from = location.state?.from?.pathname || (mappedUser.role === 'admin' ? '/admin' : '/');
+    navigate(from, { replace: true });
 
   } catch (err) {
     console.error(err);

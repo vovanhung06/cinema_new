@@ -44,6 +44,17 @@ export const getPublicMovies = async (params = {}) => {
   }
 };
 
+// Get movie years
+export const getMovieYears = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/movies/years`);
+    return response.data || [];
+  } catch (error) {
+    console.error('Error fetching movie years:', error);
+    throw error;
+  }
+};
+
 // Get movie by ID
 export const getMovieById = async (id) => {
   try {

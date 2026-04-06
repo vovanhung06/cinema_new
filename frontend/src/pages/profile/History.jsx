@@ -69,13 +69,13 @@ const History = () => {
            animate={{ opacity: 1, y: 0 }}
         >
           <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Viewing Activity</p>
-          <h2 className="text-5xl font-black text-white italic tracking-tighter uppercase">Lịch sử <span className="text-glow text-primary">Theo dõi.</span></h2>
+          <h2 className="text-5xl font-black text-on-surface italic tracking-tighter uppercase">Lịch sử <span className="text-glow text-primary">Theo dõi.</span></h2>
         </motion.div>
         
         <div className="flex items-center gap-4">
            <button 
              onClick={clearHistory}
-             className="px-6 py-3 bg-red-500/10 border border-red-500/20 rounded-2xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-white transition-all shadow-xl"
+             className="px-6 py-3 bg-red-500/10 border border-red-500/20 rounded-2xl text-[10px] font-black uppercase tracking-widest text-red-500 hover:bg-red-500 hover:text-on-surface transition-all shadow-xl"
            >
               Xóa toàn bộ
            </button>
@@ -94,7 +94,7 @@ const History = () => {
           <div className="bg-red-500/10 p-6 rounded-3xl border border-red-500/20 text-center flex flex-col items-center justify-center space-y-4">
              <AlertCircle className="w-12 h-12 text-red-500" />
              <p className="text-red-400 font-bold">{error}</p>
-             <button onClick={fetchHistory} className="px-6 py-2 bg-white/5 border border-white/10 rounded-xl hover:bg-white/10">Thử lại</button>
+             <button onClick={fetchHistory} className="px-6 py-2 bg-outline-variant/10 border border-outline-variant/20 rounded-xl hover:bg-white/10">Thử lại</button>
           </div>
         ) : historyItems.length > 0 ? (
           <div className="space-y-6">
@@ -106,21 +106,21 @@ const History = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20, scale: 0.95 }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="glass-dark p-6 rounded-[2.5rem] border border-white/5 flex flex-col md:flex-row gap-8 group hover:bg-white/5 transition-all relative overflow-hidden"
+                className="glass-dark p-6 rounded-[2.5rem] border border-outline-variant/20 flex flex-col md:flex-row gap-8 group hover:bg-outline-variant/10 transition-all relative overflow-hidden"
               >
                 {/* Background decorative glow */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[50px] -z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 
-                <div className="w-full md:w-80 h-48 rounded-[1.5rem] overflow-hidden shrink-0 relative shadow-2xl border border-white/5 bg-surface-container">
+                <div className="w-full md:w-80 h-48 rounded-[1.5rem] overflow-hidden shrink-0 relative shadow-2xl border border-outline-variant/20 bg-surface-container">
                   {item.required_vip_level > 0 && (
-                     <div className="absolute top-3 left-3 z-10 bg-primary text-white text-[9px] font-black px-3 py-1.5 rounded-full shadow-lg shadow-primary/30 uppercase tracking-widest backdrop-blur-sm">
+                     <div className="absolute top-3 left-3 z-10 bg-primary text-on-surface text-[9px] font-black px-3 py-1.5 rounded-full shadow-lg shadow-primary/30 uppercase tracking-widest backdrop-blur-sm">
                         VIP
                      </div>
                   )}
                   <img src={item.avatar_url || 'https://via.placeholder.com/600'} className="w-full h-full object-cover grayscale-[30%] group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" alt={item.title} referrerPolicy="no-referrer" />
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                     <div className="w-16 h-16 bg-primary rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(229,9,20,0.5)] transform scale-90 group-hover:scale-100 transition-transform">
-                       <Play className="w-8 h-8 text-white fill-white ml-1" />
+                       <Play className="w-8 h-8 text-on-surface fill-white ml-1" />
                     </div>
                   </div>
                 </div>
@@ -129,18 +129,18 @@ const History = () => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-start">
                       <div className="space-y-2">
-                        <h4 className="text-2xl font-black text-white italic group-hover:text-primary transition-colors uppercase tracking-tighter">{item.title}</h4>
+                        <h4 className="text-2xl font-black text-on-surface italic group-hover:text-primary transition-colors uppercase tracking-tighter">{item.title}</h4>
                         <p className="text-on-surface-variant/60 text-[10px] font-black uppercase tracking-[0.2em]">{item.genres || item.country || 'Chưa phân loại'}</p>
                       </div>
-                      <div className="flex items-center gap-2 text-[9px] font-black text-white/50 uppercase tracking-[0.2em] bg-white/5 px-4 py-2 rounded-full border border-white/5 shadow-inner">
+                      <div className="flex items-center gap-2 text-[9px] font-black text-on-surface/50 uppercase tracking-[0.2em] bg-outline-variant/10 px-4 py-2 rounded-full border border-outline-variant/20 shadow-inner">
                          <Clock className="w-3 h-3 text-primary" /> {formatRelativeTime(item.watched_at)}
                       </div>
                     </div>
                     
                     <div className="flex flex-wrap gap-4 pt-2">
-                       <div className="flex items-center gap-2 px-3 py-1.5 bg-white/5 rounded-xl border border-white/5">
-                          <Calendar className="w-3 h-3 text-white/40" />
-                          <span className="text-[10px] font-black text-white/60 uppercase tracking-widest leading-none">Năm phát hành: {item.release_date ? new Date(item.release_date).getFullYear() : 'Đang cập nhật'}</span>
+                       <div className="flex items-center gap-2 px-3 py-1.5 bg-outline-variant/10 rounded-xl border border-outline-variant/20">
+                          <Calendar className="w-3 h-3 text-on-surface/40" />
+                          <span className="text-[10px] font-black text-on-surface/60 uppercase tracking-widest leading-none">Năm phát hành: {item.release_date ? new Date(item.release_date).getFullYear() : 'Đang cập nhật'}</span>
                        </div>
                     </div>
                   </div>
@@ -157,14 +157,14 @@ const History = () => {
                 <div className="flex md:flex-col justify-end gap-3 px-2">
                    <button 
                      onClick={() => removeItem(item.id)}
-                     className="w-12 h-12 rounded-2xl flex items-center justify-center hover:bg-red-500/20 text-white/20 hover:text-red-500 transition-all border border-transparent hover:border-red-500/40"
+                     className="w-12 h-12 rounded-2xl flex items-center justify-center hover:bg-red-500/20 text-on-surface/20 hover:text-red-500 transition-all border border-transparent hover:border-red-500/40"
                      title="Xóa khỏi lịch sử"
                    >
                       <Trash2 className="w-5 h-5" />
                    </button>
                    <Link 
                      to={`/watch/${item.id}`}
-                     className="w-12 h-12 rounded-2xl flex items-center justify-center bg-white/5 hover:bg-white text-white hover:text-black transition-all border border-white/10"
+                     className="w-12 h-12 rounded-2xl flex items-center justify-center bg-outline-variant/10 hover:bg-white text-on-surface hover:text-black transition-all border border-outline-variant/20"
                    >
                       <ChevronRight className="w-5 h-5" />
                    </Link>
@@ -178,12 +178,12 @@ const History = () => {
             animate={{ opacity: 1, scale: 1 }}
             className="flex flex-col items-center justify-center py-32 text-center space-y-8"
           >
-            <div className="w-40 h-40 glass-dark rounded-[3rem] flex items-center justify-center border border-white/5 relative">
-               <Film className="w-16 h-16 text-white/10" />
+            <div className="w-40 h-40 glass-dark rounded-[3rem] flex items-center justify-center border border-outline-variant/20 relative">
+               <Film className="w-16 h-16 text-on-surface/10" />
                <div className="absolute inset-0 bg-primary/5 blur-3xl rounded-full"></div>
             </div>
             <div className="space-y-3">
-              <h3 className="text-3xl font-black text-white uppercase italic tracking-tighter text-glow">Chưa có lịch sử xem</h3>
+              <h3 className="text-3xl font-black text-on-surface uppercase italic tracking-tighter text-glow">Chưa có lịch sử xem</h3>
               <p className="text-on-surface-variant/40 text-xs font-black uppercase tracking-[0.2em] max-w-sm mx-auto">Các bộ phim bạn đã xem sẽ xuất hiện tại đây để bạn có thể xem lại bất cứ lúc nào.</p>
             </div>
             <Link to="/" className="btn-primary px-10 py-5 text-[10px] font-black uppercase tracking-[0.3em] shadow-2xl">

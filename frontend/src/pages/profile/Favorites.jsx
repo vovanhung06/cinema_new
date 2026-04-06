@@ -78,11 +78,11 @@ const Favorites = () => {
            animate={{ opacity: 1, y: 0 }}
         >
           <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Your Collection</p>
-          <h2 className="text-5xl font-black text-white italic tracking-tighter uppercase">Danh sách <span className="text-glow text-primary">Yêu thích.</span></h2>
+          <h2 className="text-5xl font-black text-on-surface italic tracking-tighter uppercase">Danh sách <span className="text-glow text-primary">Yêu thích.</span></h2>
         </motion.div>
         
         <div className="flex items-center gap-4">
-           <div className="px-4 py-2 bg-white/5 rounded-2xl border border-white/5 text-[10px] font-black uppercase tracking-widest text-on-surface-variant/60">
+           <div className="px-4 py-2 bg-outline-variant/10 rounded-2xl border border-outline-variant/20 text-[10px] font-black uppercase tracking-widest text-on-surface-variant/60">
               {favorites.length} Tác phẩm
            </div>
         </div>
@@ -110,7 +110,7 @@ const Favorites = () => {
             exit={{ opacity: 0 }}
             className="min-h-[60vh] flex items-center justify-center"
           >
-            <div className="max-w-md p-8 rounded-3xl bg-white/5 border border-red-500/20 text-center">
+            <div className="max-w-md p-8 rounded-3xl bg-outline-variant/10 border border-red-500/20 text-center">
               <p className="text-sm font-black uppercase tracking-[0.2em] text-red-400 mb-4">{fetchError}</p>
               <button
                 onClick={fetchFavorites}
@@ -134,12 +134,12 @@ const Favorites = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.8 }} // Removed blur(10px) to prevent "mờ câm" issue
                 whileHover={{ y: -10 }}
-                className="relative group aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border border-white/5 bg-surface-container-low"
+                className="relative group aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border border-outline-variant/20 bg-surface-container-low"
               >
                 {movie.required_vip_level > 0 && (
-                   <div className="absolute top-6 left-6 px-3 py-1 bg-yellow-500 rounded-xl flex items-center gap-1 border border-white/10 z-20 shadow-xl pointer-events-none">
-                      <Gem className="w-3 h-3 text-white" />
-                      <span className="text-[8px] font-black text-white uppercase tracking-widest">VIP</span>
+                   <div className="absolute top-6 left-6 px-3 py-1 bg-yellow-500 rounded-xl flex items-center gap-1 border border-outline-variant/20 z-20 shadow-xl pointer-events-none">
+                      <Gem className="w-3 h-3 text-on-surface" />
+                      <span className="text-[8px] font-black text-on-surface uppercase tracking-widest">VIP</span>
                    </div>
                 )}
 
@@ -159,18 +159,18 @@ const Favorites = () => {
                     className="space-y-4"
                    >
                       <div className="space-y-1">
-                        <h4 className="text-xl font-black text-white italic leading-tight uppercase tracking-tight">{movie.title}</h4>
+                        <h4 className="text-xl font-black text-on-surface italic leading-tight uppercase tracking-tight">{movie.title}</h4>
                         <div className="flex items-center gap-3">
                            <div className="flex items-center gap-1">
                               <Star className="w-3 h-3 text-primary fill-primary" />
-                              <span className="text-[10px] font-black text-white">{movie.rating || '—'}</span>
+                              <span className="text-[10px] font-black text-on-surface">{movie.rating || '—'}</span>
                            </div>
-                           <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">{movie.release_date ? new Date(movie.release_date).getFullYear() : movie.year || 'N/A'}</span>
+                           <span className="text-[10px] font-black text-on-surface/40 uppercase tracking-widest">{movie.release_date ? new Date(movie.release_date).getFullYear() : movie.year || 'N/A'}</span>
                         </div>
                       </div>
                       
                       <div className="flex gap-3">
-                        <Link to={`/watch/${movie.id}`} className="flex-1 bg-white text-black py-3 rounded-2xl flex items-center justify-center gap-2 hover:bg-primary hover:text-white transition-all group/btn">
+                        <Link to={`/watch/${movie.id}`} className="flex-1 bg-white text-black py-3 rounded-2xl flex items-center justify-center gap-2 hover:bg-primary hover:text-on-surface transition-all group/btn">
                            <Play className="w-4 h-4 fill-current group-hover/btn:scale-110 transition-transform" />
                            <span className="text-[10px] font-black uppercase tracking-widest">Xem</span>
                         </Link>
@@ -179,14 +179,14 @@ const Favorites = () => {
                           className="w-12 h-12 glass-dark rounded-2xl flex items-center justify-center hover:bg-red-500 transition-colors group/remove"
                           title="Xóa khỏi yêu thích"
                         >
-                           <X className="w-5 h-5 text-white transition-transform group-hover/remove:rotate-90" />
+                           <X className="w-5 h-5 text-on-surface transition-transform group-hover/remove:rotate-90" />
                         </button>
                       </div>
                    </motion.div>
                 </div>
                 
                 {/* Static indicator */}
-                <div className="absolute top-6 right-6 w-10 h-10 glass-dark rounded-2xl flex items-center justify-center border border-white/10 group-hover:opacity-0 transition-opacity">
+                <div className="absolute top-6 right-6 w-10 h-10 glass-dark rounded-2xl flex items-center justify-center border border-outline-variant/20 group-hover:opacity-0 transition-opacity">
                    <Heart className="w-5 h-5 text-primary fill-primary" />
                 </div>
               </motion.div>
@@ -200,12 +200,12 @@ const Favorites = () => {
             exit={{ opacity: 0 }}
             className="flex flex-col items-center justify-center py-32 text-center space-y-8"
           >
-            <div className="w-40 h-40 glass-dark rounded-[3rem] flex items-center justify-center border border-white/5 relative">
-               <Film className="w-16 h-16 text-white/10" />
+            <div className="w-40 h-40 glass-dark rounded-[3rem] flex items-center justify-center border border-outline-variant/20 relative">
+               <Film className="w-16 h-16 text-on-surface/10" />
                <div className="absolute inset-0 bg-primary/5 blur-3xl rounded-full"></div>
             </div>
             <div className="space-y-3">
-              <h3 className="text-3xl font-black text-white uppercase italic tracking-tighter text-glow">Danh sách của bạn đang trống</h3>
+              <h3 className="text-3xl font-black text-on-surface uppercase italic tracking-tighter text-glow">Danh sách của bạn đang trống</h3>
               <p className="text-on-surface-variant/40 text-xs font-black uppercase tracking-[0.2em] max-w-sm mx-auto">Hãy bắt đầu hành trình điện ảnh bằng cách khám phá kho phim khổng lồ của Cinema+</p>
             </div>
             <Link to="/" className="btn-primary px-10 py-5 text-[10px] font-black uppercase tracking-[0.3em] shadow-2xl">

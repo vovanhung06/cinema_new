@@ -15,15 +15,15 @@
 }
 
 .light {
-  --surface: #f3f4f6;
-  --on-surface: #111827;
-  --on-surface-variant: #4b5563;
+  --surface: #f8fafc;
+  --on-surface: #0f172a;
+  --on-surface-variant: #475569;
   --surface-container: #ffffff;
-  --surface-container-high: #e5e7eb;
-  --outline-variant: #d1d5db;
-  --glass-bg: rgba(255, 255, 255, 0.7);
-  --glass-border: rgba(0, 0, 0, 0.05);
-  --glass-dark-bg: rgba(255, 255, 255, 0.8);
+  --surface-container-high: #f1f5f9;
+  --outline-variant: #e2e8f0;
+  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-border: rgba(0, 0, 0, 0.08);
+  --glass-dark-bg: rgba(255, 255, 255, 0.9);
 }
 
 @theme {

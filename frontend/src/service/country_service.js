@@ -22,6 +22,18 @@ export const getAllCountries = async () => {
   }
 };
 
+// Get all public countries
+export const getAllCountriesPublic = async () => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/countrie/public`);
+    const data = response.data;
+    return Array.isArray(data) ? data : data?.data || [];
+  } catch (error) {
+    console.error('Error fetching public countries:', error);
+    throw error;
+  }
+};
+
 // Get country by ID
 export const getCountryById = async (id) => {
   try {

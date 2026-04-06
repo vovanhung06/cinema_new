@@ -76,7 +76,7 @@ const Billing = () => {
            animate={{ opacity: 1, y: 0 }}
         >
           <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Subscription & Billing</p>
-          <h2 className="text-5xl font-black text-white italic tracking-tighter uppercase">Thanh toán & <span className="text-glow text-primary">Dịch vụ.</span></h2>
+          <h2 className="text-5xl font-black text-on-surface italic tracking-tighter uppercase">Thanh toán & <span className="text-glow text-primary">Dịch vụ.</span></h2>
         </motion.div>
         
         <div className="flex items-center gap-4">
@@ -91,7 +91,7 @@ const Billing = () => {
         <div className="xl:col-span-12">
           <motion.div 
             whileHover={{ scale: 1.01 }}
-            className="relative rounded-[3.5rem] p-12 text-white overflow-hidden shadow-2xl min-h-[350px] flex flex-col md:flex-row justify-between items-center group shadow-primary/20"
+            className="relative rounded-[3.5rem] p-12 text-on-surface overflow-hidden shadow-2xl min-h-[350px] flex flex-col md:flex-row justify-between items-center group shadow-primary/20"
           >
             {/* Background Layer with Premium Gradient */}
             <div className={`absolute inset-0 bg-gradient-to-br ${isVipActive(user) ? 'from-purple-900 via-indigo-950 to-black' : 'from-primary via-primary-container to-black'} -z-10 transition-transform duration-700 group-hover:scale-110`}></div>
@@ -103,20 +103,20 @@ const Billing = () => {
                 <motion.div 
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  className={`inline-block px-5 py-2 ${isVipActive(user) ? 'bg-amber-400/20 text-amber-400 border-amber-400/30' : 'bg-white/10 text-white/80 border-white/10'} backdrop-blur-xl rounded-2xl text-[10px] font-black uppercase tracking-[0.4em] border`}
+                  className={`inline-block px-5 py-2 ${isVipActive(user) ? 'bg-amber-400/20 text-amber-400 border-amber-400/30' : 'bg-white/10 text-on-surface/80 border-outline-variant/20'} backdrop-blur-xl rounded-2xl text-[10px] font-black uppercase tracking-[0.4em] border`}
                 >
                   {isVipActive(user) ? '⭐ Current Premium VIP' : 'Recommended Premium Plan'}
 
                 </motion.div>
-                <h3 className={`text-6xl md:text-7xl font-black italic truncate uppercase tracking-tighter leading-none ${isVipActive(user) ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 animate-pulse-slow' : 'text-white'}`}>
+                <h3 className={`text-6xl md:text-7xl font-black italic truncate uppercase tracking-tighter leading-none ${isVipActive(user) ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 animate-pulse-slow' : 'text-on-surface'}`}>
 
                   {vipPlan ? vipPlan.title : 'Loading...'}
                 </h3>
                 <div className="flex flex-wrap justify-center md:justify-start gap-6 pt-2">
-                  <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-white/80">
+                  <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-on-surface/80">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" /> 4K Ultra HD + Atmos
                   </div>
-                  <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-white/80">
+                  <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-on-surface/80">
                     <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Phim VIP Độc quyền
                   </div>
                 </div>
@@ -124,7 +124,7 @@ const Billing = () => {
               
               <div className="flex flex-col md:flex-row items-center gap-8 pt-6">
                 <div className="space-y-1">
-                   <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Phí dịch vụ hàng tháng</p>
+                   <p className="text-[10px] font-black text-on-surface/40 uppercase tracking-widest">Phí dịch vụ hàng tháng</p>
                    <p className="text-3xl font-black italic">
                       {vipPlan ? `${parseInt(vipPlan.price).toLocaleString('vi-VN')}₫` : '...'} 
                       <span className="text-sm font-medium not-italic opacity-40"> / Tháng</span>
@@ -135,7 +135,7 @@ const Billing = () => {
                   <>
                     <div className="w-px h-12 bg-white/10 hidden md:block"></div>
                     <div className="space-y-1">
-                       <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Kỳ hạn thanh toán tiếp theo</p>
+                       <p className="text-[10px] font-black text-on-surface/40 uppercase tracking-widest">Kỳ hạn thanh toán tiếp theo</p>
                        <div className="flex items-center gap-2 text-xl font-black italic">
                           <Calendar className="w-5 h-5 text-primary" /> {new Date(user.vip_expired_at).toLocaleDateString('vi-VN')}
                        </div>
@@ -154,7 +154,7 @@ const Billing = () => {
                    </div>
                    <button 
                      onClick={() => setIsConfirmModalOpen(true)}
-                     className="w-full md:w-64 py-5 bg-white/5 backdrop-blur-3xl hover:bg-white/10 border border-white/5 text-white/60 hover:text-white rounded-[1.5rem] font-black uppercase text-[10px] tracking-[0.3em] transition-all"
+                     className="w-full md:w-64 py-5 bg-outline-variant/10 backdrop-blur-3xl hover:bg-white/10 border border-outline-variant/20 text-on-surface/60 hover:text-on-surface rounded-[1.5rem] font-black uppercase text-[10px] tracking-[0.3em] transition-all"
                    >
                      Hủy gói VIP
                    </button>
@@ -166,7 +166,7 @@ const Billing = () => {
                 )}
              </div>
              
-              <Zap className={`absolute -bottom-12 -left-12 w-64 h-64 ${isVipActive(user) ? 'text-amber-400/10' : 'text-white/5'} -rotate-12 group-hover:scale-110 transition-transform duration-1000`} />
+              <Zap className={`absolute -bottom-12 -left-12 w-64 h-64 ${isVipActive(user) ? 'text-amber-400/10' : 'text-on-surface/5'} -rotate-12 group-hover:scale-110 transition-transform duration-1000`} />
 
            </motion.div>
          </div>
@@ -174,19 +174,19 @@ const Billing = () => {
          {/* Payment Method Section - Hidden for VIPs */}
          {/* {!user?.is_vip && (
            <div className="xl:col-span-5 space-y-8">
-             <div className="glass-dark p-10 rounded-[3rem] border border-white/5 shadow-2xl space-y-8 relative overflow-hidden group">
+             <div className="glass-dark p-10 rounded-[3rem] border border-outline-variant/20 shadow-2xl space-y-8 relative overflow-hidden group">
                <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/5 blur-[50px] -z-10"></div>
                
                <div className="flex items-center justify-between">
-                 <h4 className="text-xs font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+                 <h4 className="text-xs font-black text-on-surface uppercase tracking-[0.3em] flex items-center gap-3">
                    <CreditCard className="w-4 h-4 text-primary" /> Phương thức hiện tại
                  </h4>
-                 <button className="text-[9px] font-black text-primary hover:text-white uppercase tracking-widest transition-colors">Cập nhật</button>
+                 <button className="text-[9px] font-black text-primary hover:text-on-surface uppercase tracking-widest transition-colors">Cập nhật</button>
                </div>
 
                <motion.div 
                  whileHover={{ y: -5 }}
-                 className="p-8 bg-gradient-to-br from-white/10 to-transparent rounded-[2rem] border border-white/10 relative overflow-hidden shadow-xl"
+                 className="p-8 bg-gradient-to-br from-white/10 to-transparent rounded-[2rem] border border-outline-variant/20 relative overflow-hidden shadow-xl"
                >
                  <div className="absolute top-0 right-0 p-6 opacity-20">
                     <div className="w-16 h-10 bg-blue-600 rounded-lg flex items-center justify-center font-black italic text-xs">VISA</div>
@@ -194,24 +194,24 @@ const Billing = () => {
                  
                  <div className="space-y-6">
                    <div className="space-y-1">
-                     <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Card Number</p>
-                     <p className="text-2xl font-black text-white tracking-[0.2em] italic">•••• •••• •••• 4242</p>
+                     <p className="text-[10px] font-black text-on-surface/30 uppercase tracking-[0.2em]">Card Number</p>
+                     <p className="text-2xl font-black text-on-surface tracking-[0.2em] italic">•••• •••• •••• 4242</p>
                    </div>
                    
                    <div className="flex justify-between items-end">
                      <div className="space-y-1">
-                       <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Expiry Date</p>
-                       <p className="text-lg font-black text-white italic">12 / 28</p>
+                       <p className="text-[10px] font-black text-on-surface/30 uppercase tracking-[0.2em]">Expiry Date</p>
+                       <p className="text-lg font-black text-on-surface italic">12 / 28</p>
                      </div>
                      <div className="space-y-1 text-right">
-                       <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.2em]">Card Holder</p>
-                       <p className="text-sm font-black text-white uppercase tracking-widest">NGUYEN VAN A</p>
+                       <p className="text-[10px] font-black text-on-surface/30 uppercase tracking-[0.2em]">Card Holder</p>
+                       <p className="text-sm font-black text-on-surface uppercase tracking-widest">NGUYEN VAN A</p>
                      </div>
                    </div>
                  </div>
                </motion.div>
 
-               <button className="w-full py-5 border border-dashed border-white/20 hover:border-primary/40 rounded-2xl text-on-surface-variant/40 hover:text-white text-[10px] font-black uppercase tracking-[0.3em] hover:bg-primary/5 transition-all">
+               <button className="w-full py-5 border border-dashed border-white/20 hover:border-primary/40 rounded-2xl text-on-surface-variant/40 hover:text-on-surface text-[10px] font-black uppercase tracking-[0.3em] hover:bg-primary/5 transition-all">
                  + Thêm phương thức mới
                </button>
              </div>
@@ -220,12 +220,12 @@ const Billing = () => {
 
          {/* Billing History Section */}
          <div className={user?.is_vip ? "xl:col-span-12 space-y-8" : "xl:col-span-7 space-y-8"}>
-           <div className="glass-dark rounded-[3rem] border border-white/5 shadow-2xl relative overflow-hidden group">
+           <div className="glass-dark rounded-[3rem] border border-outline-variant/20 shadow-2xl relative overflow-hidden group">
              <div className="p-10 pb-4 flex items-center justify-between">
-                <h3 className="text-xs font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+                <h3 className="text-xs font-black text-on-surface uppercase tracking-[0.3em] flex items-center gap-3">
                   <History className="w-4 h-4 text-primary" /> Lịch sử giao dịch
                 </h3>
-                <button className="w-10 h-10 bg-white/5 rounded-2xl flex items-center justify-center hover:bg-white hover:text-black transition-all">
+                <button className="w-10 h-10 bg-outline-variant/10 rounded-2xl flex items-center justify-center hover:bg-white hover:text-black transition-all">
                    <Download className="w-4 h-4" />
                 </button>
              </div>
@@ -233,7 +233,7 @@ const Billing = () => {
              <div className="overflow-x-auto">
                <table className="w-full text-left border-collapse">
                  <thead>
-                   <tr className="border-b border-white/5">
+                   <tr className="border-b border-outline-variant/20">
                      <th className="px-10 py-6 text-[9px] font-black text-on-surface-variant/30 uppercase tracking-[0.3em]">Hóa đơn</th>
                      <th className="px-6 py-6 text-[9px] font-black text-on-surface-variant/30 uppercase tracking-[0.3em]">Ngày thực hiện</th>
                      <th className="px-6 py-6 text-[9px] font-black text-on-surface-variant/30 uppercase tracking-[0.3em]">Số tiền</th>
@@ -243,7 +243,7 @@ const Billing = () => {
                  <tbody className="divide-y divide-white/5">
                    {loadingHistory ? (
                      <tr>
-                       <td colSpan="4" className="px-10 py-12 text-center text-[10px] font-black text-white/20 uppercase tracking-[0.5em]">Đang tải lịch sử...</td>
+                       <td colSpan="4" className="px-10 py-12 text-center text-[10px] font-black text-on-surface/20 uppercase tracking-[0.5em]">Đang tải lịch sử...</td>
                      </tr>
                    ) : history.length > 0 ? (
                      history.map((row, i) => (
@@ -254,9 +254,9 @@ const Billing = () => {
                          key={row.id} 
                          className="hover:bg-white/[0.02] transition-colors group/row cursor-default"
                        >
-                         <td className="px-10 py-6 font-black text-sm text-white italic tracking-widest uppercase">INV-{row.id.toString().padStart(3, '0')}</td>
+                         <td className="px-10 py-6 font-black text-sm text-on-surface italic tracking-widest uppercase">INV-{row.id.toString().padStart(3, '0')}</td>
                          <td className="px-6 py-6 text-[10px] font-black text-on-surface-variant/60 uppercase tracking-widest">{new Date(row.start_date).toLocaleDateString('vi-VN')}</td>
-                         <td className="px-6 py-6 text-sm font-black text-white italic">{parseInt(row.price_paid).toLocaleString('vi-VN')}₫</td>
+                         <td className="px-6 py-6 text-sm font-black text-on-surface italic">{parseInt(row.price_paid).toLocaleString('vi-VN')}₫</td>
                          <td className="px-10 py-6 text-right">
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20">
                                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
@@ -267,15 +267,15 @@ const Billing = () => {
                      ))
                    ) : (
                      <tr>
-                       <td colSpan="4" className="px-10 py-12 text-center text-[10px] font-black text-white/20 uppercase tracking-[0.5em]">Chưa có giao dịch nào</td>
+                       <td colSpan="4" className="px-10 py-12 text-center text-[10px] font-black text-on-surface/20 uppercase tracking-[0.5em]">Chưa có giao dịch nào</td>
                      </tr>
                    )}
                  </tbody>
                </table>
              </div>
              
-             <div className="p-8 border-t border-white/5 flex justify-center">
-                <button className="text-[9px] font-black text-on-surface-variant/40 uppercase tracking-[0.3em] hover:text-white transition-colors">Xem toàn bộ lịch sử</button>
+             <div className="p-8 border-t border-outline-variant/20 flex justify-center">
+                <button className="text-[9px] font-black text-on-surface-variant/40 uppercase tracking-[0.3em] hover:text-on-surface transition-colors">Xem toàn bộ lịch sử</button>
              </div>
            </div>
          </div>
@@ -297,11 +297,11 @@ const Billing = () => {
                initial={{ opacity: 0, scale: 0.9, y: 20 }}
                animate={{ opacity: 1, scale: 1, y: 0 }}
                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-               className="bg-surface-container-high glass-dark max-w-lg w-full rounded-[3.5rem] border border-white/10 shadow-[0_32px_128px_rgba(0,0,0,0.8)] overflow-hidden relative group z-10"
+               className="bg-surface-container-high glass-dark max-w-lg w-full rounded-[3.5rem] border border-outline-variant/20 shadow-[0_32px_128px_rgba(0,0,0,0.8)] overflow-hidden relative group z-10"
              >
                <button 
                  onClick={() => setIsConfirmModalOpen(false)}
-                 className="absolute top-8 right-8 p-3 hover:bg-white/10 rounded-2xl transition-all text-white/40 hover:text-white"
+                 className="absolute top-8 right-8 p-3 hover:bg-white/10 rounded-2xl transition-all text-on-surface/40 hover:text-on-surface"
                >
                  <X className="w-6 h-6" />
                </button>
@@ -311,10 +311,10 @@ const Billing = () => {
                    <AlertTriangle className="w-10 h-10 text-red-500" />
                  </div>
                  
-                 <h3 className="text-4xl font-black text-white italic uppercase tracking-tighter mb-6">Xác nhận hủy <span className="text-red-500">gói VIP?</span></h3>
+                 <h3 className="text-4xl font-black text-on-surface italic uppercase tracking-tighter mb-6">Xác nhận hủy <span className="text-red-500">gói VIP?</span></h3>
                  
                  <p className="text-sm font-bold text-on-surface-variant/70 leading-relaxed uppercase tracking-widest mb-12">
-                   Bạn sẽ mất toàn bộ quyền truy cập vào các bộ phim độc quyền, chất lượng <span className="text-white">4K Ultra HD</span>, âm thanh <span className="text-white">Atmos</span> và không còn được xem phim không quảng cáo ngay lập tức.
+                   Bạn sẽ mất toàn bộ quyền truy cập vào các bộ phim độc quyền, chất lượng <span className="text-on-surface">4K Ultra HD</span>, âm thanh <span className="text-on-surface">Atmos</span> và không còn được xem phim không quảng cáo ngay lập tức.
                  </p>
                  
                  <div className="flex flex-col w-full gap-4">
@@ -358,22 +358,22 @@ const Billing = () => {
                initial={{ opacity: 0, scale: 0.9, y: 20 }}
                animate={{ opacity: 1, scale: 1, y: 0 }}
                exit={{ opacity: 0, scale: 0.9, y: 20 }}
-               className="bg-surface-container-high glass-dark max-w-lg w-full rounded-[3.5rem] border border-white/10 shadow-[0_32px_128px_rgba(0,0,0,0.8)] overflow-hidden relative group z-10"
+               className="bg-surface-container-high glass-dark max-w-lg w-full rounded-[3.5rem] border border-outline-variant/20 shadow-[0_32px_128px_rgba(0,0,0,0.8)] overflow-hidden relative group z-10"
              >
                <div className="p-12 md:p-16 flex flex-col items-center text-center">
                  <div className="w-24 h-24 bg-emerald-500/20 rounded-full flex items-center justify-center mb-10 border border-emerald-500/30 shadow-[0_0_50px_rgba(16,185,129,0.2)]">
                    <CheckCircle2 className="w-10 h-10 text-emerald-500" />
                  </div>
                  
-                 <h3 className="text-4xl font-black text-white italic uppercase tracking-tighter mb-6">Hủy VIP <span className="text-emerald-500">Thành công!</span></h3>
+                 <h3 className="text-4xl font-black text-on-surface italic uppercase tracking-tighter mb-6">Hủy VIP <span className="text-emerald-500">Thành công!</span></h3>
                  
                  <p className="text-sm font-bold text-on-surface-variant/70 leading-relaxed uppercase tracking-widest mb-12">
-                   Chúng tôi rất tiếc khi bạn dừng trải nghiệm VIP. Gói dịch vụ của bạn đã được chuyển về mức <span className="text-white">TIÊU CHUẨN</span>. Bạn luôn có thể nâng cấp lại bất cứ lúc nào!
+                   Chúng tôi rất tiếc khi bạn dừng trải nghiệm VIP. Gói dịch vụ của bạn đã được chuyển về mức <span className="text-on-surface">TIÊU CHUẨN</span>. Bạn luôn có thể nâng cấp lại bất cứ lúc nào!
                  </p>
                  
                  <button
                    onClick={() => setIsSuccessModalOpen(false)}
-                   className="w-full py-6 bg-emerald-500 text-white rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-emerald-500/30"
+                   className="w-full py-6 bg-emerald-500 text-on-surface rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] hover:scale-[1.02] active:scale-[0.98] transition-all shadow-2xl shadow-emerald-500/30"
                  >
                    Xác nhận & Quay lại
                  </button>

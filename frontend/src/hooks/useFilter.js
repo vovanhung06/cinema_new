@@ -5,6 +5,7 @@ export const useFilter = () => {
   const [activeFilters, setActiveFilters] = useState({
     genre: "Tất cả",
     country: "Tất cả quốc gia",
+    year: "Tất cả",
     sort: "Mới nhất",
   });
 
@@ -13,26 +14,7 @@ export const useFilter = () => {
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState(null);
 
-  // ===== MAP UI -> BE =====
-  const genreMap = {
-    'Hành động': 'Hành Động',
-    'Hài hước': 'Comedy',
-    'Kinh dị': 'Horror',
-    'Tình cảm': 'Romance',
-    'Khoa học viễn tưởng': 'Sci-Fi',
-    'Tài liệu': 'Animation',
-    'Anime': 'Animation'
-  };
-
-  const countryMap = {
-    'Việt Nam': 'Vietnam',
-    'Hoa Kỳ': 'USA',
-    'Hàn Quốc': 'Korea',
-    'Nhật Bản': 'Japan',
-    'Trung Quốc': 'China',
-    'Thái Lan': 'Thailand'
-  };
-
+  // ===== MAP UI -> BE (Sắp xếp vẫn dùng map vì label khác key API) =====
   const sortMap = {
     'Mới nhất': 'new',
     'Cũ nhất': 'old',
@@ -57,13 +39,17 @@ export const useFilter = () => {
         limit: 12,
       };
 
-      // ===== FILTER =====
+      // ===== FILTER (Đã đồng bộ với DB nên dùng trực tiếp name) =====
       if (activeFilters.genre !== "Tất cả") {
-        params.genre = genreMap[activeFilters.genre];
+        params.genre = activeFilters.genre;
       }
 
       if (activeFilters.country !== "Tất cả quốc gia") {
-        params.country = countryMap[activeFilters.country];
+        params.country = activeFilters.country;
+      }
+
+      if (activeFilters.year !== "Tất cả") {
+        params.year = activeFilters.year;
       }
 
       if (activeFilters.sort) {
