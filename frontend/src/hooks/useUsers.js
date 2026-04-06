@@ -1,7 +1,8 @@
 import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
+import API_BASE_URL from "../config/api";
 
-const API_URL = "http://localhost:3000/api/users";
+const API_URL = `${API_BASE_URL}/users`;
 
 export const useUsers = () => {
   /* ================= STATE ================= */

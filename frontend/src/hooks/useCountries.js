@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API_BASE_URL from "../config/api";
 
-const API_URL = "http://localhost:3000/api/countrie";
+const API_URL = `${API_BASE_URL}/countrie`;
 
 export const useCountries = () => {
   /* ================= STATE ================= */

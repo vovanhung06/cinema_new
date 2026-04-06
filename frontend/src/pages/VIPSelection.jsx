@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 import PricingCard from '../components/user/Pricing/PricingCard.jsx';
 import ComparisonTable from '../components/user/Pricing/ComparisonTable.jsx';
 import Benefits from '../components/user/Pricing/Benefits.jsx';
@@ -15,7 +16,7 @@ export default function VIPSelection() {
   useEffect(() => {
     const fetchVip = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/vip');
+        const res = await axios.get(`${API_BASE_URL}/vip`);
         if (res.data.success && res.data.vip) {
           setVipPlan(res.data.vip);
         }

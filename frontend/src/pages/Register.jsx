@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { User, Mail, Lock, ShieldCheck, Check, Sparkles, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ const Register = () => {
 
     try {
       const res = await axios.post(
-        'http://localhost:3000/api/users/register',
+        `${API_BASE_URL}/users/register`,
         {
           username: trimmedUsername,
           email: normalizedEmail,

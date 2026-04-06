@@ -3,6 +3,7 @@ import { MessageCircle, X, Send, Minus, Trash2, Zap, Film, Crown, Sparkles } fro
 import ChatMessage from './ChatMessage';
 import MovieCard from './MovieCard';
 import { useAuth } from '../../context/AuthContext';
+import API_BASE_URL from '../../config/api';
 import './Chatbox.css';
 
 const Chatbox = () => {
@@ -31,7 +32,7 @@ const Chatbox = () => {
 
     const fetchHistory = async () => {
         try {
-            const res = await fetch('http://localhost:3000/api/ai/history', {
+            const res = await fetch(`${API_BASE_URL}/ai/history`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await res.json();
@@ -54,7 +55,7 @@ const Chatbox = () => {
         setIsTyping(true);
 
         try {
-            const response = await fetch('http://localhost:3000/api/ai/chat', {
+            const response = await fetch(`${API_BASE_URL}/ai/chat`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -114,7 +115,7 @@ const Chatbox = () => {
     const clearHistory = async () => {
         if (!window.confirm("Bạn có chắc muốn xóa lịch sử trò chuyện?")) return;
         try {
-            await fetch('http://localhost:3000/api/ai/history', {
+            await fetch(`${API_BASE_URL}/ai/history`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });

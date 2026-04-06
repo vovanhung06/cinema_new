@@ -4,6 +4,7 @@ import { Mail, Lock, ArrowRight, Check, Sparkles, ShieldCheck } from 'lucide-rea
 import { motion, AnimatePresence } from 'motion/react';
 import { useAuth } from '../context/AuthContext';
 import axios from 'axios';
+import API_BASE_URL from '../config/api';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ const Login = () => {
     const normalizedEmail = email.trim().toLowerCase();
 
     const res = await axios.post(
-      'http://localhost:3000/api/users/login',
+      `${API_BASE_URL}/users/login`,
       {
         email: normalizedEmail,
         password,

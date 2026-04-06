@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { toDateInput } from '../utils/date.js';
-
-const API_BASE_URL = 'http://localhost:3000/api';
+import API_BASE_URL from '../config/api';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token') || sessionStorage.getItem('token');

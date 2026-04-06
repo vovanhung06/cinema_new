@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API_BASE_URL from "../config/api";
 
-const API_URL = "http://localhost:3000/api/genre";
+const API_URL = `${API_BASE_URL}/genre`;
 
 export const useGenres = () => {
   /* ================= STATE ================= */

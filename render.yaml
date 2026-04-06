@@ -1,0 +1,51 @@
+services:
+  # Backend Service
+  - type: web
+    name: cinema-backend
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: NODE_ENV
+        value: production
+      # DATABASE (Existing Railway MySQL)
+      - key: DB_HOST
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_PORT
+        sync: false
+      # JWT & AI
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GROQ_API_KEY
+        sync: false
+      - key: FRONTEND_URL
+        fromService:
+          name: cinema-frontend
+          type: static_site
+          property: url
+
+  # Frontend Service
+  - type: static_site
+    name: cinema-frontend
+    env: static
+    plan: free
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    publishDir: dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: cinema-backend
+          type: web
+          property: url
+        suffix: /api

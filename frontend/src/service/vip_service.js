@@ -1,6 +1,7 @@
 import axios from "axios";
+import API_BASE_URL from "../config/api";
 
-const API = "http://localhost:3000/api/vip";
+const API = `${API_BASE_URL}/vip`;
 
 const getAuthToken = () =>
   localStorage.getItem("token") || sessionStorage.getItem("token");

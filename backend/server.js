@@ -30,17 +30,36 @@ require("dotenv").config();
 // MIDDLEWARE CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://172.16.1.76:5173",
+  "http://172.16.1.76:5174",
+  "http://0.0.0.0:5173",
+  "http://0.0.0.0:5174",
+  process.env.FRONTEND_URL
+].filter(Boolean);
+
+if (process.env.CORS_ORIGINS) {
+  process.env.CORS_ORIGINS.split(',').forEach(origin => {
+    if (origin && !allowedOrigins.includes(origin)) {
+      allowedOrigins.push(origin.trim());
+    }
+  });
+}
+
 // CORS Configuration
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://172.16.1.76:5173",
-    "http://172.16.1.76:5174",
-    "http://0.0.0.0:5173",
-    "http://0.0.0.0:5174"
-  ],
-  credentials: true, // ← Quan trọng cho cookies
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
 }));

@@ -3,6 +3,7 @@ import { CreditCard, CheckCircle2, ChevronRight, Zap, Download, Calendar, ArrowU
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import API_BASE_URL from '../../config/api';
 import { useAuth } from '../../hooks/useAuth';
 import { cancelVip } from '../../service/vip_service';
 import { isVipActive } from '../../utils/vip';
@@ -37,7 +38,7 @@ const Billing = () => {
   useEffect(() => {
     const fetchVip = async () => {
       try {
-        const res = await axios.get('http://localhost:3000/api/vip');
+        const res = await axios.get(`${API_BASE_URL}/vip`);
         if (res.data.success && res.data.vip) {
           setVipPlan(res.data.vip);
         }
@@ -50,7 +51,7 @@ const Billing = () => {
       if (!token) return;
       try {
         setLoadingHistory(true);
-        const res = await axios.get('http://localhost:3000/api/vip/history', {
+        const res = await axios.get(`${API_BASE_URL}/vip/history`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.data.success) {

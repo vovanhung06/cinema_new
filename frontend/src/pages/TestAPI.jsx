@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import API_BASE_URL from '../config/api';
 
 const TestAPI = () => {
   const [movieData, setMovieData] = useState(null);
@@ -8,7 +9,7 @@ const TestAPI = () => {
   useEffect(() => {
     const testAPI = async () => {
       try {
-        const response = await fetch('http://localhost:3000/api/movies/1');
+        const response = await fetch(`${API_BASE_URL}/movies/1`);
         const data = await response.json();
         console.log('API Response:', data);
         setMovieData(data);
