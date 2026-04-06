@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import {
   BarChart3,
   TrendingUp,
@@ -6,10 +7,21 @@ import {
   Tv,
   ArrowRight,
   Star,
-  Loader2
+  Loader2,
+  DollarSign,
+  Receipt,
+  ChevronLeft,
+  ChevronRight,
+  Crown,
+  Calendar,
+  Clock,
+  RefreshCw,
+  CheckCircle2,
+  XCircle
 } from 'lucide-react';
 import { cn } from '../../lib/utils.js';
 import { useStatistics } from '../../hooks/useStatistics.js';
+import { getRevenueHistory, getPaymentSessions } from '../../service/statistics_service.js';
 import { PageHeader } from '../../components/shared/PageHeader.jsx';
 
 export default function Statistics() {
@@ -24,6 +36,64 @@ export default function Statistics() {
     loading,
     error
   } = useStatistics();
+
+  // Revenue History state
+  const [revHistory, setRevHistory] = useState({ rows: [], pagination: { total: 0, page: 1, totalPages: 1 }, summary: { totalRevenue: 0, monthRevenue: 0 } });
+  const [revPage, setRevPage] = useState(1);
+  const [revLoading, setRevLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchRevHistory = async () => {
+      setRevLoading(true);
+      try {
+        const res = await getRevenueHistory(revPage, 10);
+        if (res.success) setRevHistory(res.data);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setRevLoading(false);
+      }
+    };
+    fetchRevHistory();
+  }, [revPage]);
+
+  // Payment Sessions state
+  const [sessions, setSessions] = useState([]);
+  const [sessionPage, setSessionPage] = useState(1);
+  const [sessionMeta, setSessionMeta] = useState({ total: 0, totalPages: 1, counts: { all: 0, completed: 0, pending: 0, expired: 0 } });
+  const [sessionsLoading, setSessionsLoading] = useState(false);
+  const [sessionFilter, setSessionFilter] = useState('all');
+
+  const fetchSessions = async (page = sessionPage, filter = sessionFilter) => {
+    setSessionsLoading(true);
+    try {
+      const res = await getPaymentSessions(page, 10, filter);
+      if (res.success) {
+        setSessions(res.sessions);
+        setSessionMeta({
+          total: res.pagination.total,
+          totalPages: res.pagination.totalPages,
+          counts: res.counts
+        });
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSessionsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchSessions(sessionPage, sessionFilter);
+
+    // Auto-refresh every 10 seconds to catch new sessions
+    const interval = setInterval(() => {
+      fetchSessions(sessionPage, sessionFilter);
+    }, 10000);
+    
+    return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionPage, sessionFilter]);
 
   if (loading) {
     return (
@@ -42,7 +112,7 @@ export default function Statistics() {
         </div>
         <h2 className="text-2xl font-bold font-headline">Có lỗi xảy ra</h2>
         <p className="text-on-surface-variant max-w-md">Không thể kết nối với máy chủ để lấy dữ liệu thống kê. Vui lòng thử lại sau.</p>
-        <button 
+        <button
           onClick={() => window.location.reload()}
           className="px-8 py-3 bg-primary-container text-white rounded-xl shadow-lg hover:shadow-primary-container/20 transition-all font-bold"
         >
@@ -99,7 +169,7 @@ export default function Statistics() {
         ))}
       </div>
 
-      <div className="grid grid-cols-12 gap-6">
+      <div className="  gap-6">
         {/* Revenue Chart */}
         <div className="col-span-12 lg:col-span-8 bg-surface-container-low rounded-xl p-6 shadow-2xl relative overflow-hidden group border border-outline-variant/10">
           <div className="absolute top-0 right-0 p-4">
@@ -138,58 +208,14 @@ export default function Statistics() {
         </div>
 
         {/* Genre Trends */}
-        <div className="col-span-12 lg:col-span-4 bg-surface-container-low rounded-xl p-6 flex flex-col justify-between border border-outline-variant/10">
-          <div>
-            <h3 className="text-xl font-bold font-headline mb-1">Xu hướng thể loại</h3>
-            <p className="text-sm text-on-surface-variant mb-6">Tỷ lệ xem theo danh mục phim</p>
-          </div>
-          <div className="relative flex items-center justify-center py-6">
-            <svg className="w-48 h-48 -rotate-90">
-              <circle cx="96" cy="96" fill="transparent" r="80" stroke="var(--md-sys-color-surface-container-highest)" strokeWidth="24"></circle>
-              {/* Dynamic doughnut chart logic - simplification for UI beauty */}
-              <circle 
-                cx="96" cy="96" fill="transparent" r="80" 
-                stroke="var(--md-sys-color-primary-container)" 
-                strokeDasharray="502.6" 
-                strokeDashoffset={502.6 * (1 - parseInt(genres[0]?.value || 0) / 100)} 
-                strokeWidth="24"
-                className="transition-all duration-1000 ease-out"
-                strokeLinecap="round"
-              ></circle>
-              <circle 
-                cx="96" cy="96" fill="transparent" r="80" 
-                stroke="var(--md-sys-color-primary)" 
-                strokeDasharray="502.6" 
-                strokeDashoffset={502.6 * (1 - (parseInt(genres[0]?.value || 0) + parseInt(genres[1]?.value || 0)) / 100)} 
-                strokeWidth="24"
-                className="transition-all duration-1000 ease-out"
-                strokeLinecap="round"
-              ></circle>
-            </svg>
-            <div className="absolute flex flex-col items-center">
-              <span className="text-3xl font-black">{genres[0]?.value || '0%'}</span>
-              <span className="text-[10px] uppercase font-bold text-on-surface-variant">{genres[0]?.label || 'Dữ liệu'}</span>
-            </div>
-          </div>
-          <div className="space-y-3 mt-4">
-            {genres.map(g => (
-              <div key={g.label} className="flex items-center justify-between text-sm group cursor-default">
-                <div className="flex items-center gap-3">
-                  <div className={cn("w-3 h-3 rounded-full shadow-sm", g.color)}></div>
-                  <span className="group-hover:text-primary-container transition-colors font-medium">{g.label}</span>
-                </div>
-                <span className="font-black text-on-surface">{g.value}</span>
-              </div>
-            ))}
-          </div>
-        </div>
+        
 
         {/* High Visibility VIP Trends Chart (Bar Chart) */}
         <div className="col-span-12 bg-surface-container-low rounded-xl p-8 border border-outline-variant/10 shadow-2xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
             <Star className="w-48 h-48 text-primary" />
           </div>
-          
+
           <div className="flex justify-between items-start mb-12">
             <div className="space-y-1">
               <h3 className="text-2xl font-black font-headline flex items-center gap-3">
@@ -220,16 +246,16 @@ export default function Statistics() {
             {vipTrend.counts.map((val, i) => {
               const max = Math.max(...vipTrend.counts, 5);
               const heightPercent = (val / max) * 100;
-              
+
               return (
                 <div key={i} className="flex-1 flex flex-col items-center justify-end relative group/bar z-10 h-full">
                   {/* Value Label */}
                   <div className="mb-3 text-sm font-black text-primary animate-in fade-in slide-in-from-bottom-2 duration-500">
                     {val > 0 ? val : ''}
                   </div>
-                  
+
                   {/* Bar */}
-                  <div 
+                  <div
                     className={cn(
                       "w-full max-w-[80px] rounded-t-2xl transition-all duration-700 ease-out relative shadow-lg",
                       val > 0 ? "bg-primary" : "bg-surface-container-highest",
@@ -240,7 +266,7 @@ export default function Statistics() {
                     {/* Glossy Effect */}
                     <div className="absolute inset-0 bg-white/10 rounded-t-2xl opacity-0 group-hover/bar:opacity-100 transition-opacity" />
                   </div>
-                  
+
                   {/* Label */}
                   <div className="mt-6 text-[10px] font-black text-on-surface-variant uppercase tracking-widest text-center whitespace-nowrap overflow-hidden text-ellipsis w-full">
                     {vipTrend.labels[i]}
@@ -280,10 +306,10 @@ export default function Statistics() {
                   <td className="px-6 py-4">
                     <span className={cn(
                       "w-8 h-8 flex items-center justify-center rounded-lg font-black",
-                      i === 0 ? "bg-yellow-400/20 text-yellow-500" : 
-                      i === 1 ? "bg-slate-400/20 text-slate-500" :
-                      i === 2 ? "bg-orange-400/20 text-orange-500" :
-                      "bg-surface-container-highest text-on-surface-variant"
+                      i === 0 ? "bg-yellow-400/20 text-yellow-500" :
+                        i === 1 ? "bg-slate-400/20 text-slate-500" :
+                          i === 2 ? "bg-orange-400/20 text-orange-500" :
+                            "bg-surface-container-highest text-on-surface-variant"
                     )}>
                       {i + 1}
                     </span>
@@ -291,11 +317,11 @@ export default function Statistics() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-4">
                       <div className="w-12 h-16 rounded-lg bg-surface-container-highest shrink-0 overflow-hidden shadow-lg group-hover:scale-105 transition-transform">
-                        <img 
-                          className="w-full h-full object-cover" 
-                          src={movie.image} 
+                        <img
+                          className="w-full h-full object-cover"
+                          src={movie.image}
                           alt={movie.title}
-                          referrerPolicy="no-referrer" 
+                          referrerPolicy="no-referrer"
                           onError={(e) => {
                             e.target.src = 'https://via.placeholder.com/150x225?text=No+Poster';
                           }}
@@ -319,6 +345,297 @@ export default function Statistics() {
             </tbody>
           </table>
         </div>
+      </section>
+
+      {/* ── REVENUE HISTORY TABLE ── */}
+      <section className="bg-surface-container-low rounded-xl overflow-hidden shadow-xl border border-outline-variant/10">
+        {/* Header */}
+        <div className="p-6 border-b border-outline-variant/10 bg-surface-container-low flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h3 className="text-xl font-bold font-headline mb-1 flex items-center gap-2">
+              <Receipt className="w-5 h-5 text-primary" />
+              Lịch sử Doanh thu VIP
+            </h3>
+            <p className="text-sm text-on-surface-variant">Tất cả giao dịch nâng cấp từ bảng <code className="bg-surface-container px-1.5 py-0.5 rounded text-primary text-xs font-mono">vip_history</code></p>
+          </div>
+          {/* Summary mini-cards */}
+          <div className="flex gap-3 flex-wrap">
+            <div className="flex items-center gap-2 bg-green-500/10 border border-green-500/20 px-4 py-2 rounded-xl">
+              <DollarSign className="w-4 h-4 text-green-400" />
+              <div>
+                <p className="text-[9px] uppercase tracking-widest font-bold text-green-400/70">Tổng doanh thu</p>
+                <p className="text-sm font-black text-green-400">{(revHistory.summary.totalRevenue || 0).toLocaleString('vi-VN')}đ</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 bg-blue-500/10 border border-blue-500/20 px-4 py-2 rounded-xl">
+              <Calendar className="w-4 h-4 text-blue-400" />
+              <div>
+                <p className="text-[9px] uppercase tracking-widest font-bold text-blue-400/70">Tháng này</p>
+                <p className="text-sm font-black text-blue-400">{(revHistory.summary.monthRevenue || 0).toLocaleString('vi-VN')}đ</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2 bg-primary/10 border border-primary/20 px-4 py-2 rounded-xl">
+              <Crown className="w-4 h-4 text-primary" />
+              <div>
+                <p className="text-[9px] uppercase tracking-widest font-bold text-primary/70">Tổng giao dịch</p>
+                <p className="text-sm font-black text-primary">{revHistory.pagination.total}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto relative">
+          {revLoading && (
+            <div className="absolute inset-0 bg-surface/60 backdrop-blur-sm flex items-center justify-center z-10">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            </div>
+          )}
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-surface-container text-[10px] uppercase font-bold text-on-surface-variant tracking-[0.2em]">
+                <th className="px-6 py-4">#ID</th>
+                <th className="px-6 py-4">Khách hàng</th>
+                <th className="px-6 py-4">Email</th>
+                <th className="px-6 py-4">Gói VIP</th>
+                <th className="px-6 py-4">Số tiền</th>
+                <th className="px-6 py-4">Ngày đăng ký</th>
+                <th className="px-6 py-4">Hết hạn</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-outline-variant/5">
+              {revHistory.rows.length === 0 && !revLoading ? (
+                <tr>
+                  <td colSpan={7} className="px-6 py-12 text-center text-on-surface-variant text-sm">
+                    Chưa có giao dịch nào được ghi nhận.
+                  </td>
+                </tr>
+              ) : (
+                revHistory.rows.map((row, i) => (
+                  <tr key={row.id} className="hover:bg-surface-container/40 transition-colors group">
+                    <td className="px-6 py-4">
+                      <span className="text-[11px] font-mono text-on-surface-variant bg-surface-container px-2 py-1 rounded">#{row.id}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                          <span className="text-xs font-black text-primary">{row.username?.charAt(0).toUpperCase()}</span>
+                        </div>
+                        <span className="font-bold text-sm text-on-surface group-hover:text-primary transition-colors">{row.username}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-on-surface-variant">{row.email}</td>
+                    <td className="px-6 py-4">
+                      <span className="flex items-center gap-1.5 bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 px-2.5 py-1 rounded-lg text-[11px] font-black uppercase tracking-wide w-fit">
+                        <Crown className="w-3 h-3" />{row.vip_package}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="text-green-400 font-black text-sm">
+                        {typeof row.price_paid === 'number'
+                          ? row.price_paid.toLocaleString('vi-VN') + 'đ'
+                          : row.price_paid}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-on-surface-variant">
+                      {row.start_date ? new Date(row.start_date).toLocaleDateString('vi-VN') : '—'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-on-surface-variant">
+                      {row.end_date ? new Date(row.end_date).toLocaleDateString('vi-VN') : '—'}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        {revHistory.pagination.totalPages > 1 && (
+          <div className="px-6 py-4 border-t border-outline-variant/10 flex items-center justify-between bg-surface-container-low">
+            <span className="text-xs text-on-surface-variant font-medium">
+              Trang {revHistory.pagination.page} / {revHistory.pagination.totalPages} — {revHistory.pagination.total} giao dịch
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setRevPage(p => Math.max(1, p - 1))}
+                disabled={revPage === 1}
+                className="p-2 rounded-lg border border-outline-variant/20 hover:border-primary/40 hover:bg-primary/10 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setRevPage(p => Math.min(revHistory.pagination.totalPages, p + 1))}
+                disabled={revPage === revHistory.pagination.totalPages}
+                className="p-2 rounded-lg border border-outline-variant/20 hover:border-primary/40 hover:bg-primary/10 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* ── PAYMENT SESSIONS TABLE ── */}
+      <section className="bg-surface-container-low rounded-xl overflow-hidden shadow-xl border border-outline-variant/10">
+        <div className="p-6 border-b border-outline-variant/10 bg-surface-container-low flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div>
+            <h3 className="text-xl font-bold font-headline mb-1 flex items-center gap-2">
+              <Clock className="w-5 h-5 text-yellow-500" />
+              Phiên Thanh toán QR
+            </h3>
+            <p className="text-sm text-on-surface-variant">Theo dõi trạng thái thời gian thực từng mã QR đã tạo</p>
+          </div>
+          <div className="flex bg-surface-container/50 p-1 rounded-xl border border-outline-variant/20 shadow-inner">
+            <button 
+              onClick={() => { setSessionFilter('all'); setSessionPage(1); }}
+              className={cn(
+                "px-5 py-2 rounded-lg text-[11px] font-black uppercase tracking-widest transition-all",
+                sessionFilter === 'all' 
+                  ? "bg-primary-container text-white shadow-lg" 
+                  : "text-on-surface-variant hover:text-on-surface hover:bg-white/5"
+              )}
+            >
+              Tất cả <span className="opacity-40 ml-1">({sessionMeta.counts.all})</span>
+            </button>
+            <button 
+              onClick={() => { setSessionFilter('completed'); setSessionPage(1); }}
+              className={cn(
+                "flex items-center gap-2 px-5 py-2 rounded-lg text-[11px] font-black uppercase tracking-widest transition-all",
+                sessionFilter === 'completed'
+                  ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
+                  : "text-emerald-400/60 hover:text-emerald-400 hover:bg-emerald-500/10"
+              )}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              Thành công <span className={cn("opacity-60 ml-0.5", sessionFilter === 'completed' && "text-white")}>({sessionMeta.counts.completed})</span>
+            </button>
+            <button 
+              onClick={() => { setSessionFilter('pending'); setSessionPage(1); }}
+              className={cn(
+                "flex items-center gap-2 px-5 py-2 rounded-lg text-[11px] font-black uppercase tracking-widest transition-all",
+                sessionFilter === 'pending'
+                  ? "bg-yellow-500 text-black shadow-lg shadow-yellow-500/20"
+                  : "text-yellow-400/60 hover:text-yellow-400 hover:bg-yellow-500/10"
+              )}
+            >
+              <Loader2 className={cn("w-3.5 h-3.5", sessionFilter === 'pending' && "animate-spin")} />
+              Đang chờ <span className={cn("opacity-60 ml-0.5", sessionFilter === 'pending' && "text-black")}>({sessionMeta.counts.pending})</span>
+            </button>
+            <button 
+              onClick={() => { setSessionFilter('expired'); setSessionPage(1); }}
+              className={cn(
+                "flex items-center gap-2 px-5 py-2 rounded-lg text-[11px] font-black uppercase tracking-widest transition-all",
+                sessionFilter === 'expired'
+                  ? "bg-on-surface-variant text-white shadow-lg"
+                  : "text-on-surface-variant hover:text-on-surface hover:bg-white/5"
+              )}
+            >
+              <XCircle className="w-3.5 h-3.5" />
+              Hết hạn <span className={cn("opacity-40 ml-0.5", sessionFilter === 'expired' && "text-white")}>({sessionMeta.counts.expired})</span>
+            </button>
+            <div className="w-px h-6 bg-outline-variant/20 mx-2 self-center" />
+            <button onClick={() => fetchSessions(sessionPage, sessionFilter)} className="p-2.5 rounded-lg text-on-surface-variant hover:text-primary hover:bg-primary/10 transition-all" title="Làm mới dữ liệu">
+              <RefreshCw className={cn("w-4 h-4", sessionsLoading && "animate-spin")} />
+            </button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto relative">
+          {sessionsLoading && sessions.length === 0 && (
+            <div className="p-12 flex items-center justify-center">
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            </div>
+          )}
+          <table className="w-full text-left">
+            <thead>
+              <tr className="bg-surface-container text-[10px] uppercase font-bold text-on-surface-variant tracking-[0.2em]">
+                <th className="px-6 py-4">Mã QR</th>
+                <th className="px-6 py-4">Người dùng</th>
+                <th className="px-6 py-4">Số tiền</th>
+                <th className="px-6 py-4">Trạng thái</th>
+                <th className="px-6 py-4">Tạo lúc</th>
+                <th className="px-6 py-4">Hết hạn lúc</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-outline-variant/5">
+              {sessions.length === 0 && !sessionsLoading ? (
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-on-surface-variant text-sm">
+                    Chưa có phiên thanh toán nào. Phiên mới sẽ xuất hiện khi người dùng mở màn hình QR.
+                  </td>
+                </tr>
+              ) : (
+                sessions.map((s) => (
+                  <tr key={`${s.userId}-${s.randomCode}`} className="hover:bg-surface-container/40 transition-colors">
+                    <td className="px-6 py-4">
+                      <span className="font-mono font-black text-sm text-primary tracking-widest bg-primary/10 px-2 py-1 rounded">{s.randomCode}</span>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                          <span className="text-xs font-black text-primary">{s.username?.charAt(0).toUpperCase()}</span>
+                        </div>
+                        <span className="font-bold text-sm">{s.username}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-sm font-black text-green-400">
+                      {s.amount ? s.amount.toLocaleString('vi-VN') + 'đ' : '—'}
+                    </td>
+                    <td className="px-6 py-4">
+                      {s.status === 'completed' && (
+                        <span className="flex items-center gap-1.5 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-lg text-[11px] font-black w-fit">
+                          <CheckCircle2 className="w-3 h-3" /> Đã thanh toán
+                        </span>
+                      )}
+                      {s.status === 'pending' && (
+                        <span className="flex items-center gap-1.5 bg-yellow-500/10 text-yellow-400 border border-yellow-500/20 px-3 py-1 rounded-lg text-[11px] font-black w-fit animate-pulse">
+                          <Loader2 className="w-3 h-3 animate-spin" /> Đang xử lý
+                        </span>
+                      )}
+                      {s.status === 'expired' && (
+                        <span className="flex items-center gap-1.5 bg-on-surface-variant/10 text-on-surface-variant border border-outline-variant/20 px-3 py-1 rounded-lg text-[11px] font-black w-fit">
+                          <XCircle className="w-3 h-3" /> Hết hạn
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-on-surface-variant">
+                      {s.createdAt ? new Date(s.createdAt).toLocaleString('vi-VN') : '—'}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-on-surface-variant">
+                      {s.expiresAt ? new Date(s.expiresAt).toLocaleString('vi-VN') : '—'}
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Sessions Pagination */}
+        {sessionMeta.totalPages > 1 && (
+          <div className="px-6 py-4 border-t border-outline-variant/10 flex items-center justify-between bg-surface-container-low">
+            <span className="text-xs text-on-surface-variant font-medium">
+              Trang {sessionPage} / {sessionMeta.totalPages} — {sessionMeta.total} phiên
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setSessionPage(p => Math.max(1, p - 1))}
+                disabled={sessionPage === 1}
+                className="p-2 rounded-lg border border-outline-variant/20 hover:border-primary/40 hover:bg-primary/10 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setSessionPage(p => Math.min(sessionMeta.totalPages, p + 1))}
+                disabled={sessionPage === sessionMeta.totalPages}
+                className="p-2 rounded-lg border border-outline-variant/20 hover:border-primary/40 hover:bg-primary/10 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
       </section>
 
       <footer className="mt-auto py-12 border-t border-outline-variant/10 text-on-surface-variant text-xs flex flex-col md:flex-row justify-between items-center gap-6">

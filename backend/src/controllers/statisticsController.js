@@ -244,3 +244,62 @@ exports.getStatistics = async (req, res) => {
         res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
     }
 };
+exports.getRevenueHistory = async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const offset = (page - 1) * limit;
+
+        const sql = `
+            SELECT 
+                vh.id,
+                u.username,
+                u.email,
+                v.title as vip_package,
+                vh.price_paid,
+                vh.start_date,
+                vh.end_date
+            FROM vip_history vh
+            JOIN users u ON vh.user_id = u.id
+            LEFT JOIN vip v ON vh.vip_id = v.id
+            ORDER BY vh.start_date DESC
+            LIMIT ? OFFSET ?
+        `;
+        const [rows] = await db.promise().query(sql, [limit, offset]);
+
+        const [[{ total }]] = await db.promise().query('SELECT COUNT(*) as total FROM vip_history');
+
+        // Summary stats
+        const [[{ totalRevenue }]] = await db.promise().query('SELECT IFNULL(SUM(price_paid), 0) as totalRevenue FROM vip_history');
+        const [[{ monthRevenue }]] = await db.promise().query(
+            `SELECT IFNULL(SUM(price_paid), 0) as monthRevenue FROM vip_history WHERE start_date >= DATE_FORMAT(NOW(), '%Y-%m-01')`
+        );
+
+        res.status(200).json({
+            success: true,
+            data: {
+                rows: rows.map(r => ({
+                    id: r.id,
+                    username: r.username,
+                    email: r.email,
+                    vip_package: r.vip_package || 'VIP',
+                    price_paid: r.price_paid,
+                    start_date: r.start_date,
+                    end_date: r.end_date,
+                })),
+                pagination: {
+                    total,
+                    page,
+                    totalPages: Math.ceil(total / limit),
+                },
+                summary: {
+                    totalRevenue: parseFloat(totalRevenue) || 0,
+                    monthRevenue: parseFloat(monthRevenue) || 0,
+                }
+            }
+        });
+    } catch (error) {
+        console.error('GET REVENUE HISTORY ERROR:', error);
+        res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
+    }
+};
