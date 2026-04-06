@@ -34,7 +34,7 @@ const Navbar = () => {
         try {
           const res = await getUnreadCount();
           setUnreadCount(res.data.unreadCount || 0);
-        } catch (error) {}
+        } catch (error) { }
       };
       fetchUnread();
     }
@@ -323,7 +323,7 @@ const Navbar = () => {
                   <Link to="/profile/notifications" className="text-on-surface-variant hover:text-primary transition-colors p-2 relative group shrink-0">
                     <Bell className="w-5 h-5 md:w-6 md:h-6 group-hover:rotate-12 transition-transform" />
                     {unreadCount > 0 && (
-                       <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 md:w-2 md:h-2 bg-primary rounded-full border-2 border-surface animate-pulse"></span>
+                      <span className="absolute top-2.5 right-2.5 w-1.5 h-1.5 md:w-2 md:h-2 bg-primary rounded-full border-2 border-surface animate-pulse"></span>
                     )}
                   </Link>
 
