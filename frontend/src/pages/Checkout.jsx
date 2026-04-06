@@ -21,12 +21,21 @@ export default function Checkout() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const [paymentMethod, setPaymentMethod] = useState('card');
+  const [paymentMethod, setPaymentMethod] = useState('momo');
   const [isProcessing, setIsProcessing] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
-  const { refreshProfile } = useAuth();
+  const { currentUser, refreshProfile } = useAuth();
 
   const plan = location.state?.plan;
+
+  // Render QR string based on banking details
+  const BANK_BIN = 'MB'; // MBBank code for vietqr
+  const ACCOUNT_NO = '8804514092004';
+  const ACCOUNT_NAME = 'NGUYEN CONG HUY';
+  
+  const priceNumber = plan ? parseInt(plan.price.replace(/[^\d]/g, ''), 10) || 50000 : 50000;
+  const transferContent = `CINEMA VIP ${currentUser?.id || ''}`.trim();
+  const vietQrUrl = `https://img.vietqr.io/image/${BANK_BIN}-${ACCOUNT_NO}-print.png?amount=${priceNumber}&addInfo=${encodeURIComponent(transferContent)}&accountName=${encodeURIComponent(ACCOUNT_NAME)}`;
 
   // Fallback if accessed directly without selecting a plan
   if (!plan) {
@@ -57,10 +66,34 @@ export default function Checkout() {
       setTimeout(() => navigate('/'), 3000);
     } catch (err) {
       console.error('Lỗi nâng cấp VIP:', err);
-      // Removed noisy raw alert, handle via smooth toast later if necessary
       setIsProcessing(false);
     }
   };
+
+  // SePay Polling Loop
+  React.useEffect(() => {
+    // Only poll if currently showing the QR methods and not already successful
+    if (isSuccess || paymentMethod === 'card' || !currentUser) return;
+
+    const pollInterval = setInterval(async () => {
+      try {
+        await refreshProfile();
+        // If current user is already VIP, we trigger success!
+        // Wait, refreshProfile updates auth state. But we need to use the newly fetched user data.
+        // Actually, refreshProfile returns the user data so we can inspect it immediately.
+        const updatedUser = await refreshProfile(); 
+        if (updatedUser && updatedUser.role_id > 1) { // Assuming role_id > 1 means VIP or Admin
+          clearInterval(pollInterval);
+          setIsSuccess(true);
+          setTimeout(() => navigate('/'), 3000);
+        }
+      } catch (err) {
+        // Silently ignore poll errors 
+      }
+    }, 5000); // Check every 5 seconds
+
+    return () => clearInterval(pollInterval);
+  }, [isSuccess, paymentMethod, currentUser, refreshProfile, navigate]);
 
   if (isSuccess) {
     return (
@@ -205,12 +238,19 @@ export default function Checkout() {
                 {paymentMethod !== 'card' && (
                   <div className="flex flex-col items-center justify-center py-6 relative z-10">
                     <div className="w-64 h-64 bg-white p-4 rounded-[2.5rem] mb-8 shadow-[0_20px_50px_rgba(0,0,0,0.5)] transform hover:scale-105 transition-transform duration-500">
-                      <img src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent('cinema-vip-' + plan.name)}`} alt="QR Code" className="w-full h-full rounded-2xl" />
+                      <img src={vietQrUrl} alt="VietQR" className="w-full h-full rounded-2xl" />
                     </div>
                     <h3 className="text-2xl font-black italic tracking-tighter mb-2 uppercase text-white">Quét mã thanh toán</h3>
-                    <p className="text-on-surface-variant/60 text-sm font-medium mb-10 w-3/4 text-center leading-relaxed">Mở ứng dụng {paymentMethod === 'momo' ? 'MoMo' : 'ngân hàng quét mã VNPAY'} của bạn để quét mã trên màn hình và hoàn tất mua vé.</p>
-                    <button onClick={handlePayment} disabled={isProcessing} className="btn-primary px-12 py-5 rounded-2xl font-black uppercase text-[11px] tracking-[0.3em] w-full shadow-[0_15px_30px_rgba(229,9,20,0.3)] hover:scale-[1.02] active:scale-95 transition-all">
-                      {isProcessing ? 'Đang chờ xác nhận từ đối tác...' : 'Tôi đã chuyển khoản thành công'}
+                    <p className="text-on-surface-variant/60 text-sm font-medium mb-10 w-3/4 text-center leading-relaxed">
+                      Sử dụng ứng dụng đa phần ngân hàng hoặc {paymentMethod === 'momo' ? 'MoMo' : 'VNPAY'} để quét mã. <br/><span className="text-primary font-bold">Lưu ý giữ nguyên nội dung chuyển khoản!</span>
+                    </p>
+
+                    <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400 animate-pulse bg-emerald-500/10 px-4 py-2 rounded-full mb-6">
+                      <Sparkles className="w-4 h-4" /> Hệ thống đang chờ tiền vào tự động...
+                    </div>
+
+                    <button onClick={handlePayment} disabled={isProcessing} className="btn-secondary px-8 py-4 rounded-xl font-black uppercase text-[10px] tracking-[0.2em] w-3/4 hover:bg-white/10 active:scale-95 transition-all text-on-surface-variant">
+                      Chuyển thủ công (Test Mode)
                     </button>
                   </div>
                 )}

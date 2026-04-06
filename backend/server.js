@@ -23,6 +23,7 @@ const historyRouter = require("./src/routes/historyRouter");
 const notificationRouter = require("./src/routes/notificationRouter");
 const statisticsRouter = require("./src/routes/statisticsRouter");
 const chatRouter = require("./src/routes/chatRouter");
+const webhookRouter = require("./src/routes/webhookRouter");
 
 require("dotenv").config();
 
@@ -94,6 +95,9 @@ app.use("/api/vip", vipRouter);
 app.use("/api/history", historyRouter);
 app.use("/api/notifications", notificationRouter);
 app.use("/api/admin/statistics", statisticsRouter);
+
+// Webhook Routes (SePay, etc.)
+app.use("/api/webhooks", webhookRouter);
 
 // AI Chat Routes
 app.use("/api/ai", chatRouter);
