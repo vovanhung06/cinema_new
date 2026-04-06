@@ -35,13 +35,13 @@ services:
           property: url
 
   # Frontend Service
-  - type: static_site
+  - type: web
     name: cinema-frontend
-    env: static
+    runtime: static
     plan: free
     rootDir: frontend
     buildCommand: npm install && npm run build
-    publishDir: dist
+    staticPublishPath: dist
     envVars:
       - key: VITE_API_URL
         fromService:
