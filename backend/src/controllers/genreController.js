@@ -15,6 +15,21 @@ exports.getAllGenres = (req, res) => {
   }
 };
 
+/* ================= GET PUBLIC GENRES ================= */
+exports.getPublicGenres = (req, res) => {
+  try {
+    db.query("SELECT * FROM genres ORDER BY name ASC", (err, genres) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      res.json(genres);
+    });
+
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
 /* ================= GET GENRE BY ID ================= */
 exports.getGenreById = (req, res) => {
   try {

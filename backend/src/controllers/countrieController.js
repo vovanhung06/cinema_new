@@ -22,6 +22,21 @@ exports.getAllCountries = (req, res) => {
   }
 };
 
+/* ================= GET PUBLIC COUNTRIES ================= */
+exports.getPublicCountries = (req, res) => {
+  try {
+    db.query("SELECT * FROM countries ORDER BY name ASC", (err, countries) => {
+      if (err) {
+        return res.status(500).json(err);
+      }
+      res.json(countries);
+    });
+
+  } catch (err) {
+    res.status(500).json(err);
+  }
+};
+
 /* ================= GET COUNTRY BY ID ================= */
 exports.getCountryById = (req, res) => {
   try {

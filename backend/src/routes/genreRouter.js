@@ -6,6 +6,7 @@ const { verifyToken,isAdmin } = require("../middlewares/usersMiddleware");
 
 
 /* ===== PUBLIC ===== */
+genreRouter.get("/public", genreController.getPublicGenres);
 //genreRouter.get("/:id", genreController.getGenreById);
 
 /* ===== ADMIN ===== */

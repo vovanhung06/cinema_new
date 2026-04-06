@@ -665,3 +665,21 @@ exports.filterMovies = async (req, res) => {
     });
   });
 };
+
+// ================= PUBLIC: GET MOVIE YEARS =================
+exports.getMovieYears = async (req, res) => {
+  try {
+    const sql = `
+      SELECT DISTINCT YEAR(release_date) as year 
+      FROM movies 
+      WHERE release_date IS NOT NULL 
+      ORDER BY year DESC
+    `;
+    const [rows] = await db.promise().query(sql);
+    const years = rows.map(r => r.year.toString());
+    res.json(years);
+  } catch (err) {
+    console.error("GET MOVIE YEARS ERROR:", err);
+    res.status(500).json(err);
+  }
+};

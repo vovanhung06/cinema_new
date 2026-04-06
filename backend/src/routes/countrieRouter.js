@@ -13,6 +13,7 @@ countrieRouter.put("/:id", verifyToken, isAdmin, countrieController.updateCountr
 countrieRouter.delete("/:id", verifyToken, isAdmin, countrieController.deleteCountry);
 
 /* ===== PUBLIC ===== */
+countrieRouter.get("/public", countrieController.getPublicCountries);
 countrieRouter.get("/:id", countrieController.getCountryById);
 
 module.exports = countrieRouter;

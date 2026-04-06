@@ -8,6 +8,7 @@ const { verifyToken, isAdmin } = require("../middlewares/usersMiddleware");
 
 // Get all public movies
 router.get("/public", movieController.getPublicMovies);
+router.get("/years", movieController.getMovieYears);
 
 // Get public movies by genre
 router.get("/genre/:genre_id", movieController.getMoviesByGenre);
