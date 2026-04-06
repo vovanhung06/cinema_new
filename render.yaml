@@ -31,8 +31,8 @@ services:
       - key: FRONTEND_URL
         fromService:
           name: cinema-frontend
-          type: static_site
-          property: url
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
 
   # Frontend Service
   - type: web
@@ -47,5 +47,5 @@ services:
         fromService:
           name: cinema-backend
           type: web
-          property: url
+          envVarKey: RENDER_EXTERNAL_URL
         suffix: /api
