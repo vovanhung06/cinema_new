@@ -360,6 +360,16 @@ export default function MovieManagement() {
               </div>
 
               <div className="p-10 overflow-y-auto space-y-10 custom-scrollbar">
+                {error && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center justify-between text-red-500 text-sm font-bold shadow-lg"
+                  >
+                    <span>Lỗi: {error}</span>
+                    <X className="w-4 h-4 cursor-pointer" onClick={() => (setError(null))} />
+                  </motion.div>
+                )}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                   <div className="space-y-6">
                     <div className="space-y-2">
@@ -531,9 +541,17 @@ export default function MovieManagement() {
               <div className="p-10 bg-surface-container-high/30 border-t border-outline-variant/10 flex flex-col md:flex-row gap-4">
                 <button
                   onClick={handleAddMovie}
-                  className="flex-1 bg-primary-container text-white py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-primary-container/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  disabled={isLoading}
+                  className="flex-1 bg-primary-container text-white py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-primary-container/30 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
-                  Xác nhận lưu phim
+                  {isLoading ? (
+                    <div className="flex items-center justify-center gap-3">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span>Đang xử lý...</span>
+                    </div>
+                  ) : (
+                    "Xác nhận lưu phim"
+                  )}
                 </button>
                 <button
                   onClick={closeAddModal}
@@ -571,6 +589,16 @@ export default function MovieManagement() {
               </div>
 
               <div className="p-10 overflow-y-auto space-y-10 custom-scrollbar">
+                {error && (
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center justify-between text-red-500 text-sm font-bold shadow-lg"
+                  >
+                    <span>Lỗi: {error}</span>
+                    <X className="w-4 h-4 cursor-pointer" onClick={() => (setError(null))} />
+                  </motion.div>
+                )}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
                   <div className="space-y-6">
                     <div className="space-y-2">
@@ -732,9 +760,17 @@ export default function MovieManagement() {
               <div className="p-10 bg-surface-container-high/30 border-t border-outline-variant/10 flex flex-col md:flex-row gap-4">
                 <button
                   onClick={handleUpdateMovie}
-                  className="flex-1 bg-primary-container text-white py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-primary-container/30 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  disabled={isLoading}
+                  className="flex-1 bg-primary-container text-white py-5 rounded-2xl font-black text-sm uppercase tracking-[0.2em] shadow-2xl shadow-primary-container/30 hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
-                  Cập nhật thay đổi
+                  {isLoading ? (
+                    <div className="flex items-center justify-center gap-3">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                      <span>Đang cập nhật...</span>
+                    </div>
+                  ) : (
+                    "Cập nhật thay đổi"
+                  )}
                 </button>
                 <button
                   onClick={closeEditModal}

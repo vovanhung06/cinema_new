@@ -8,7 +8,7 @@ import GenreCard from '../components/shared/GenreCard';
 import { usePublicMovies } from '../hooks/usePublicMovies';
 
 const Home = () => {
-  const { movies: dbMovies } = usePublicMovies();
+  const { movies: dbMovies, isLoading } = usePublicMovies();
   const [activeBackground, setActiveBackground] = useState(0);
   const [showAll, setShowAll] = useState(false);
 
@@ -31,13 +31,16 @@ const Home = () => {
     ? dbMovies.map(transformMovie) 
     : [];
 
-  const featuredMovies = movies.length > 0 ? movies : [];
-  const newUpdates = movies.length > 0 ? [...movies].reverse() : [];
-  const trendingMovies = movies.length > 0 ? movies : [];
+  const skeletonMovies = Array(8).fill(null).map((_, i) => ({ isSkeleton: true, id: `skeleton-${i}` }));
+  const displayMovies = isLoading ? skeletonMovies : movies;
+
+  const featuredMovies = isLoading ? skeletonMovies : (movies.length > 0 ? movies : []);
+  const newUpdates = isLoading ? skeletonMovies : (movies.length > 0 ? [...movies].reverse() : []);
+  const trendingMovies = isLoading ? skeletonMovies.slice(0, 10) : (movies.length > 0 ? movies : []);
 
   // Auto-slide background carousel
   useEffect(() => {
-    if (movies.length === 0) return;
+    if (isLoading || movies.length === 0) return;
     const timer = setInterval(() => {
       setActiveBackground((prev) => (prev + 1) % movies.length);
     }, 8000);
@@ -81,6 +84,7 @@ const Home = () => {
 
         <div className="relative z-10 px-8 md:px-20 max-w-[1920px] mx-auto w-full pt-20">
           <div className="max-w-4xl space-y-8">
+            
             <motion.div
               key={`meta-${activeBackground}`}
               initial={{ opacity: 0, x: -30 }}
@@ -118,7 +122,9 @@ const Home = () => {
               className="text-on-surface-variant/80 text-lg md:text-xl max-w-2xl font-medium leading-relaxed"
             >
               {backgroundMovie.description || "Một hành trình xuyên không gian đầy kịch tính, khám phá những bí ẩn chưa từng được tiết lộ của vũ trụ. Trải nghiệm kịch tính đến nghẹt thở với dàn diễn viên huyền thoại."}
+            
             </motion.p>
+
 
             <motion.div
               key={`btns-${activeBackground}`}
@@ -215,23 +221,35 @@ const Home = () => {
                   <h2 className="text-3xl font-black text-white uppercase tracking-tight leading-none">Top 10 Phim Hot Trong Tuần</h2>
                 </div>
                 <div className="flex gap-20 overflow-x-auto hide-scrollbar pb-12 snap-x px-4">
-                  {trendingMovies.slice(0, 10).map((movie, index) => (
-                    <Link key={movie.id} to={`/movie/${movie.id}`} className="shrink-0 flex items-end group cursor-pointer snap-start relative">
-                      <span className="text-[240px] font-black font-manrope leading-[0.7] text-transparent stroke-white/20 -mr-16 z-0 transition-all duration-700 group-hover:text-white/5 group-hover:stroke-primary/40 pointer-events-none italic" style={{ WebkitTextStroke: '2px rgba(255,255,255,0.08)' }}>
-                        {index + 1}
-                      </span>
-                      <div className="w-56 h-80 rounded-4xl overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.6)] border border-white/5 relative z-10 group-hover:-translate-y-6 transition-all duration-700 ease-out group-hover:shadow-primary/20">
-                        <img src={movie.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={movie.title} referrerPolicy="no-referrer" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
-                          <div className="flex items-center gap-2 mb-2">
-                            {movie.required_vip_level > 0 ? <Gem className="w-3.5 h-3.5 text-yellow-500" /> : <Clock className="w-3.5 h-3.5 text-primary" />}
-                            <span className="text-[10px] font-black text-primary uppercase tracking-widest">{movie.tag}</span>
-                          </div>
-                          <h4 className="text-white font-black text-base uppercase leading-tight tracking-tight line-clamp-2">{movie.title}</h4>
+                  {trendingMovies.slice(0, 10).map((movie, index) => {
+                    if (movie.isSkeleton) {
+                      return (
+                        <div key={`top-${index}`} className="shrink-0 flex items-end group cursor-pointer snap-start relative">
+                          <span className="text-[240px] font-black font-manrope leading-[0.7] text-transparent stroke-white/20 -mr-16 z-0 pointer-events-none italic" style={{ WebkitTextStroke: '2px rgba(255,255,255,0.08)' }}>
+                            {index + 1}
+                          </span>
+                          <div className="w-56 h-80 rounded-4xl bg-surface-container-high/50 animate-pulse relative z-10"></div>
                         </div>
-                      </div>
-                    </Link>
-                  ))}
+                      );
+                    }
+                    return (
+                      <Link key={movie.id} to={`/movie/${movie.id}`} className="shrink-0 flex items-end group cursor-pointer snap-start relative">
+                        <span className="text-[240px] font-black font-manrope leading-[0.7] text-transparent stroke-white/20 -mr-16 z-0 transition-all duration-700 group-hover:text-white/5 group-hover:stroke-primary/40 pointer-events-none italic" style={{ WebkitTextStroke: '2px rgba(255,255,255,0.08)' }}>
+                          {index + 1}
+                        </span>
+                        <div className="w-56 h-80 rounded-4xl overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.6)] border border-white/5 relative z-10 group-hover:-translate-y-6 transition-all duration-700 ease-out group-hover:shadow-primary/20">
+                          <img src={movie.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={movie.title} referrerPolicy="no-referrer" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
+                            <div className="flex items-center gap-2 mb-2">
+                              {movie.required_vip_level > 0 ? <Gem className="w-3.5 h-3.5 text-yellow-500" /> : <Clock className="w-3.5 h-3.5 text-primary" />}
+                              <span className="text-[10px] font-black text-primary uppercase tracking-widest">{movie.tag}</span>
+                            </div>
+                            <h4 className="text-white font-black text-base uppercase leading-tight tracking-tight line-clamp-2">{movie.title}</h4>
+                          </div>
+                        </div>
+                      </Link>
+                    );
+                  })}
                 </div>
               </section>
             </motion.div>

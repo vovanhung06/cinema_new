@@ -238,15 +238,30 @@ export function useMovies() {
   const handleUpdateMovie = async () => {
     try {
       setIsLoading(true);
+
+      const normalizedGenreIds = Array.isArray(formData.genre_ids)
+        ? formData.genre_ids
+            .map((id) => Number(id))
+            .filter((id) => Number.isInteger(id) && id > 0)
+        : [];
+
+      const normalizedCountryId = formData.country_id === '' || formData.country_id === null
+        ? null
+        : Number(formData.country_id);
+
       const uploadedFiles = await uploadFilesIfNeeded();
       const payload = {
         ...formData,
         ...uploadedFiles,
+        country_id: normalizedCountryId,
+        genre_ids: normalizedGenreIds,
+        required_vip_level: Number(formData.required_vip_level) || 0,
       };
+
       await updateMovie(selectedMovie.id, payload);
       setMovies(prev => prev.map(m => 
         m.id === selectedMovie.id 
-          ? { ...m, ...payload } 
+          ? { ...m, ...payload, genres: payload.genre_ids.join(',') }  // Rough client update
           : m
       ));
 
@@ -349,6 +364,7 @@ export function useMovies() {
     openAddModal,
     closeEditModal,
     closeSuccessModal,
+    setError,
     avatarPreview,
     backgroundPreview,
   };

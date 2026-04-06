@@ -4,7 +4,26 @@ import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 
 const MovieCard = ({ movie, variant = 'vertical' }) => {
-  const isVip = movie.required_vip_level > 0 || movie.tag === 'VIP';
+  const isVip = movie && !movie.isSkeleton && (movie.required_vip_level > 0 || movie.tag === 'VIP');
+
+  if (!movie || movie.isSkeleton) {
+    if (variant === 'horizontal') {
+      return (
+        <div className="flex-none w-72 md:w-[450px] snap-start mb-4">
+          <div className="relative aspect-video rounded-2xl bg-surface-container-high animate-pulse mb-4"></div>
+          <div className="h-6 bg-surface-container-high rounded-md w-3/4 mb-2 animate-pulse"></div>
+          <div className="h-3 bg-surface-container-high rounded-md w-1/4 animate-pulse"></div>
+        </div>
+      );
+    }
+    return (
+      <div className={`flex-none ${variant === 'compact' ? 'w-32 md:w-44' : 'w-48 md:w-64'} snap-start mb-4`}>
+        <div className={`relative aspect-[2/3] rounded-2xl bg-surface-container-high animate-pulse ${variant === 'compact' ? 'mb-2' : 'mb-4'}`}></div>
+        <div className={`h-4 md:h-5 bg-surface-container-high rounded-md w-3/4 mb-1.5 animate-pulse`}></div>
+        <div className="h-3 bg-surface-container-high rounded-md w-1/4 animate-pulse"></div>
+      </div>
+    );
+  }
 
   if (variant === 'horizontal') {
     return (

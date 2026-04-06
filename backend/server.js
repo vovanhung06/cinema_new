@@ -125,10 +125,12 @@ app.use((err, req, res, next) => {
   }
 
   // Multer other errors
-  if (err instanceof multer.MulterError) {
-    return res.status(400).json({
+  if (err instanceof multer.MulterError || err.http_code) {
+    console.error("❌ Media Upload Error:", err.message || err);
+    return res.status(err.http_code || 400).json({
       success: false,
-      message: err.message
+      message: `Lỗi tải tệp: ${err.message || "Không thể kết nối đến Cloudinary"}`,
+      details: err.description || null
     });
   }
 

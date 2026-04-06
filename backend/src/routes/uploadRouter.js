@@ -9,6 +9,7 @@ const cloudinary = require('../config/cloudinary');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 
 // Configuration for image storage on Cloudinary
+console.log(`☁️ Cloudinary cloud name: ${process.env.CLOUDINARY_CLOUD_NAME || 'Missing'}`);
 const imageStorage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
