@@ -24,7 +24,7 @@ import { useMovies } from '../../hooks/useMovies.js';
 import { PageHeader } from '../../components/shared/PageHeader.jsx';
 import { MultiSelectGenre } from '../../components/shared/MultiSelectGenre.jsx';
 import { toDateInput } from '../../utils/date.js';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 export default function MovieManagement() {
   const [isFilterVisible, setIsFilterVisible] = useState(false);
@@ -67,10 +67,35 @@ export default function MovieManagement() {
     page,
     setPage,
     pagination,
+    handleUploadVideo,
+    uploadProgress
   } = useMovies();
+
+  const fileInputRef = useRef(null);
+  const [activeMovieId, setActiveMovieId] = useState(null);
+
+  const onUploadClick = (movieId) => {
+    setActiveMovieId(movieId);
+    fileInputRef.current?.click();
+  };
+
+  const onFileSelected = (e) => {
+    const file = e.target.files?.[0];
+    if (file && activeMovieId) {
+      handleUploadVideo(activeMovieId, file);
+      e.target.value = ''; // Reset input
+    }
+  };
 
   return (
     <div className="p-8 space-y-8">
+      <input 
+        type="file" 
+        ref={fileInputRef} 
+        onChange={onFileSelected} 
+        accept="video/*" 
+        className="hidden" 
+      />
       <PageHeader
         title="Thư viện phim"
         description="Quản lý danh sách phim, lịch chiếu và nội dung đa phương tiện."
@@ -282,6 +307,34 @@ export default function MovieManagement() {
                         className="p-2.5 rounded-xl bg-surface-container-highest text-on-surface-variant hover:text-primary-container hover:bg-primary-container/10 transition-all"
                       >
                         <Trash2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => onUploadClick(movie.id)}
+                        disabled={uploadProgress[movie.id] !== undefined}
+                        className={cn(
+                          "p-2.5 rounded-xl bg-surface-container-highest transition-all relative overflow-hidden",
+                          uploadProgress[movie.id] !== undefined 
+                            ? "text-primary-container" 
+                            : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high"
+                        )}
+                        title="Upload Video"
+                      >
+                        {uploadProgress[movie.id] !== undefined ? (
+                          <div className="flex items-center justify-center">
+                            <div className="w-4 h-4 border-2 border-primary-container/30 border-t-primary-container rounded-full animate-spin"></div>
+                            <span className="absolute inset-0 flex items-center justify-center text-[8px] font-black">
+                              {uploadProgress[movie.id]}%
+                            </span>
+                          </div>
+                        ) : (
+                          <Upload className="w-4 h-4" />
+                        )}
+                        {uploadProgress[movie.id] !== undefined && (
+                          <div 
+                            className="absolute bottom-0 left-0 h-1 bg-primary-container transition-all duration-300" 
+                            style={{ width: `${uploadProgress[movie.id]}%` }}
+                          />
+                        )}
                       </button>
                       <button className="p-2.5 rounded-xl bg-surface-container-highest text-on-surface-variant hover:text-on-surface transition-all">
                         <MoreVertical className="w-4 h-4" />

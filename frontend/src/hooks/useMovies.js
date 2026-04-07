@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
-import { getAllMovies, createMovie, updateMovie, deleteMovie, uploadMovieImages } from '../service/movie_service';
+import { getAllMovies, createMovie, updateMovie, deleteMovie, uploadMovieImages, uploadMovieVideo } from '../service/movie_service';
 import { getAllGenres } from '../service/genre_service';
 import { getAllCountries } from '../service/country_service';
 
@@ -42,6 +42,7 @@ export function useMovies() {
   const [backgroundFile, setBackgroundFile] = useState(null);
   const [avatarPreview, setAvatarPreview] = useState('');
   const [backgroundPreview, setBackgroundPreview] = useState('');
+  const [uploadProgress, setUploadProgress] = useState({}); // { movieId: progress }
 
   // Reset page when search or filters change
   useEffect(() => {
@@ -327,6 +328,40 @@ export function useMovies() {
     setIsSuccessModalOpen(false);
   };
 
+  const handleUploadVideo = async (movieId, file) => {
+    if (!file) return;
+
+    try {
+      setIsLoading(true);
+      setError(null);
+
+      await uploadMovieVideo(movieId, file, (progressEvent) => {
+        const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+        setUploadProgress(prev => ({
+          ...prev,
+          [movieId]: percentCompleted
+        }));
+      });
+
+      // Clear progress after success
+      setTimeout(() => {
+        setUploadProgress(prev => {
+          const next = { ...prev };
+          delete next[movieId];
+          return next;
+        });
+      }, 3000);
+
+      setSuccessType('update');
+      setIsSuccessModalOpen(true);
+    } catch (err) {
+      console.error('Error uploading video:', err);
+      setError(err.response?.data?.message || err.message);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return {
     movies: sortedMovies,
     genres,
@@ -367,5 +402,7 @@ export function useMovies() {
     setError,
     avatarPreview,
     backgroundPreview,
+    handleUploadVideo,
+    uploadProgress
   };
 }

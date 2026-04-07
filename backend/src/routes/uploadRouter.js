@@ -76,9 +76,9 @@ router.post(
 
 router.post(
   '/video',
+  videoUpload.single('video'),
   verifyToken,
   isAdmin,
-  videoUpload.single('video'),
   uploadVideo
 );
 

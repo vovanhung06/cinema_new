@@ -184,3 +184,25 @@ export const uploadMovieImages = async (files = {}) => {
     throw error;
   }
 };
+// Upload movie video file for encoding
+export const uploadMovieVideo = async (movieId, videoFile, onUploadProgress) => {
+  try {
+    const formData = new FormData();
+    formData.append('video', videoFile);
+    formData.append('movieId', movieId);
+
+    const response = await axios.post(
+      `${API_BASE_URL}/upload/video`,
+      formData,
+      {
+        ...getAuthHeaders(),
+        onUploadProgress,
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error uploading movie video:', error);
+    throw error;
+  }
+};

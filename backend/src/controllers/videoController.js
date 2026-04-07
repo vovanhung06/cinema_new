@@ -2,9 +2,22 @@ const path = require('path');
 const { addEncodeJob } = require('../services/encoder.service');
 
 const uploadVideo = async (req, res) => {
+  console.log('--- NEW UPLOAD REQUEST ---');
+  console.log('Headers:', req.headers['content-type']);
+  console.log('Body:', req.body);
+  console.log('File:', req.file ? 'Received' : 'Missing');
+
   try {
+    if (!req) {
+      return res.status(500).json({
+        success: false,
+        message: 'Request object is missing'
+      });
+    }
+
     const file = req.file;
-    const movieId = req.body.movieId || req.body.movieid;
+    const body = req.body || {};
+    const movieId = body.movieId || body.movieid;
 
     // Validation
     if (!movieId) {
