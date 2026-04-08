@@ -29,8 +29,8 @@ export default function Benefits() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
       {benefits.map((benefit, index) => (
-        <motion.div 
-          key={index} 
+        <motion.div
+          key={index}
           initial={{ opacity: 0, scale: 0.9 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
@@ -39,7 +39,7 @@ export default function Benefits() {
           className="p-10 rounded-[2.5rem] bg-neutral-900/50 backdrop-blur-3xl border border-white/5 hover:border-red-500/30 transition-all group relative overflow-hidden"
         >
           <div className="absolute -right-10 -top-10 w-32 h-32 bg-white/5 rounded-full blur-3xl group-hover:bg-red-500/10 transition-colors"></div>
-          
+
           <div className={`w-16 h-16 rounded-2xl ${benefit.bg} flex items-center justify-center mb-8 group-hover:scale-110 transition-transform duration-500`}>
             <benefit.icon className={`w-8 h-8 ${benefit.color}`} />
           </div>

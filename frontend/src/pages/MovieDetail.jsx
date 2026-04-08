@@ -198,10 +198,6 @@ const MovieDetail = () => {
                 <div className="flex items-center gap-2 bg-surface-container/50 px-3 py-1.5 rounded-xl border border-outline-variant/10">
                   <span>{movie.genre || 'Hành động'}</span>
                 </div>
-                <div className="flex items-center gap-2 bg-surface-container px-3 py-1.5 rounded-xl border border-outline-variant/20 text-on-surface">
-                  <Clock className="w-4 h-4 text-primary" />
-                  <span>2h 15m</span>
-                </div>
                 <div className="flex items-center gap-2 bg-primary px-3 py-1.5 rounded-xl shadow-lg shadow-primary/20 text-white">
                   <Star className="w-4 h-4 fill-white" />
                   <span>{(averageRating ?? movie.average_rating ?? movie.rating ?? 0).toFixed(1)}</span>
@@ -215,7 +211,7 @@ const MovieDetail = () => {
               transition={{ delay: 0.5, duration: 0.8 }}
               className="flex flex-wrap items-center justify-center md:justify-start gap-5 pt-4"
             >
-              <button 
+              <button
                 onClick={() => {
                   if (!user) {
                     setLoginModalOpen(true);

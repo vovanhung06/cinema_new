@@ -87,7 +87,7 @@ exports.login = (req, res) => {
     if (err) return res.status(500).json(err);
 
     if (results.length === 0) {
-      return res.status(400).json({ message: "User not found" });
+      return res.status(400).json({ message: "Email không tồn tại" });
     }
 
     const user = results[0];

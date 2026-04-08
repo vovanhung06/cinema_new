@@ -29,7 +29,7 @@ exports.sepayWebhook = async (req, res) => {
         // Check user exists
         const [userCheck] = await db.promise().query('SELECT id, username FROM users WHERE id = ?', [userId]);
         if (userCheck.length === 0) {
-            return res.json({ success: false, message: "User not found." });
+            return res.json({ success: false, message: "Email không tồn tại" });
         }
 
         // Compute expire date (30 days)

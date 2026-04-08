@@ -20,71 +20,71 @@ const Login = () => {
 
   // 🔥 LOGIN
   const handleLogin = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (loading) return;
+    if (loading) return;
 
-  setLoading(true);
-  setError('');
+    setLoading(true);
+    setError('');
 
-  // ✅ validate input
-  if (!email || !password) {
-    setError('Vui lòng nhập đầy đủ email và mật khẩu');
-    setLoading(false);
-    return;
-  }
-
-  try {
-    // ✅ normalize email
-    const normalizedEmail = email.trim().toLowerCase();
-
-    const res = await axios.post(
-      `${API_BASE_URL}/users/login`,
-      {
-        email: normalizedEmail,
-        password,
-      }
-    );
-
-    const { token, user } = res.data;
-
-    // ✅ map BE → FE
-    const mappedUser = {
-      id: user.id,
-      name: user.username,
-      email: user.email,
-      role_id: user.role_id,
-      role: user.role_id === 1 ? 'admin' : 'user',
-      is_vip: !!user.is_vip,
-      vip_expired_at: user.vip_expired_at,
-    };
-
-
-    // ✅ lưu vào context và chọn storage dựa trên remember
-    login(token, mappedUser, remember);
-
-    // ✅ redirect back to previous page or home
-    let from = location.state?.from?.pathname;
-    
-    if (mappedUser.role === 'admin') {
-      from = (from && from.startsWith('/admin')) ? from : '/admin';
-    } else {
-      from = (from && !from.startsWith('/admin')) ? from : '/';
+    // ✅ validate input
+    if (!email || !password) {
+      setError('Vui lòng nhập đầy đủ email và mật khẩu');
+      setLoading(false);
+      return;
     }
-    
-    navigate(from, { replace: true });
 
-  } catch (err) {
-    console.error(err);
+    try {
+      // ✅ normalize email
+      const normalizedEmail = email.trim().toLowerCase();
 
-    setError(
-      err.response?.data?.message ||
-      'Đăng nhập thất bại. Kiểm tra backend hoặc API.'
-    );
-  } finally {
-    setLoading(false);
-  }
-};
+      const res = await axios.post(
+        `${API_BASE_URL}/users/login`,
+        {
+          email: normalizedEmail,
+          password,
+        }
+      );
+
+      const { token, user } = res.data;
+
+      // ✅ map BE → FE
+      const mappedUser = {
+        id: user.id,
+        name: user.username,
+        email: user.email,
+        role_id: user.role_id,
+        role: user.role_id === 1 ? 'admin' : 'user',
+        is_vip: !!user.is_vip,
+        vip_expired_at: user.vip_expired_at,
+      };
+
+
+      // ✅ lưu vào context và chọn storage dựa trên remember
+      login(token, mappedUser, remember);
+
+      // ✅ redirect back to previous page or home
+      let from = location.state?.from?.pathname;
+
+      if (mappedUser.role === 'admin') {
+        from = (from && from.startsWith('/admin')) ? from : '/admin';
+      } else {
+        from = (from && !from.startsWith('/admin')) ? from : '/';
+      }
+
+      navigate(from, { replace: true });
+
+    } catch (err) {
+      console.error(err);
+
+      setError(
+        err.response?.data?.message ||
+        'Đăng nhập thất bại. Kiểm tra backend hoặc API.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="relative min-h-screen flex items-center justify-center p-6 overflow-hidden bg-black">
@@ -112,17 +112,17 @@ const Login = () => {
         <div className="glass-dark p-10 md:p-14 rounded-[3.5rem] shadow-[0_48px_96px_rgba(0,0_0,0.8)] border border-white/5 relative overflow-hidden group">
           {/* Decorative Glow */}
           <div className="absolute -top-24 -right-24 w-48 h-48 bg-primary/20 blur-[80px] -z-10 group-hover:bg-primary/30 transition-colors duration-700"></div>
-          
+
           <div className="mb-12 text-center space-y-4">
-            <Link to="/"> 
-            <motion.div 
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center mx-auto border border-primary/20 shadow-2xl"
-            >
-              <Sparkles className="w-10 h-10 text-primary animate-pulse" />
-            </motion.div>
+            <Link to="/">
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="w-20 h-20 bg-primary/10 rounded-[2rem] flex items-center justify-center mx-auto border border-primary/20 shadow-2xl"
+              >
+                <Sparkles className="w-10 h-10 text-primary animate-pulse" />
+              </motion.div>
             </Link>
 
             <div className="space-y-2">
@@ -133,7 +133,7 @@ const Login = () => {
 
           <AnimatePresence mode="wait">
             {error && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
@@ -149,14 +149,14 @@ const Login = () => {
             {/* EMAIL */}
             <div className="space-y-3">
               <label className="block text-[10px] font-black tracking-[0.3em] text-on-surface-variant uppercase ml-2">
-                Tài khoản truy cập
+                Email
               </label>
               <div className="relative group/input">
                 <input
                   type="text"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email hoặc số điện thoại"
+                  placeholder="Email "
                   className="w-full bg-surface border border-white/5 rounded-2xl px-6 py-5 text-white placeholder-on-surface-variant/20 focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all outline-none text-xs font-black uppercase tracking-widest shadow-2xl"
                 />
                 <Mail className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within/input:text-primary transition-colors w-5 h-5" />
@@ -209,15 +209,15 @@ const Login = () => {
               </span>
             </button>
           </form>
-          
+
           <div className="mt-12 flex items-center gap-4">
-             <div className="h-px flex-grow bg-white/5"></div>
-             <ShieldCheck className="w-4 h-4 text-white/10" />
-             <div className="h-px flex-grow bg-white/5"></div>
+            <div className="h-px flex-grow bg-white/5"></div>
+            <ShieldCheck className="w-4 h-4 text-white/10" />
+            <div className="h-px flex-grow bg-white/5"></div>
           </div>
         </div>
 
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 1 }}

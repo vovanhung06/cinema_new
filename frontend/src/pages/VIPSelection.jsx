@@ -36,10 +36,9 @@ export default function VIPSelection() {
       price: `${parseInt(vipPlan.price).toLocaleString('vi-VN')}₫`,
       period: 'tháng',
       features: [
-        'Tất cả quyền lợi VIP không giới hạn', 
-        'Đặc quyền xem trước phim mới nhất', 
-        'Chất lượng 4K Ultra HD + Dolby Atmos'
-        
+        'Tất cả quyền lợi VIP không giới hạn',
+        'Đặc quyền xem trước phim mới nhất',
+
       ],
       isFeatured: true,
       badge: 'Đáng mua Nhất'
@@ -53,12 +52,12 @@ export default function VIPSelection() {
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0a0a0a]/80 to-[#0a0a0a] z-10"></div>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_-20%,rgba(220,38,38,0.2),transparent_70%)] z-10"></div>
-          <motion.img 
+          <motion.img
             initial={{ scale: 1.1, opacity: 0 }}
             animate={{ scale: 1, opacity: 0.4 }}
             transition={{ duration: 2 }}
-            className="w-full h-full object-cover grayscale-[30%]" 
-            src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&q=80&w=2070" 
+            className="w-full h-full object-cover grayscale-[30%]"
+            src="https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&q=80&w=2070"
             alt="Cinema background"
           />
         </div>
@@ -71,7 +70,7 @@ export default function VIPSelection() {
           >
             <span className="inline-flex items-center gap-2 py-2 px-6 rounded-full border border-red-500/30 text-red-500 text-[10px] font-black tracking-[0.3em] uppercase mb-10 bg-red-500/5 backdrop-blur-xl">
               <span className="w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
-              Cinema+ Premium 
+              Cinema+ Premium
             </span>
             <h1 className="text-6xl md:text-8xl font-black tracking-tighter text-white mb-10 leading-[0.95] italic uppercase">
               Định nghĩa lại <br />
@@ -82,22 +81,22 @@ export default function VIPSelection() {
             </p>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 1 }}
             className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 cursor-pointer opacity-40 hover:opacity-100 transition-opacity"
             onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
           >
-             <span className="text-[10px] font-black uppercase tracking-widest text-white">Khám phá gói cước</span>
-             <ChevronDown className="w-5 h-5 animate-bounce" />
+            <span className="text-[10px] font-black uppercase tracking-widest text-white">Khám phá gói cước</span>
+            <ChevronDown className="w-5 h-5 animate-bounce" />
           </motion.div>
         </div>
       </section>
 
       {/* Pricing Section */}
       <section className="max-w-7xl mx-auto px-6 relative z-30 -mt-20">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -109,25 +108,25 @@ export default function VIPSelection() {
 
         <div className="max-w-xl mx-auto">
           {loading ? (
-             <div className="flex flex-col items-center justify-center py-20 gap-4">
-                <div className="w-12 h-12 border-4 border-red-600/20 border-t-red-600 rounded-full animate-spin"></div>
-                <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Đang khởi tạo cấu hình...</p>
-             </div>
+            <div className="flex flex-col items-center justify-center py-20 gap-4">
+              <div className="w-12 h-12 border-4 border-red-600/20 border-t-red-600 rounded-full animate-spin"></div>
+              <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Đang khởi tạo cấu hình...</p>
+            </div>
           ) : plans.length > 0 ? (
             plans.map((plan, index) => (
               <PricingCard key={index} {...plan} isVip={user?.is_vip} vipExpiry={user?.vip_expired_at} />
             ))
           ) : (
-             <div className="text-neutral-400 text-center py-20 glass-dark rounded-[2rem] border border-white/5">
-                <p className="font-black uppercase text-[10px] tracking-widest">Hiện chưa có gói VIP khả dụng.</p>
-             </div>
+            <div className="text-neutral-400 text-center py-20 glass-dark rounded-[2rem] border border-white/5">
+              <p className="font-black uppercase text-[10px] tracking-widest">Hiện chưa có gói VIP khả dụng.</p>
+            </div>
           )}
         </div>
       </section>
 
       {/* Comparison Section */}
       <section className="max-w-6xl mx-auto px-6 py-40">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -136,11 +135,11 @@ export default function VIPSelection() {
           <h2 className="text-[10px] font-black text-red-500 uppercase tracking-[0.4em] mb-4">Minh bạch & Rõ ràng</h2>
           <h3 className="text-4xl md:text-5xl font-black text-white italic uppercase tracking-tighter">Giá trị <span className="text-glow">vượt trội.</span></h3>
         </motion.div>
-        
+
         <motion.div
-           initial={{ opacity: 0, scale: 0.95 }}
-           whileInView={{ opacity: 1, scale: 1 }}
-           viewport={{ once: true }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
         >
           <ComparisonTable />
         </motion.div>
@@ -148,7 +147,7 @@ export default function VIPSelection() {
 
       {/* Benefits Section */}
       <section className="max-w-7xl mx-auto px-6 py-20">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
