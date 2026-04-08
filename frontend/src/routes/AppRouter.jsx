@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import { ProtectedRoute } from './ProtectedRoute';
 import { AdminRoute } from './AdminRoute';
 
@@ -28,6 +29,17 @@ import Profile from '../pages/Profile';
 import Search from '../pages/Search';
 import Success from '../pages/Success';
 import TestAPI from '../pages/TestAPI';
+
+// Guard: chặn admin vào các trang user, tự redirect về /admin
+const AdminRedirect = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+  const isAdmin =
+    user?.role_id === 1 ||
+    (typeof user?.role === 'string' && user.role.toLowerCase() === 'admin');
+  if (isAdmin) return <Navigate to="/admin" replace />;
+  return children;
+};
 
 export default function AppRouter() {
   const location = useLocation();
@@ -64,22 +76,24 @@ export default function AppRouter() {
   }
 
   return (
-    <UserLayout>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/movie/:id" element={<MovieDetail />} />
-        <Route path="/filter" element={<Filter />} />
-        <Route path="/vip" element={<VIPSelection />} />
-        <Route path="/checkout" element={<Checkout />} />
-        <Route element={<ProtectedRoute />}>
-          <Route path="/profile/*" element={<Profile />} />
-          <Route path="/watch/:id" element={<Watch />} />
-        </Route>
-        <Route path="/search" element={<Search />} />
-        <Route path="/success" element={<Success />} />
-        <Route path="/test-api" element={<TestAPI />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </UserLayout>
+    <AdminRedirect>
+      <UserLayout>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/movie/:id" element={<MovieDetail />} />
+          <Route path="/filter" element={<Filter />} />
+          <Route path="/vip" element={<VIPSelection />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/profile/*" element={<Profile />} />
+            <Route path="/watch/:id" element={<Watch />} />
+          </Route>
+          <Route path="/search" element={<Search />} />
+          <Route path="/success" element={<Success />} />
+          <Route path="/test-api" element={<TestAPI />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </UserLayout>
+    </AdminRedirect>
   );
 }

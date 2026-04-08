@@ -64,7 +64,14 @@ const Login = () => {
     login(token, mappedUser, remember);
 
     // ✅ redirect back to previous page or home
-    const from = location.state?.from?.pathname || (mappedUser.role === 'admin' ? '/admin' : '/');
+    let from = location.state?.from?.pathname;
+    
+    if (mappedUser.role === 'admin') {
+      from = (from && from.startsWith('/admin')) ? from : '/admin';
+    } else {
+      from = (from && !from.startsWith('/admin')) ? from : '/';
+    }
+    
     navigate(from, { replace: true });
 
   } catch (err) {
