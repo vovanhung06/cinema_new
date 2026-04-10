@@ -34,6 +34,13 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
     let hls = null;
     let plyr = null;
 
+    const handleNativeError = (e) => {
+      console.error('Lỗi video gốc:', video.error);
+      setIsLoading(false);
+      setError('Lỗi tải phim: Yêu cầu truy cập bị từ chối (403), link hỏng hoặc mạng có vấn đề.');
+    };
+    video.addEventListener('error', handleNativeError);
+
     const setupPlyr = (qualityOptions = {}) => {
       // If plyr already exists, destroy it first
       if (plyrRef.current) {
@@ -92,8 +99,12 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
       newPlyr.on('ended', stopTimer);
 
       newPlyr.on('error', (err) => {
-        console.error('Plyr error:', err);
-        // Don't show fatal error for minor Plyr issues unless it's constant
+        console.error('Plyr error:', err?.detail?.code || err);
+        // Chỉ hiện lỗi giao diện chặn nếu không phải HLS (vì HLS tự lo recovery)
+        if (!decodedUrl.includes('.m3u8')) {
+           setIsLoading(false);
+           setError('Đã xảy ra lỗi kết nối với máy chủ chứa phim (Plyr Error).');
+        }
       });
 
       return newPlyr;
@@ -181,6 +192,7 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
     }
 
     return () => {
+      video.removeEventListener('error', handleNativeError);
       if (hlsRef.current) {
         hlsRef.current.destroy();
         hlsRef.current = null;
@@ -231,19 +243,22 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
         </div>
       )}
 
-      <video
-        ref={videoRef}
-        className="w-full h-full plyr-player object-contain"
-        poster={poster}
-        crossOrigin="anonymous"
-        playsInline
-        webkit-playsinline="true"
-        preload="auto"
-      />
+      {/* Isolate video so Plyr DOM mutations do not break React's sibling tracking */}
+      <div className="w-full h-full absolute inset-0 z-0">
+        <video
+          ref={videoRef}
+          className="w-full h-full plyr-player object-contain"
+          poster={poster}
+          crossOrigin="anonymous"
+          playsInline
+          webkit-playsinline="true"
+          preload="auto"
+        />
+      </div>
 
       {/* Subtle bottom gradient cover to hide potential flickering on init */}
       {!isLoading && !error && (
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/60 to-transparent pointer-events-none group-hover/player:opacity-0 transition-opacity duration-700"></div>
+        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/60 to-transparent pointer-events-none group-hover/player:opacity-0 transition-opacity duration-700 z-10"></div>
       )}
     </div>
   );

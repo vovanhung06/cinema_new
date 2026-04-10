@@ -47,6 +47,7 @@ const Watch = () => {
   } = useRating(id);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showControls, setShowControls] = useState(true);
+  const [sourceType, setSourceType] = useState('db'); // 'db', 'mp4'
   const controlsTimeoutRef = useRef(null);
 
   useEffect(() => {
@@ -147,13 +148,36 @@ const Watch = () => {
                   </div>
                 </div>
               ) : movie.movie_url ? (
-                <PlyrPlayer
-                  url={obfuscate(movie.movie_url)}
-                  poster={movie.image}
-                  title={movie.title}
-                  movieId={movie.id}
-                  onPlayStateChange={setIsPlaying}
-                />
+                <>
+                  {/* Research / Dev Controls for Video Source */}
+                  <div className={`absolute top-6 right-6 z-50 flex gap-3 transition-opacity duration-300 ${!isPlaying || showControls ? 'opacity-100' : 'opacity-0'}`}>
+                    <button 
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSourceType('db'); }}
+                      className={`px-4 py-2 text-[10px] uppercase font-black tracking-widest rounded-xl backdrop-blur-xl border transition-all ${sourceType === 'db' ? 'bg-primary/90 text-white border-primary/50 shadow-[0_0_20px_rgba(229,9,20,0.4)]' : 'bg-black/50 text-white/50 border-white/10 hover:bg-white/10 hover:text-white hover:border-white/20'}`}
+                      title="Phát từ CSDL"
+                    >
+                      Phát gốc
+                    </button>
+                    <button 
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSourceType('mp4'); }}
+                      className={`px-4 py-2 text-[10px] uppercase font-black tracking-widest rounded-xl backdrop-blur-xl border transition-all ${sourceType === 'mp4' ? 'bg-green-600/90 text-white border-green-500/50 shadow-[0_0_20px_rgba(22,163,74,0.4)]' : 'bg-black/50 text-white/50 border-white/10 hover:bg-white/10 hover:text-white hover:border-white/20'}`}
+                      title="Link Test file .MP4 direct"
+                    >
+                      Phát MP4
+                    </button>
+                  </div>
+
+                  <PlyrPlayer
+                    url={obfuscate(
+                      sourceType === 'db' ? movie.movie_url : 
+                      'https://raw.githubusercontent.com/mdn/learning-area/master/html/multimedia-and-embedding/video-and-audio-content/rabbit320.mp4'
+                    )}
+                    poster={movie.image}
+                    title={movie.title}
+                    movieId={movie.id}
+                    onPlayStateChange={setIsPlaying}
+                  />
+                </>
               ) : (
                 // Fallback if no movie URL
                 <div className="absolute inset-0 z-0">

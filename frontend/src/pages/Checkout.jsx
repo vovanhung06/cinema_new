@@ -265,13 +265,32 @@ export default function Checkout() {
                     <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mb-6 border-2 border-primary/30">
                       <XCircle className="w-12 h-12 text-primary" />
                     </div>
-                    <h3 className="text-2xl font-black italic tracking-tighter mb-2 uppercase text-white">Mã QR đã hết hạn</h3>
                     <p className="text-on-surface-variant/60 text-sm font-medium mb-8 text-center leading-relaxed max-w-xs">
-                      Mã QR chỉ có hiệu lực trong 5 phút. Vui lòng tạo mã mới để tiếp tục thanh toán.
+                      Mã QR chỉ có hiệu lực trong 5 phút. Vui lòng tạo mã để tiếp tục thanh toán.
                     </p>
                     <button onClick={regenerateQR} className="btn-primary px-10 py-4 rounded-2xl font-black uppercase text-[11px] tracking-[0.3em] flex items-center gap-3 hover:scale-[1.02] active:scale-95 transition-all shadow-[0_15px_30px_rgba(229,9,20,0.3)]">
                       <RefreshCw className="w-4 h-4" /> Tạo mã QR mới
                     </button>
+                    
+                    {process.env.NODE_ENV !== 'production' && (
+                        <button 
+                          onClick={async () => {
+                            try {
+                              await axios.post(`${API_BASE_URL}/webhooks/sepay`, {
+                                transferType: 'in',
+                                content: transferContent,
+                                transferAmount: priceNumber
+                              });
+                            } catch (e) {
+                              console.error('Failed to mock webhook:', e);
+                              alert('Mock webhook failed: ' + e.message);
+                            }
+                          }}
+                          className="mt-4 px-4 py-2 border border-emerald-500/50 text-emerald-400 rounded-lg text-xs font-bold hover:bg-emerald-500/10 transition-colors"
+                        >
+                          🧪 Mô phỏng Thanh toán (DEV ONLY)
+                        </button>
+                    )}
                   </motion.div>
                 ) : (
                   <>
@@ -311,6 +330,26 @@ export default function Checkout() {
                     <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400 animate-pulse bg-emerald-500/10 px-4 py-2 rounded-full mb-6">
                       <Sparkles className="w-4 h-4" /> Hệ thống đang chờ tiền vào tự động...
                     </div>
+
+                    {process.env.NODE_ENV !== 'production' && (
+                        <button 
+                          onClick={async () => {
+                            try {
+                              await axios.post(`${API_BASE_URL}/webhooks/sepay`, {
+                                transferType: 'in',
+                                content: transferContent,
+                                transferAmount: priceNumber
+                              });
+                            } catch (e) {
+                              console.error('Failed to mock webhook:', e);
+                              alert('Mock webhook failed: ' + e.message);
+                            }
+                          }}
+                          className="px-4 py-2 border border-emerald-500/50 text-emerald-400 rounded-lg text-xs font-bold hover:bg-emerald-500/10 transition-colors"
+                        >
+                          🧪 Mô phỏng Thanh toán (DEV ONLY)
+                        </button>
+                    )}
                   </>
                 )}
               </div>
