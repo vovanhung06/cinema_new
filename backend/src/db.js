@@ -1,9 +1,10 @@
+const path = require("path");
 const mysql = require("mysql2");
 
-require("dotenv").config();
+require("dotenv").config({ path: path.resolve(__dirname, "../.env") });
 
 const db = mysql.createConnection({
-  host: process.env.DB_HOST, // nếu nếu máy khác đăng nhập thì qua .env đổi thành DB.HOST = 192.168.3.157
+  host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,

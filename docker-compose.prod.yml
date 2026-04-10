@@ -1,0 +1,41 @@
+version: "3.8"
+
+services:
+  backend:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-vovanhung06}/cinema-backend:latest
+    restart: always
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DB_HOST: ${DB_HOST}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_PORT: ${DB_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      FRONTEND_URL: ${FRONTEND_URL}
+      CORS_ORIGINS: ${CORS_ORIGINS}
+      # AI Config
+      GROQ_API_KEY: ${GROQ_API_KEY}
+      GROQ_API_URL: ${GROQ_API_URL}
+      GROQ_MODEL: ${GROQ_MODEL}
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./backend/uploads:/cinema/backend/uploads
+    networks:
+      - cinema-network
+
+  frontend:
+    image: ghcr.io/${GITHUB_REPOSITORY_OWNER:-vovanhung06}/cinema-frontend:latest
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - cinema-network
+
+networks:
+  cinema-network:
+    driver: bridge

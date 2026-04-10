@@ -2,7 +2,7 @@ import React from 'react';
 import { useState } from "react";
 import { Eye, EyeOff, ShieldCheck, Smartphone, Globe, Lock, ShieldAlert, Key, LogOut, ChevronRight, Check, CheckCircle2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { useAuth } from "../../hooks/useAuth";  
+import { useAuth } from "../../hooks/useAuth";
 
 const Security = ({ showPassword, setShowPassword }) => {
   const { changePassword } = useAuth();
@@ -62,8 +62,8 @@ const Security = ({ showPassword, setShowPassword }) => {
     <div className="space-y-16 max-w-5xl mx-auto pb-32">
       <header className="relative">
         <motion.div
-           initial={{ opacity: 0, y: 20 }}
-           animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
         >
           <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Privacy & Protection</p>
           <h2 className="text-5xl font-black text-on-surface italic tracking-tighter uppercase">
@@ -72,19 +72,19 @@ const Security = ({ showPassword, setShowPassword }) => {
           <div className="absolute -bottom-4 left-0 w-20 h-1 bg-primary rounded-full"></div>
         </motion.div>
       </header>
-      
+
       {/* Password Management */}
-      <motion.section 
+      <motion.section
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ delay: 0.2 }}
         className="space-y-8"
       >
         <div className="flex items-center gap-3">
-           <Key className="w-5 h-5 text-primary" />
-           <h3 className="text-xs font-black text-on-surface uppercase tracking-[0.3em]">
-             Quản lý Mật khẩu
-           </h3>
+          <Key className="w-5 h-5 text-primary" />
+          <h3 className="text-xs font-black text-on-surface uppercase tracking-[0.3em]">
+            Quản lý Mật khẩu
+          </h3>
         </div>
 
         <div className="glass-dark rounded-[3.5rem] p-10 border border-outline-variant/20 shadow-2xl space-y-8">
@@ -110,7 +110,7 @@ const Security = ({ showPassword, setShowPassword }) => {
               </button>
             </div>
           </div>
-          
+
           <div className="space-y-6">
             {/* NEW PASSWORD */}
             <div className="space-y-4">
@@ -121,7 +121,7 @@ const Security = ({ showPassword, setShowPassword }) => {
                 value={form.newPass}
                 onChange={(e) => setForm({ ...form, newPass: e.target.value })}
                 className="w-full bg-surface border border-outline-variant/20 rounded-2xl py-5 px-6 text-sm font-black text-on-surface tracking-widest focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-                placeholder="Min. 8 characters"
+                placeholder="New password"
                 type="password"
               />
             </div>
@@ -173,27 +173,27 @@ const Security = ({ showPassword, setShowPassword }) => {
             disabled={loading}
             className="w-full py-5 bg-white text-black rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] hover:bg-primary hover:text-on-surface transition-all shadow-xl flex items-center justify-center gap-3 group"
           >
-            {loading ? "Đang xử lý..." : "Cập nhật bảo mật"}
+            {loading ? "Đang xử lý..." : "Cập nhật mật khẩu "}
             <Check className="w-4 h-4 group-hover:scale-110 transition-transform" />
           </button>
         </div>
       </motion.section>
 
       {/* Privacy Alert */}
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         className="p-8 bg-red-500/10 border border-red-500/20 rounded-[2.5rem] flex items-start gap-6"
       >
-         <ShieldAlert className="w-8 h-8 text-red-500 shrink-0" />
-         <div className="space-y-2">
-            <h4 className="text-lg font-black text-on-surface italic uppercase tracking-tight">
-              Vùng riêng tư quan trọng
-            </h4>
-            <p className="text-on-surface-variant/60 text-sm font-medium leading-relaxed">
-              Nếu bạn nhận thấy bất kỳ hoạt động đáng ngờ nào, hãy lập tức thay đổi mật khẩu và đăng xuất khỏi mọi thiết bị.
-            </p>
-         </div>
+        <ShieldAlert className="w-8 h-8 text-red-500 shrink-0" />
+        <div className="space-y-2">
+          <h4 className="text-lg font-black text-on-surface italic uppercase tracking-tight">
+            Vùng riêng tư quan trọng
+          </h4>
+          <p className="text-on-surface-variant/60 text-sm font-medium leading-relaxed">
+            Nếu bạn nhận thấy bất kỳ hoạt động đáng ngờ nào, hãy lập tức thay đổi mật khẩu và đăng xuất khỏi mọi thiết bị.
+          </p>
+        </div>
       </motion.div>
     </div>
   );

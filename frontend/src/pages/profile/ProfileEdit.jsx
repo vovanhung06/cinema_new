@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Eye, EyeOff, ChevronRight, User, Mail, Globe, Calendar, Lock, ShieldCheck, Check, ArrowRight, CheckCircle2, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
-const ProfileEdit = ({ 
-  editData, 
-  setEditData, 
-  setIsEditing, 
-  updateProfile, 
+const ProfileEdit = ({
+  editData,
+  setEditData,
+  setIsEditing,
+  updateProfile,
 }) => {
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
@@ -32,7 +32,7 @@ const ProfileEdit = ({
   return (
     <div className="space-y-16 max-w-5xl mx-auto pb-32">
       {/* Section 1: Personal Info */}
-      <motion.section 
+      <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="space-y-10"
@@ -44,12 +44,12 @@ const ProfileEdit = ({
         </div>
 
         <div className="glass-dark rounded-[3.5rem] p-10 md:p-14 border border-outline-variant/20 shadow-2xl relative overflow-hidden group">
-           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[80px] -z-10 group-hover:bg-primary/10 transition-colors"></div>
-           
-           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[80px] -z-10 group-hover:bg-primary/10 transition-colors"></div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
             <div className="space-y-4">
               <label className="text-[10px] font-black text-on-surface-variant/40 uppercase tracking-[0.3em] ml-2 flex items-center gap-2">
-                <User className="w-3 h-3" /> Họ và tên thành viên
+                <User className="w-3 h-3" /> Họ và tên
               </label>
               <div className="relative group/input">
                 <input
@@ -61,10 +61,10 @@ const ProfileEdit = ({
                 />
               </div>
             </div>
-            
+
             <div className="space-y-4">
               <label className="text-[10px] font-black text-on-surface-variant/40 uppercase tracking-[0.3em] ml-2 flex items-center gap-2">
-                <Mail className="w-3 h-3" /> Địa chỉ Email liên hệ
+                <Mail className="w-3 h-3" /> Địa chỉ Email
               </label>
               <div className="relative group/input">
                 <input
@@ -77,8 +77,8 @@ const ProfileEdit = ({
                 />
               </div>
             </div>
-            
-            <div className="space-y-4">
+
+            {/* <div className="space-y-4">
               <label className="text-[10px] font-black text-on-surface-variant/40 uppercase tracking-[0.3em] ml-2 flex items-center gap-2">
                 <Globe className="w-3 h-3" /> Quốc gia / Khu vực
               </label>
@@ -108,7 +108,7 @@ const ProfileEdit = ({
                   defaultValue="1995-12-14"
                 />
               </div>
-            </div>
+            </div> */}
 
             <div className="md:col-span-2 pt-4">
               <AnimatePresence>
@@ -151,7 +151,7 @@ const ProfileEdit = ({
                 disabled={loading}
                 className="btn-primary px-14 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all hover:scale-[1.05] shadow-[0_20px_40px_rgba(229,9,20,0.3)] flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:scale-100 group"
               >
-                {loading ? "Đang lưu..." : "Lưu cấu hình"} <Check className="w-4 h-4 group-disabled:hidden" />
+                {loading ? "Đang lưu..." : "Lưu thông tin"} <Check className="w-4 h-4 group-disabled:hidden" />
               </button>
             </div>
           </div>

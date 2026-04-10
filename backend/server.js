@@ -2,14 +2,15 @@ const express = require("express");
 const cors = require("cors");
 const path = require("path");
 const multer = require("multer");
-const cookieParser = require("cookie-parser"); // ← THÊM MỚI
+const cookieParser = require("cookie-parser");
+require("dotenv").config();
 
 const app = express();
 const db = require("./src/db");
 
-// ═══════════════════════════════════════════════════════════════════════
-// ROUTES IMPORT
-// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
+// ROUTES
+// ═══════════════════════════════════════
 const userRouter = require("./src/routes/userRouter");
 const favoriteRouter = require("./src/routes/favoriteRouter");
 const movieRouter = require("./src/routes/movieRouter");
@@ -25,63 +26,80 @@ const statisticsRouter = require("./src/routes/statisticsRouter");
 const chatRouter = require("./src/routes/chatRouter");
 const webhookRouter = require("./src/routes/webhookRouter");
 
-require("dotenv").config();
-
-// ═══════════════════════════════════════════════════════════════════════
-// MIDDLEWARE CONFIGURATION
-// ═══════════════════════════════════════════════════════════════════════
-
+// ═══════════════════════════════════════
+// ALLOWED ORIGINS (DOCKER SAFE)
+// ═══════════════════════════════════════
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
-  "http://172.16.1.76:5173",
-  "http://172.16.1.76:5174",
-  "http://0.0.0.0:5173",
-  "http://0.0.0.0:5174",
+  "http://localhost:8080",
+  "http://localhost:3000",
+  "http://127.0.0.1:5173",
+  "http://127.0.0.1:5174",
+  "http://127.0.0.1:8080",
+  "http://127.0.0.1:3000",
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
+// nếu có env bổ sung
 if (process.env.CORS_ORIGINS) {
-  process.env.CORS_ORIGINS.split(',').forEach(origin => {
-    if (origin && !allowedOrigins.includes(origin)) {
-      allowedOrigins.push(origin.trim());
+  process.env.CORS_ORIGINS.split(",").forEach((o) => {
+    const trimmed = o.trim();
+    if (trimmed && !allowedOrigins.includes(trimmed)) {
+      allowedOrigins.push(trimmed);
     }
   });
 }
 
-// CORS Configuration
-app.use(cors({
-  origin: function (origin, callback) {
-    // allow requests with no origin (like mobile apps or curl requests)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.indexOf(origin) === -1) {
-      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-      return callback(new Error(msg), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
+// ═══════════════════════════════════════
+// CORS CONFIG (FIX CHÍNH)
+// ═══════════════════════════════════════
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      console.log("👉 Request origin:", origin);
 
-// Body Parser
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+      // allow tools like Postman / server-to-server
+      if (!origin) return callback(null, true);
 
-// Cookie Parser - THÊM MỚI (cần cho session chat)
+      // Chuẩn hóa origin (bỏ dấu / ở cuối nếu có) để so sánh chính xác
+      const cleanOrigin = origin.replace(/\/$/, "");
+      const isAllowed = allowedOrigins.some(allowed => {
+        return allowed.replace(/\/$/, "") === cleanOrigin;
+      });
+
+      if (isAllowed) {
+        return callback(null, true);
+      }
+
+      console.log("❌ Blocked origin:", origin);
+      // Trả về lỗi rõ ràng như user gặp phải
+      return callback(new Error("The CORS policy for this site does not allow access from the specified Origin."), false);
+    },
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept", "Origin"],
+    exposedHeaders: ["Set-Cookie"]
+  })
+);
+
+// ═══════════════════════════════════════
+// MIDDLEWARE
+// ═══════════════════════════════════════
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 
-// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 // STATIC FILES
-// ═══════════════════════════════════════════════════════════════════════
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-app.use('/api/hls', express.static(path.join(__dirname, 'uploads/encoded')));
-app.use('/encoded', express.static(path.join(__dirname, 'uploads/encoded')));
+// ═══════════════════════════════════════
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/api/hls", express.static(path.join(__dirname, "uploads/encoded")));
+app.use("/encoded", express.static(path.join(__dirname, "uploads/encoded")));
 
-// ═══════════════════════════════════════════════════════════════════════
-// API ROUTES
-// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
+// ROUTES REGISTER
+// ═══════════════════════════════════════
 app.use("/api/users", userRouter);
 app.use("/api/users", favoriteRouter);
 app.use("/api/movies", movieRouter);
@@ -95,60 +113,24 @@ app.use("/api/vip", vipRouter);
 app.use("/api/history", historyRouter);
 app.use("/api/notifications", notificationRouter);
 app.use("/api/admin/statistics", statisticsRouter);
-
-// Webhook Routes (SePay, etc.)
 app.use("/api/webhooks", webhookRouter);
-
-// AI Chat Routes
 app.use("/api/ai", chatRouter);
 
-// ═══════════════════════════════════════════════════════════════════════
-// HEALTH CHECK ENDPOINT
-// ═══════════════════════════════════════════════════════════════════════
-app.get('/api/health', (req, res) => {
+// ═══════════════════════════════════════
+// HEALTH CHECK
+// ═══════════════════════════════════════
+app.get("/api/health", (req, res) => {
   res.json({
     success: true,
-    message: 'Server is running',
+    message: "Server is running",
     timestamp: new Date().toISOString(),
     uptime: process.uptime()
   });
 });
 
-// ═══════════════════════════════════════════════════════════════════════
-// ERROR HANDLING
-// ═══════════════════════════════════════════════════════════════════════
-app.use((err, req, res, next) => {
-  console.error("❌ Global error handler:", err);
-
-  // Multer file size error
-  if (err.code === 'LIMIT_FILE_SIZE') {
-    return res.status(413).json({
-      success: false,
-      message: "Kích thước tệp quá lớn. Tối đa 10MB."
-    });
-  }
-
-  // Multer other errors
-  if (err instanceof multer.MulterError || err.http_code) {
-    console.error("❌ Media Upload Error:", err.message || err);
-    return res.status(err.http_code || 400).json({
-      success: false,
-      message: `Lỗi tải tệp: ${err.message || "Không thể kết nối đến Cloudinary"}`,
-      details: err.description || null
-    });
-  }
-
-  // Default error response
-  res.status(err.status || 500).json({
-    success: false,
-    message: err.message || "Internal Server Error",
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-  });
-});
-
-// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 // 404 HANDLER
-// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 app.use((req, res) => {
   res.status(404).json({
     success: false,
@@ -156,26 +138,46 @@ app.use((req, res) => {
   });
 });
 
-// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
+// ERROR HANDLER
+// ═══════════════════════════════════════
+app.use((err, req, res, next) => {
+  console.error("❌ Global error:", err);
+
+  if (err.code === "LIMIT_FILE_SIZE") {
+    return res.status(413).json({
+      success: false,
+      message: "File quá lớn (max 10MB)"
+    });
+  }
+
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({
+      success: false,
+      message: err.message
+    });
+  }
+
+  res.status(500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+    ...(process.env.NODE_ENV !== "production" && { stack: err.stack })
+  });
+});
+
+// ═══════════════════════════════════════
 // START SERVER
-// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
   console.log(`
-╔═══════════════════════════════════════════════════════════╗
-║                    🎬 CINEMA NEW API                      ║
-╠═══════════════════════════════════════════════════════════╣
-║  Server running on port ${PORT}                             ║
-║  Environment: ${process.env.NODE_ENV || 'development'}                        ║
-║  API Base: http://localhost:${PORT}/api                     ║
-╚═══════════════════════════════════════════════════════════╝
-
-📍 Available AI Endpoints:
-   POST   /api/ai/chat          - Chat với AI (streaming)
-   GET    /api/ai/history       - Lấy lịch sử chat
-   DELETE /api/ai/history       - Xóa lịch sử chat
-   GET    /api/ai/quick-actions - Lấy quick actions
-   GET    /api/ai/health        - Kiểm tra AI status
-    `);
+╔════════════════════════════════════════════╗
+║            🎬 CINEMA NEW API              ║
+╠════════════════════════════════════════════╣
+║  Port: ${PORT}                             ║
+║  ENV : ${process.env.NODE_ENV || "development"}          ║
+║  API : http://localhost:${PORT}/api        ║
+╚════════════════════════════════════════════╝
+  `);
 });

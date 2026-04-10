@@ -5,7 +5,7 @@ import { deobfuscate } from '../utils/obfuscate';
 import { addToHistory } from '../service/history_service';
 import 'plyr/dist/plyr.css';
 
-const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => {} }) => {
+const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { } }) => {
   const videoRef = useRef(null);
   const plyrRef = useRef(null);
   const hlsRef = useRef(null);
@@ -30,7 +30,7 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => {} 
     setError(null);
     const video = videoRef.current;
     const decodedUrl = deobfuscate(url);
-    
+
     let hls = null;
     let plyr = null;
 
@@ -71,7 +71,7 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => {} 
 
       newPlyr.on('play', () => onPlayStateChange(true));
       newPlyr.on('pause', () => onPlayStateChange(false));
-      
+
       // History tracking logic (10 seconds cumulative)
       newPlyr.on('playing', () => {
         if (!hasLoggedHistoryRef.current && movieId) {
@@ -115,7 +115,7 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => {} 
           hls.attachMedia(video);
 
           hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
-            
+
             const availableQualities = data.levels.map(l => l.height);
             const qualityConfig = {
               default: availableQualities[availableQualities.length - 1] || 720, // Max quality by default if possible
@@ -131,7 +131,7 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => {} 
 
             const p = setupPlyr(qualityConfig);
             setIsLoading(false);
-            p.play().catch(() => {});
+            p.play().catch(() => { });
           });
 
           hls.on(Hls.Events.ERROR, (event, data) => {
@@ -159,7 +159,7 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => {} 
           const p = setupPlyr();
           video.addEventListener('loadedmetadata', () => {
             setIsLoading(false);
-            p.play().catch(() => {});
+            p.play().catch(() => { });
           });
         } else {
           setError('Trình duyệt của bạn không hỗ trợ định dạng phim HLS này.');
@@ -171,7 +171,7 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => {} 
         const p = setupPlyr();
         video.addEventListener('loadedmetadata', () => {
           setIsLoading(false);
-          p.play().catch(() => {});
+          p.play().catch(() => { });
         });
       }
     } catch (e) {
@@ -221,7 +221,7 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => {} 
                 Phim: {title || 'Cinema+ Player'}
               </p>
             </div>
-            <button 
+            <button
               onClick={() => window.location.reload()}
               className="px-8 py-3 bg-white/5 hover:bg-white/10 text-white text-xs font-black uppercase tracking-widest rounded-xl border border-white/10 transition-all active:scale-95"
             >
@@ -240,7 +240,7 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => {} 
         webkit-playsinline="true"
         preload="auto"
       />
-      
+
       {/* Subtle bottom gradient cover to hide potential flickering on init */}
       {!isLoading && !error && (
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/60 to-transparent pointer-events-none group-hover/player:opacity-0 transition-opacity duration-700"></div>
@@ -250,4 +250,3 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => {} 
 };
 
 export default PlyrPlayer;
-

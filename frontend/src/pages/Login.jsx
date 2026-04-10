@@ -166,7 +166,7 @@ const Login = () => {
             {/* PASSWORD */}
             <div className="space-y-3">
               <label className="block text-[10px] font-black tracking-[0.3em] text-on-surface-variant uppercase ml-2">
-                Mật mã bảo mật
+                Mật khẩu
               </label>
               <div className="relative group/input">
                 <input

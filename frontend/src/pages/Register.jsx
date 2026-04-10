@@ -184,7 +184,7 @@ const Register = () => {
             {/* PASSWORDS */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-3">
-                <label className="block text-[10px] font-black tracking-[0.3em] text-on-surface-variant uppercase ml-2">Mật mã</label>
+                <label className="block text-[10px] font-black tracking-[0.3em] text-on-surface-variant uppercase ml-2">Mật khẩu</label>
                 <div className="relative group/input">
                   <input
                     type="password"
@@ -198,7 +198,7 @@ const Register = () => {
               </div>
 
               <div className="space-y-3">
-                <label className="block text-[10px] font-black tracking-[0.3em] text-on-surface-variant uppercase ml-2">Xác nhận</label>
+                <label className="block text-[10px] font-black tracking-[0.3em] text-on-surface-variant uppercase ml-2">Xác nhận mật khẩu</label>
                 <div className="relative group/input">
                   <input
                     type="password"
