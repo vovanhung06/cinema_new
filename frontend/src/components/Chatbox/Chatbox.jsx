@@ -15,25 +15,37 @@ const Chatbox = () => {
     const [isTyping, setIsTyping] = useState(false);
     const messagesEndRef = useRef(null);
     const inputRef = useRef(null);
+    const [quickActions, setQuickActions] = useState([
+        { id: 'trending', icon: '🔥', label: 'Phim hot', prompt: 'Cho tôi xem phim đang hot nhất' },
+        { id: 'vip', icon: '👑', label: 'Gói VIP', prompt: 'Cho tôi biết về các gói VIP' },
+        { id: 'recommend', icon: '🎬', label: 'Gợi ý phim', prompt: 'Gợi ý phim hay để xem' }
+    ]);
+    const [statusText, setStatusText] = useState('');
+    const [showConfirm, setShowConfirm] = useState(false);
 
     // Scroll to bottom whenever messages change
     useEffect(() => {
         if (messagesEndRef.current) {
             messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
         }
-    }, [messages, isTyping]);
+    }, [messages, isTyping, statusText]);
 
-    // Load history when chatbox opens
+    // [FIX-IMP-05] Thêm messages.length vào dependency array
     useEffect(() => {
         if (isOpen && messages.length === 0) {
             fetchHistory();
         }
-    }, [isOpen]);
+    }, [isOpen, messages.length]);
 
     const fetchHistory = async () => {
         try {
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            // [FIX-FE-03] Thêm credentials: 'include' để gửi cookie cho guest user
             const res = await fetch(`${API_BASE_URL}/ai/history`, {
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers,
+                credentials: 'include'
             });
             const data = await res.json();
             if (data.success) {
@@ -44,23 +56,26 @@ const Chatbox = () => {
         }
     };
 
-    const handleSend = async (e) => {
+    const handleSend = async (e, customPrompt = null) => {
         if (e) e.preventDefault();
-        if (!input.trim() || loading) return;
+        const userMessage = customPrompt || input.trim();
+        if (!userMessage || loading) return;
 
-        const userMessage = input.trim();
         setInput('');
-        setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+        setMessages(prev => [...prev, { role: 'user', content: userMessage, timestamp: new Date() }]);
         setLoading(true);
         setIsTyping(true);
+        setStatusText('Đang xử lý...');
 
         try {
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            // [FIX-FE-03] Thêm credentials: 'include' để gửi cookie cho guest user
             const response = await fetch(`${API_BASE_URL}/ai/chat`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
+                headers,
+                credentials: 'include',
                 body: JSON.stringify({ message: userMessage })
             });
 
@@ -69,9 +84,10 @@ const Chatbox = () => {
             const reader = response.body.getReader();
             const decoder = new TextDecoder();
             let assistantMessage = '';
+            let firstChunkReceived = false;
 
-            // Add an empty assistant message to start streaming into
-            setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+            // Thêm tin nhắn rỗng của assistant để bắt đầu streaming vào
+            setMessages(prev => [...prev, { role: 'assistant', content: '', timestamp: new Date() }]);
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -84,50 +100,98 @@ const Chatbox = () => {
                     if (line.startsWith('data: ')) {
                         const dataStr = line.slice(6).trim();
                         if (dataStr === '[DONE]') break;
-                        if (dataStr === '[ERROR]') throw new Error('AI Error');
-
+                        
                         try {
                             const data = JSON.parse(dataStr);
-                            if (data.content) {
-                                assistantMessage += data.content;
-                                // Update the last message (the assistant's one)
+
+                            // 1. Xử lý Trạng thái (Layer 1 Intent)
+                            if (data.type === 'status') {
+                                setStatusText(data.message);
+                                continue;
+                            }
+
+                            // 2. Xử lý Lỗi
+                            if (data.error) {
+                                assistantMessage = `⚠️ ${data.error}`;
+                                setIsTyping(false);
+                                setStatusText('');
                                 setMessages(prev => {
                                     const newMessages = [...prev];
-                                    newMessages[newMessages.length - 1].content = assistantMessage;
+                                    newMessages[newMessages.length - 1] = {
+                                        ...newMessages[newMessages.length - 1],
+                                        content: assistantMessage
+                                    };
+                                    return newMessages;
+                                });
+                                break;
+                            }
+
+                            // 3. Xử lý Content (Layer 2 Response)
+                            if (data.content) {
+                                if (!firstChunkReceived) {
+                                    setIsTyping(false);
+                                    setStatusText('');
+                                    firstChunkReceived = true;
+                                }
+
+                                assistantMessage += data.content;
+                                setMessages(prev => {
+                                    const newMessages = [...prev];
+                                    newMessages[newMessages.length - 1] = {
+                                        ...newMessages[newMessages.length - 1],
+                                        content: assistantMessage
+                                    };
                                     return newMessages;
                                 });
                             }
-                        } catch (e) {
-                            // Ignore parse errors for partial chunks
-                        }
+
+                            // 4. Xử lý Kết thúc & Quick Actions
+                            if (data.done) {
+                                if (data.quickActions) {
+                                    setQuickActions(data.quickActions);
+                                }
+                                setStatusText('');
+                                setIsTyping(false);
+                            }
+                        } catch (e) { }
                     }
                 }
             }
         } catch (err) {
             console.error("Lỗi chat:", err);
-            setMessages(prev => [...prev, { role: 'assistant', content: 'Xin lỗi, hệ thống đang bận. Vui lòng thử lại sau.' }]);
+            setStatusText('');
+            setMessages(prev => [...prev, {
+                role: 'assistant',
+                content: 'Xin lỗi, hệ thống đang bận. Vui lòng thử lại sau.',
+                timestamp: new Date()
+            }]);
         } finally {
             setLoading(false);
             setIsTyping(false);
+            setStatusText('');
         }
     };
 
     const clearHistory = async () => {
-        if (!window.confirm("Bạn có chắc muốn xóa lịch sử trò chuyện?")) return;
         try {
+            const headers = {};
+            if (token) headers['Authorization'] = `Bearer ${token}`;
+
+            // [FIX-FE-03] credentials: 'include' cho delete request
             await fetch(`${API_BASE_URL}/ai/history`, {
                 method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
+                headers,
+                credentials: 'include'
             });
             setMessages([]);
+            setShowConfirm(false);
         } catch (err) {
             console.error("Lỗi xóa lịch sử:", err);
         }
     };
 
-    const quickAction = (text) => {
-        setInput(text);
-        if (inputRef.current) inputRef.current.focus();
+    const quickAction = (action) => {
+        handleSend(null, action.prompt);
     };
 
     return (
@@ -149,7 +213,7 @@ const Chatbox = () => {
                             </div>
                         </div>
                         <div className="chat-actions">
-                            <button className="icon-btn" onClick={clearHistory} title="Xóa lịch sử">
+                            <button className="icon-btn" onClick={() => setShowConfirm(true)} title="Xóa lịch sử">
                                 <Trash2 size={16} color="#9ca3af" />
                             </button>
                             <button className="icon-btn" onClick={() => setIsOpen(false)}>
@@ -170,23 +234,48 @@ const Chatbox = () => {
                             </div>
                         )}
                         {messages.map((m, i) => (
-                            <ChatMessage key={i} role={m.role} content={m.content} />
+                            <ChatMessage key={i} role={m.role} content={m.content} timestamp={m.timestamp} />
                         ))}
-                        {isTyping && (
+
+                        {statusText && (
+                            <div className="chat-status-indicator">
+                                <Zap size={14} className="spin-icon" /> {statusText}
+                            </div>
+                        )}
+
+                        {isTyping && !statusText && (
                             <div className="message assistant typing">
                                 <span className="dot"></span>
                                 <span className="dot"></span>
                                 <span className="dot"></span>
                             </div>
                         )}
+
+                        {showConfirm && (
+                            <div className="chat-confirm-overlay">
+                                <div className="chat-confirm-card">
+                                    <div className="confirm-icon"><Trash2 size={24} color="#f43f5e" /></div>
+                                    <p>Bạn có chắc muốn xóa vĩnh viễn toàn bộ lịch sử trò chuyện không?</p>
+                                    <div className="confirm-btn-group">
+                                        <button className="confirm-back-btn" onClick={() => setShowConfirm(false)}>Hủy</button>
+                                        <button className="confirm-clear-btn" onClick={clearHistory}>Xóa sạch</button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
                         <div ref={messagesEndRef} />
                     </div>
 
                     <div className="quick-actions">
-                        <button className="quick-btn" onClick={() => quickAction("🎬 Phim hay hôm nay")}>🎬 Phim hay</button>
-                        <button className="quick-btn" onClick={() => quickAction("🔥 Phim đang hot")}>🔥 Phim hot</button>
-                        <button className="quick-btn" onClick={() => quickAction("👑 Tìm hiểu VIP")}>👑 Gói VIP</button>
-                        <button className="quick-btn" onClick={() => quickAction("🔍 Tìm phim hành động")}>🔍 Phim hành động</button>
+                        {quickActions.map(action => (
+                            <button 
+                                key={action.id} 
+                                className="quick-btn" 
+                                onClick={() => quickAction(action)}
+                            >
+                                {action.icon} {action.label}
+                            </button>
+                        ))}
                     </div>
 
                     <form className="chat-input-area" onSubmit={handleSend}>
@@ -204,7 +293,7 @@ const Chatbox = () => {
                                 }
                             }}
                         />
-                        <button type="submit" className="send-btn" disabled={loading || !input.trim()}>
+                        <button type="submit" className="send-btn" disabled={loading || (!input.trim() && !loading)}>
                             <Send size={18} />
                         </button>
                     </form>

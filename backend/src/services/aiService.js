@@ -27,10 +27,102 @@ const LOCAL_CONFIG = {
     temperature: parseFloat(process.env.AI_TEMPERATURE) || 0.7
 };
 
-// Validate config at startup
+// [FIX-BUG-09] Sửa tên biến log: OLLAMA_API_KEY → GROQ_API_KEY
 if (!CLOUD_CONFIG.apiKey) {
-    console.warn("⚠️  WARNING: OLLAMA_API_KEY not set. Cloud AI will be skipped.");
+    console.warn("⚠️  WARNING: GROQ_API_KEY not set. Cloud AI will be skipped.");
 }
+
+/**
+ * ═══════════════════════════════════════════════════════════════════════
+ * LAYER 1: INTENT DETECTION (Classification)
+ * ═══════════════════════════════════════════════════════════════════════
+ */
+exports.getIntent = async (message, history = []) => {
+    const systemPrompt = `Bạn là chuyên gia phân loại ý định (Intent Classifier) cho Cinema New.
+NHIỆM VỤ: Phân tích message của người dùng và trả về JSON chuẩn.
+
+QUY TẮC:
+1. TRẢ VỀ DUY NHẤT JSON, KHÔNG CÓ TEXT GIẢI THÍCH.
+2. Cấu trúc JSON:
+{
+  "intent": "MOVIE" | "VIP" | "ACCOUNT" | "GENERAL",
+  "subIntent": "...",
+  "entities": { "mood": string | null, "genre": string | null, "movieName": string | null, "movieId": number | null },
+  "confidence": number
+}
+
+PHÂN LOẠI CHI TIẾT:
+- MOVIE: search_by_name, search_by_genre, search_by_mood, movie_info, similar, reviews, hot, new
+- VIP: status_check, pricing, buy_guide, access_denied
+- ACCOUNT: user_info, watch_history, login_help
+- GENERAL: greeting, unknown
+
+VÍ DỤ:
+User: "Tìm phim hành động" -> {"intent":"MOVIE", "subIntent":"search_by_genre", "entities":{"genre":"Hành Động"}, "confidence":1.0}
+User: "Phim nào buồn buồn" -> {"intent":"MOVIE", "subIntent":"search_by_mood", "entities":{"mood":"buồn"}, "confidence":0.9}
+User: "Giá VIP bao nhiêu?" -> {"intent":"VIP", "subIntent":"pricing", "entities":{}, "confidence":1.0}
+`;
+
+    const messages = [
+        { role: 'system', content: systemPrompt },
+        ...history.slice(-3),
+        { role: 'user', content: message }
+    ];
+
+    try {
+        console.log(`🧠 [Layer 1] Detecting intent for: "${message.substring(0, 50)}..."`);
+        
+        // Luôn ưu tiên cloud cho phân loại chính xác
+        const response = await axios({
+            method: 'POST',
+            url: CLOUD_CONFIG.apiUrl,
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${CLOUD_CONFIG.apiKey}`
+            },
+            data: {
+                model: CLOUD_CONFIG.model,
+                messages: messages,
+                stream: false, // Intent detection không dùng stream
+                max_tokens: 150,
+                temperature: 0.1, // Độ chính xác cao
+                response_format: { type: "json_object" }
+            },
+            timeout: 10000 // Timeout ngắn cho Layer 1
+        });
+
+        const content = response.data.choices[0].message.content;
+        return JSON.parse(content);
+
+    } catch (err) {
+        console.error("⚠️  [Layer 1] Intent Detection Failed:", err.message);
+        
+        // Fallback sang local nếu cloud lỗi
+        try {
+            console.log("🔄 [Layer 1] Falling back to local for intent detection...");
+            const localResponse = await axios({
+                method: 'POST',
+                url: LOCAL_CONFIG.url,
+                headers: { 'Content-Type': 'application/json' },
+                data: {
+                    model: LOCAL_CONFIG.model,
+                    messages: messages,
+                    stream: false,
+                    options: { temperature: 0.1, num_predict: 150 }
+                },
+                timeout: 10000
+            });
+            const content = localResponse.data.message.content;
+            // Clean JSON string nếu Ollama trả về kèm text
+            const jsonMatch = content.match(/\{[\s\S]*\}/);
+            return JSON.parse(jsonMatch ? jsonMatch[0] : content);
+        } catch (localErr) {
+            console.error("❌ [Layer 1] both Cloud & Local failed.");
+            // Fallback cuối cùng
+            return { intent: "GENERAL", subIntent: "unknown", entities: {}, confidence: 0.5 };
+        }
+    }
+};
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
@@ -45,6 +137,13 @@ exports.getChatStream = async (messages) => {
     if (CLOUD_CONFIG.apiKey && CLOUD_CONFIG.apiUrl) {
         try {
             console.log(`☁️  Attempting Cloud AI (${CLOUD_CONFIG.model})...`);
+
+            // [FIX-BUG-08] Dùng AbortController + setTimeout 30s để hủy stream bị treo
+            const controller = new AbortController();
+            const abortTimer = setTimeout(() => {
+                controller.abort();
+                console.warn("⚠️  [Cloud AI] Stream timeout — aborted after 30s");
+            }, 30000);
 
             const response = await axios({
                 method: 'POST',
@@ -61,13 +160,27 @@ exports.getChatStream = async (messages) => {
                     temperature: CLOUD_CONFIG.temperature
                 },
                 responseType: 'stream',
-                timeout: CLOUD_CONFIG.timeout
+                timeout: CLOUD_CONFIG.timeout,
+                signal: controller.signal
             });
+
+            // [FIX-BUG-08] Xóa abort timer khi stream connect thành công
+            clearTimeout(abortTimer);
+
+            // [FIX-BUG-08] Gắn abort timer cho stream data (treo giữa chừng)
+            const streamIdleTimer = setTimeout(() => {
+                controller.abort();
+                console.warn("⚠️  [Cloud AI] Stream idle timeout — aborted");
+            }, 30000);
+
+            response.data.on('end', () => clearTimeout(streamIdleTimer));
+            response.data.on('error', () => clearTimeout(streamIdleTimer));
 
             console.log("✅ Cloud AI Connected Successfully!");
             return { stream: response.data, isOllama: false };
 
         } catch (cloudError) {
+            // Bỏ qua lỗi abort tự tạo, xử lý error thật
             let errorMsg = cloudError.message || 'Unknown error';
 
             if (cloudError.response) {
@@ -101,6 +214,13 @@ exports.getChatStream = async (messages) => {
     try {
         console.log(`🏠 Connecting to Local Ollama (${LOCAL_CONFIG.model})...`);
 
+        // [FIX-BUG-08] AbortController cho Ollama stream
+        const localController = new AbortController();
+        const localAbortTimer = setTimeout(() => {
+            localController.abort();
+            console.warn("⚠️  [Ollama] Stream timeout — aborted after 60s");
+        }, LOCAL_CONFIG.timeout);
+
         const response = await axios({
             method: 'POST',
             url: LOCAL_CONFIG.url,
@@ -115,8 +235,11 @@ exports.getChatStream = async (messages) => {
                 }
             },
             responseType: 'stream',
-            timeout: LOCAL_CONFIG.timeout
+            timeout: LOCAL_CONFIG.timeout,
+            signal: localController.signal
         });
+
+        clearTimeout(localAbortTimer);
 
         console.log("✅ Local Ollama Connected Successfully!");
         return { stream: response.data, isOllama: true };

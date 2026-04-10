@@ -2,31 +2,18 @@ const db = require('../db');
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
- * SERVICE: CONTEXT BUILDER - Hoàn chỉnh
+ * SERVICE: CONTEXT BUILDER - Version 2 (Intelligent Intent-based)
  * ═══════════════════════════════════════════════════════════════════════
  */
 
-const INTENT_KEYWORDS = {
-    MOVIE_SEARCH: ['phim', 'tìm', 'tìm kiếm', 'search', 'xem phim', 'có phim', 'phim nào', 'cho tôi phim', 'movie'],
-    MOVIE_HOT: ['hot', 'trending', 'nổi bật', 'phổ biến', 'nhiều người xem', 'đánh giá cao', 'hay nhất', 'top', 'phim hay'],
-    MOVIE_NEW: ['mới', 'mới nhất', 'vừa ra', 'cập nhật', 'phim mới', 'release', 'hôm nay', 'gần đây'],
-    VIP_INFO: ['vip', 'gói', 'giá', 'premium', 'membership', 'quyền lợi vip', 'tìm hiểu vip'],
-    VIP_CHECK: ['vip của tôi', 'tài khoản', 'check vip', 'kiểm tra', 'đã vip', 'lên vip', 'còn hạn', 'hết hạn'],
-    VIP_BUY: ['mua vip', 'đăng ký vip', 'nâng cấp vip', 'nâng vip', 'thanh toán', 'muốn vip', 'upgrade', 'mua gói'],
-    USER_INFO: ['tôi là ai', 'thông tin tôi', 'tài khoản của tôi', 'profile', 'hồ sơ', 'thông tin tài khoản'],
-    GENRE: ['hành động', 'tình cảm', 'kinh dị', 'hài', 'phiêu lưu', 'khoa học', 'anime', 'hoạt hình', 'comedy', 'horror', 'romance', 'animation', 'sci-fi', 'đánh nhau', 'chiến đấu', 'võ thuật'],
-    COUNTRY: ['việt nam', 'hàn quốc', 'trung quốc', 'nhật bản', 'mỹ', 'usa', 'japan', 'korea', 'china', 'vietnam'],
-    GREETING: ['chào', 'hello', 'hi', 'xin chào', 'hey']
-};
-
 /**
- * Main function
+ * Main function - Được gọi từ chatController sau khi có intent
  */
-exports.getRelevantContext = async (query, userId = null) => {
+exports.getRelevantContext = async (intentObj, userId = null) => {
     let contextParts = [];
-    const lowerQuery = query.toLowerCase().trim();
+    const { intent, subIntent, entities } = intentObj;
 
-    console.log(`\n📊 [ContextService] Query: "${query}", UserId: ${userId || 'Guest'}\n`);
+    console.log(`\n📊 [ContextService] Layer 2 Context Processing: Intent=${intent}, SubIntent=${subIntent}\n`);
 
     try {
         // ──────────────────────────────────────────────────────────────
@@ -35,379 +22,399 @@ exports.getRelevantContext = async (query, userId = null) => {
         let userInfo = null;
         if (userId) {
             userInfo = await getUserInfo(userId);
-            if (userInfo) {
-                contextParts.push(userInfo.context);
-            }
+            if (userInfo) contextParts.push(userInfo.context);
         }
 
         // ──────────────────────────────────────────────────────────────
-        // 1. CHÀO HỎI
+        // 1. ROUTING DỰA TRÊN INTENT
         // ──────────────────────────────────────────────────────────────
-        if (containsKeywords(lowerQuery, INTENT_KEYWORDS.GREETING) && lowerQuery.length < 20) {
-            contextParts.push(`╔══════════════════════════════════════════╗
-║              CHÀO HỎI                   ║
-╚══════════════════════════════════════════╝
-User đang chào hỏi.
-→ Chào lại thân thiện ${userInfo ? `và gọi tên: "${userInfo.name}"` : ''}
-→ Giới thiệu bạn có thể giúp: tìm phim, VIP, kiểm tra tài khoản`);
+        switch (intent) {
+            case 'MOVIE':
+                await handleMovieIntent(subIntent, entities, contextParts);
+                break;
+            case 'VIP':
+                await handleVipIntent(subIntent, userId, userInfo, contextParts);
+                break;
+            case 'ACCOUNT':
+                await handleAccountIntent(subIntent, userId, contextParts);
+                break;
+            case 'GENERAL':
+            default:
+                contextParts.push(getGeneralFallbackContext());
+                break;
         }
 
-        // ──────────────────────────────────────────────────────────────
-        // 2. USER HỎI VỀ BẢN THÂN
-        // ──────────────────────────────────────────────────────────────
-        if (containsKeywords(lowerQuery, INTENT_KEYWORDS.USER_INFO) ||
-            containsKeywords(lowerQuery, INTENT_KEYWORDS.VIP_CHECK)) {
-            if (!userId) {
-                contextParts.push(`╔══════════════════════════════════════════╗
-║         USER CHƯA ĐĂNG NHẬP              ║
-╚══════════════════════════════════════════╝
-→ Nói: "Bạn chưa đăng nhập. Vui lòng đăng nhập để tôi có thể xem thông tin tài khoản của bạn nhé! 😊"`);
-            }
+        // Nếu là intent MOVIE nhưng không tìm thấy phim nào
+        if (intent === 'MOVIE' && !contextParts.some(p => p.includes('ID:'))) {
+            contextParts.push(`[HỆ THỐNG: KHÔNG TÌM THẤY PHIM PHÙ HỢP TRONG DATABASE]
+- Hiện tại kho phim không có phim nào khớp với yêu cầu của user. 
+- YÊU CẦU: Thành thật báo với user là không tìm thấy, gợi ý user thử tìm theo từ khóa khác. TUYỆT ĐỐI KHÔNG BỊA RA PHIM.`);
         }
 
-        // ──────────────────────────────────────────────────────────────
-        // 3. VIP - MUA / NÂNG CẤP
-        // ──────────────────────────────────────────────────────────────
-        if (containsKeywords(lowerQuery, INTENT_KEYWORDS.VIP_BUY)) {
-            const vipBuyContext = await getVipPurchaseContext(userId, userInfo);
-            if (vipBuyContext) contextParts.push(vipBuyContext);
-        }
-
-        // ──────────────────────────────────────────────────────────────
-        // 4. VIP INFO
-        // ──────────────────────────────────────────────────────────────
-        if (containsKeywords(lowerQuery, INTENT_KEYWORDS.VIP_INFO)) {
-            const vipContext = await getVipContext();
-            if (vipContext) contextParts.push(vipContext);
-        }
-
-        // ──────────────────────────────────────────────────────────────
-        // 5. PHIM HOT (rating cao)
-        // ──────────────────────────────────────────────────────────────
-        if (containsKeywords(lowerQuery, INTENT_KEYWORDS.MOVIE_HOT)) {
-            console.log(`🔥 [ContextService] Fetching HOT movies...`);
-            const hotMovies = await getHotMovies();
-            if (hotMovies) contextParts.push(hotMovies);
-        }
-
-        // ──────────────────────────────────────────────────────────────
-        // 6. PHIM MỚI (mới thêm vào)
-        // ──────────────────────────────────────────────────────────────
-        else if (containsKeywords(lowerQuery, INTENT_KEYWORDS.MOVIE_NEW)) {
-            console.log(`🆕 [ContextService] Fetching NEW movies...`);
-            const newMovies = await getNewMovies();
-            if (newMovies) contextParts.push(newMovies);
-        }
-
-        // ──────────────────────────────────────────────────────────────
-        // 7. TÌM PHIM THEO THỂ LOẠI / TÊN
-        // ──────────────────────────────────────────────────────────────
-        else if (containsKeywords(lowerQuery, [
-            ...INTENT_KEYWORDS.MOVIE_SEARCH,
-            ...INTENT_KEYWORDS.GENRE,
-            ...INTENT_KEYWORDS.COUNTRY
-        ])) {
-            console.log(`🎬 [ContextService] Fetching movies by search...`);
-            const moviesContext = await getMoviesContext(lowerQuery);
-            if (moviesContext) {
-                contextParts.push(moviesContext);
-            } else {
-                const keyword = extractSearchKeyword(lowerQuery);
-                contextParts.push(`╔══════════════════════════════════════════╗
-║       KHÔNG TÌM THẤY PHIM               ║
-╚══════════════════════════════════════════╝
-Không tìm thấy phim "${keyword || query}".
-→ Nói: "Xin lỗi, Cinema New hiện chưa có phim '${keyword || 'này'}'. Bạn có thể thử: Hành động, Kinh dị, Tình cảm, Hài... 😊"`);
-            }
-        }
-
-        // ──────────────────────────────────────────────────────────────
-        // 8. FALLBACK
-        // ──────────────────────────────────────────────────────────────
+        // Nếu context vẫn trống (do error hoặc subIntent lạ), fallback về thông tin chung
         if (contextParts.length === 0 || (contextParts.length === 1 && userInfo)) {
-            contextParts.push(`╔══════════════════════════════════════════╗
-║         TRẢ LỜI CHUNG                   ║
-╚══════════════════════════════════════════╝
-User nói: "${query}"
-
-→ Nếu không hiểu, nói: "Tôi có thể giúp bạn:
-   • 🎬 Tìm phim (VD: phim hành động)
-   • 🔥 Phim hot / phim mới
-   • 👑 Thông tin VIP
-   Bạn cần gì nhé? 😊"`);
+            contextParts.push(getGeneralFallbackContext(!!userId));
         }
 
         return contextParts.join('\n\n');
 
     } catch (err) {
         console.error("❌ [ContextService] Error:", err);
-        return `❌ LỖI: ${err.message}`;
+        return `❌ LỖI TRUY VẤN CONTEXT: ${err.message}`;
     }
 };
 
 // ═══════════════════════════════════════════════════════════════════════
-// HELPER FUNCTIONS
+// MOVIE HANDLERS
 // ═══════════════════════════════════════════════════════════════════════
 
-function containsKeywords(query, keywords) {
-    return keywords.some(keyword => query.includes(keyword.toLowerCase()));
+async function handleMovieIntent(subIntent, entities, contextParts) {
+    const { movieName, genre, mood, movieId } = entities;
+
+    switch (subIntent) {
+        case 'search_by_name':
+        case 'movie_info':
+            const detail = await exports.getMovieDetail(movieName);
+            if (detail) contextParts.push(detail);
+            break;
+        case 'search_by_genre':
+            const genreMovies = await getMoviesByGenre(genre);
+            if (genreMovies) contextParts.push(genreMovies);
+            break;
+        case 'search_by_mood':
+            const moodMovies = await exports.getMoviesByMood(mood);
+            if (moodMovies) contextParts.push(moodMovies);
+            break;
+        case 'similar':
+            const similar = await exports.getSimilarMovies(movieId);
+            if (similar) contextParts.push(similar);
+            break;
+        case 'hot':
+            const hot = await getHotMovies();
+            if (hot) contextParts.push(hot);
+            break;
+        case 'new':
+            const newM = await getNewMovies();
+            if (newM) contextParts.push(newM);
+            break;
+        default:
+            // Fallback gợi ý chung về phim
+            const top = await getHotMovies();
+            if (top) contextParts.push(top);
+    }
 }
 
-function extractSearchKeyword(query) {
-    const stopWords = ['tìm', 'phim', 'cho', 'tôi', 'xem', 'có', 'về', 'gợi', 'ý', 'nên', 'hay', 'không', 'à', 'nhé', 'kiếm', 'thể', 'loại', 'muốn', 'cần'];
-    return query.toLowerCase().split(' ').filter(w => w.length > 1 && !stopWords.includes(w)).join(' ');
+// ═══════════════════════════════════════════════════════════════════════
+// VIP HANDLERS
+// ═══════════════════════════════════════════════════════════════════════
+
+async function handleVipIntent(subIntent, userId, userInfo, contextParts) {
+    switch (subIntent) {
+        case 'status_check':
+            if (!userId) contextParts.push(getAuthRequiredContext("kiểm tra trạng thái VIP"));
+            // userInfo đã có status_check trong getUserInfo()
+            break;
+        case 'pricing':
+        case 'buy_guide':
+            const buy = await getVipPurchaseContext(userId, userInfo);
+            if (buy) contextParts.push(buy);
+            break;
+        case 'access_denied':
+            contextParts.push(`╔══════════════════════════════════════════╗
+║     LÝ DO KHÔNG XEM ĐƯỢC PHIM          ║
+╚══════════════════════════════════════════╝
+- User đang hỏi tại sao không xem được phim.
+- Một số phim yêu cầu tài khoản VIP. 
+- Hãy kiểm tra xem user đã là VIP chưa (nhìn info trên).
+- Nếu chưa, hãy nhiệt tình hướng dẫn nâng cấp VIP tại /vip`);
+            break;
+        default:
+            const vip = await getVipContext();
+            if (vip) contextParts.push(vip);
+    }
 }
+
+// ═══════════════════════════════════════════════════════════════════════
+// ACCOUNT HANDLERS
+// ═══════════════════════════════════════════════════════════════════════
+
+async function handleAccountIntent(subIntent, userId, contextParts) {
+    if (!userId) {
+        contextParts.push(getAuthRequiredContext("truy cập thông tin tài khoản"));
+        return;
+    }
+
+    switch (subIntent) {
+        case 'watch_history':
+            const history = await exports.getWatchHistory(userId);
+            if (history) contextParts.push(history);
+            break;
+        case 'user_info':
+            // getUserInfo đã lo phần này
+            break;
+        default:
+            contextParts.push(`→ Hướng dẫn user quản lý profile tại trang cá nhân.`);
+    }
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// EXPORTED FEATURE FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════════
 
 /**
- * LẤY THÔNG TIN USER
+ * [NEW] LẤY LỊCH SỬ XEM PHIM (4 PHIM GẦN NHẤT)
  */
+exports.getWatchHistory = async (userId, limit = 4) => {
+    try {
+        const [rows] = await db.promise().query(`
+            SELECT m.id, m.title, m.avatar_url, m.required_vip_level,
+                   (SELECT IFNULL(ROUND(AVG(rating), 1), 0) FROM ratings WHERE movie_id = m.id) as rating,
+                   h.updated_at
+            FROM watch_history h
+            JOIN movies m ON h.movie_id = m.id
+            WHERE h.user_id = ?
+            ORDER BY h.updated_at DESC
+            LIMIT ?
+        `, [userId, limit]);
+
+        if (rows.length === 0) return `╔══════════════════════════════════════════╗
+║          LỊCH SỬ XEM PHIM               ║
+╚══════════════════════════════════════════╝
+Bạn chưa xem bộ phim nào gần đây. Hãy bắt đầu khám phá kho phim của Cinema New nhé! 😊`;
+
+        const baseContext = formatMovieContext("LỊCH SỬ XEM PHIM (GẦN NHẤT)", rows);
+        
+        // Thêm ghi chú riêng cho lịch sử
+        return `${baseContext}
+        
+→ Hãy báo với user đây là những phim họ đã xem gần đây. Có thể dựa vào đây để gợi ý phim tương tự!`;
+    } catch (err) {
+        console.error("❌ [getWatchHistory] Error:", err);
+        return null;
+    }
+};
+
+/**
+ * [NEW] TÌM PHIM THEO TÂM TRẠNG (Mood)
+ */
+exports.getMoviesByMood = async (mood) => {
+    // [HEURISTIC] Map mood to Vietnamese genre in DB
+    const moodMap = {
+        'buồn': 'Tình cảm', 'thất tình': 'Tình cảm', 'cô đơn': 'Tình cảm',
+        'vui': 'Hài hước', 'hài': 'Hài hước', 'hài hước': 'Hài hước',
+        'chill': 'Hoạt hình', 'nhẹ nhàng': 'Hoạt hình',
+        'sợ': 'Kinh dị', 'kinh dị': 'Kinh dị', 
+        'căng thẳng': 'Hành động', 'hành động': 'Hành động',
+        'hào hứng': 'Hành động', 'phiêu lưu': 'Phiêu lưu',
+        'tâm lý': 'Tâm lý', 'sâu sắc': 'Tâm lý'
+    };
+
+    const targetGenre = moodMap[mood.toLowerCase()];
+    if (targetGenre) {
+        console.log(`🧠 [MoodMapping] ${mood} -> ${targetGenre}`);
+        return await getMoviesByGenre(targetGenre);
+    }
+
+    // Fallback: Tìm trong description
+    try {
+        const [rows] = await db.promise().query(`
+            SELECT m.id, m.title, m.avatar_url, m.required_vip_level,
+                   IFNULL(ROUND(AVG(r.rating), 1), 0) AS rating
+            FROM movies m
+            LEFT JOIN ratings r ON m.id = r.movie_id
+            WHERE m.description LIKE ? OR m.title LIKE ?
+            GROUP BY m.id
+            ORDER BY rating DESC LIMIT 5
+        `, [`%${mood}%`, `%${mood}%`]);
+
+        if (rows.length === 0) return null;
+
+        return formatMovieContext(`PHIM PHÙ HỢP TÂM TRẠNG: ${mood}`, rows);
+    } catch (err) {
+        return null;
+    }
+};
+
+/**
+ * [NEW] TÌM PHIM TƯƠNG TỰ
+ */
+exports.getSimilarMovies = async (movieId) => {
+    try {
+        if (!movieId) return null;
+        // B1: Lấy genre của phim hiện tại
+        const [genres] = await db.promise().query(`SELECT genre_id FROM movie_genres WHERE movie_id = ?`, [movieId]);
+        if (genres.length === 0) return null;
+
+        const genreIds = genres.map(g => g.genre_id);
+
+        // B2: Tìm phim cùng genre
+        const [rows] = await db.promise().query(`
+            SELECT m.id, m.title, m.avatar_url, m.required_vip_level,
+                   IFNULL(ROUND(AVG(r.rating), 1), 0) AS rating
+            FROM movies m
+            JOIN movie_genres mg ON m.id = mg.movie_id
+            LEFT JOIN ratings r ON m.id = r.movie_id
+            WHERE mg.genre_id IN (?) AND m.id != ?
+            GROUP BY m.id
+            ORDER BY rating DESC LIMIT 5
+        `, [genreIds, movieId]);
+
+        return formatMovieContext(`PHIM TƯƠNG TỰ`, rows);
+    } catch (err) {
+        return null;
+    }
+};
+
+/**
+ * [NEW] CHI TIẾT PHIM THEO TÊN
+ */
+exports.getMovieDetail = async (movieName) => {
+    try {
+        if (!movieName) return null;
+        const [rows] = await db.promise().query(`
+            SELECT m.id, m.title, m.description, m.release_date, m.avatar_url, m.required_vip_level,
+                   GROUP_CONCAT(DISTINCT g.name SEPARATOR ', ') as genres,
+                   IFNULL(ROUND(AVG(r.rating), 1), 0) AS rating
+            FROM movies m
+            LEFT JOIN movie_genres mg ON m.id = mg.movie_id
+            LEFT JOIN genres g ON mg.genre_id = g.id
+            LEFT JOIN ratings r ON m.id = r.movie_id
+            WHERE m.title LIKE ?
+            GROUP BY m.id
+            LIMIT 1
+        `, [`%${movieName}%`]);
+
+        if (rows.length === 0) return null;
+
+        const m = rows[0];
+        const card = {
+            id: m.id, title: m.title, poster: m.avatar_url, 
+            rating: m.rating, year: m.release_date ? new Date(m.release_date).getFullYear() : null,
+            genre: m.genres, is_vip: m.required_vip_level > 0
+        };
+
+        return `╔══════════════════════════════════════════╗
+║           CHI TIẾT PHIM                 ║
+╚══════════════════════════════════════════╝
+🎬 Phim: ${m.title}
+⭐ Đánh giá: ${m.rating}/10
+📂 Thể loại: ${m.genres}
+📝 Mô tả: ${m.description}
+👑 Yêu cầu: ${m.required_vip_level > 0 ? 'VIP' : 'Miễn phí'}
+
+✨ FORMAT hiển thị: Dùng \`\`\`moviecard
+\`\`\`moviecard
+${JSON.stringify(card)}
+\`\`\`
+`;
+    } catch (err) {
+        return null;
+    }
+};
+
+// ═══════════════════════════════════════════════════════════════════════
+// INTERNAL HELPERS (Reuse from old version)
+// ═══════════════════════════════════════════════════════════════════════
+
 async function getUserInfo(userId) {
     try {
         const [rows] = await db.promise().query(`
-            SELECT id, username, email, is_vip, vip_expired_at, create_at as joined_date
-            FROM users WHERE id = ?
+            SELECT username, email, is_vip, vip_expired_at FROM users WHERE id = ?
         `, [userId]);
-
         if (rows.length === 0) return null;
-
-        const user = rows[0];
-        const now = new Date();
-        const expiryDate = user.vip_expired_at ? new Date(user.vip_expired_at) : null;
-        const isVipActive = user.is_vip === 1 && expiryDate && expiryDate > now;
-        const daysLeft = expiryDate && expiryDate > now ? Math.ceil((expiryDate - now) / (1000 * 60 * 60 * 24)) : 0;
-
+        const u = rows[0];
+        const isVip = u.is_vip === 1 && new Date(u.vip_expired_at) > new Date();
         return {
-            name: user.username,
-            context: `╔══════════════════════════════════════════╗
-║       THÔNG TIN KHÁCH HÀNG              ║
-╚══════════════════════════════════════════╝
-👤 Tên: ${user.username}
-📧 Email: ${user.email}
-👑 VIP: ${isVipActive ? `✅ ĐANG HOẠT ĐỘNG (còn ${daysLeft} ngày)` : '❌ CHƯA CÓ / HẾT HẠN'}
-${isVipActive ? `📅 Hạn: ${expiryDate.toLocaleDateString('vi-VN')}` : ''}
-
-⭐ Xưng hô: gọi tên "${user.username}"
-⭐ ${isVipActive ? 'Cảm ơn đã ủng hộ VIP' : 'Có thể gợi ý nâng cấp VIP'}`
+            name: u.username,
+            context: `[TRẠNG THÁI: ĐÃ ĐĂNG NHẬP]
+- Tên: ${u.username}
+- Email: ${u.email}
+- VIP: ${isVip ? '✅ CÓ (Hợp lệ)' : '❌ KHÔNG (Standard)'}`
         };
-    } catch (err) {
-        console.error("❌ [getUserInfo] Error:", err);
-        return null;
-    }
+    } catch (e) { return null; }
 }
 
-/**
- * CONTEXT MUA VIP - LINK: /vip
- */
-async function getVipPurchaseContext(userId, userInfo) {
+async function getVipPurchaseContext() {
     try {
-        const [packages] = await db.promise().query(`SELECT id, title, price, duration FROM vip ORDER BY price ASC`);
-        if (packages.length === 0) return null;
-
-        let statusText = !userId
-            ? `⚠️ KHÁCH CHƯA ĐĂNG NHẬP → Yêu cầu đăng nhập trước`
-            : `✅ KHÁCH ĐÃ ĐĂNG NHẬP → Có thể mua VIP`;
-
-        return `╔══════════════════════════════════════════╗
-║         HƯỚNG DẪN MUA VIP               ║
-╚══════════════════════════════════════════╝
-${statusText}
-
-💳 GÓI VIP:
-${packages.map((p, i) => `${i + 1}. 👑 ${p.title} - ${parseFloat(p.price).toLocaleString('vi-VN')} VNĐ/${p.duration} ngày`).join('\n')}
-
-🔗 LINK NÂNG CẤP: /vip (ĐÚNG LINK NÀY)
-
-→ Hướng dẫn: "Bạn có thể nâng cấp VIP tại đây: [Nâng cấp VIP](/vip) 👑"`;
-    } catch (err) {
-        return null;
-    }
+        const [rows] = await db.promise().query(`SELECT title, price, duration FROM vip`);
+        return `[GÓI VIP] ${rows.map(r => `${r.title}: ${r.price.toLocaleString()}đ/${r.duration}n`).join(', ')}. 
+→ Link nâng cấp: /vip 
+→ YÊU CẦU: Hãy dùng cú pháp [CTA:Nâng cấp VIP ngay|/vip] ở cuối câu trả lời.`;
+    } catch (e) { return null; }
 }
 
-/**
- * THÔNG TIN GÓI VIP - LINK: /vip
- */
-async function getVipContext() {
-    try {
-        const [rows] = await db.promise().query(`SELECT id, title, price, duration FROM vip ORDER BY price ASC`);
-        if (rows.length === 0) return null;
+async function getVipContext() { return await getVipPurchaseContext(); }
 
-        return `╔══════════════════════════════════════════╗
-║          THÔNG TIN GÓI VIP              ║
-╚══════════════════════════════════════════╝
-${rows.map((v, i) => `👑 GÓI ${i + 1}: ${v.title}
-💰 Giá: ${parseFloat(v.price).toLocaleString('vi-VN')} VNĐ
-⏱️ Thời hạn: ${v.duration} ngày
-✨ Quyền lợi: Xem phim VIP, không quảng cáo, HD/4K, offline`).join('\n\n')}
-
-🔗 LINK: /vip
-→ Hướng dẫn: "Nâng cấp tại đây: [Nâng cấp VIP](/vip) 👑"`;
-    } catch (err) {
-        return null;
-    }
-}
-
-/**
- * 🔥 PHIM HOT - ORDER BY RATING DESC
- */
 async function getHotMovies() {
-    try {
-        const [rows] = await db.promise().query(`
-            SELECT m.id, m.title, m.release_date, m.avatar_url, m.required_vip_level,
-                   GROUP_CONCAT(DISTINCT g.name SEPARATOR ', ') as genres,
-                   IFNULL(ROUND(AVG(r.rating), 1), 0) AS rating
-            FROM movies m
-            LEFT JOIN movie_genres mg ON m.id = mg.movie_id
-            LEFT JOIN genres g ON mg.genre_id = g.id
-            LEFT JOIN ratings r ON m.id = r.movie_id
-            GROUP BY m.id
-            HAVING rating > 0
-            ORDER BY rating DESC, m.created_at DESC
-            LIMIT 8
-        `);
-
-        if (rows.length === 0) return null;
-
-        const movieCards = rows.map(m => ({
-            id: m.id,
-            title: m.title,
-            poster: m.avatar_url || '',
-            rating: m.rating || 0,
-            year: m.release_date ? new Date(m.release_date).getFullYear() : null,
-            genre: m.genres || 'N/A',
-            is_vip: m.required_vip_level > 0
-        }));
-
-        return `╔══════════════════════════════════════════╗
-║       🔥 PHIM HOT (Rating cao)          ║
-╚══════════════════════════════════════════╝
-${rows.map((m, i) => `${i + 1}. ${m.title} - ⭐${m.rating}`).join('\n')}
-
-✨ FORMAT: Dùng \`\`\`moviecard cho từng phim
-⚠️ LINK PHIM: /movie/{ID} (VD: /movie/${rows[0].id})
-
-📋 JSON:
-${JSON.stringify(movieCards, null, 2)}`;
-    } catch (err) {
-        return null;
-    }
+    const [rows] = await db.promise().query(`
+        SELECT m.id, m.title, m.avatar_url, m.required_vip_level,
+               IFNULL(ROUND(AVG(r.rating), 1), 0) AS rating
+        FROM movies m 
+        LEFT JOIN ratings r ON m.id = r.movie_id 
+        GROUP BY m.id 
+        ORDER BY rating DESC LIMIT 5
+    `);
+    return formatMovieContext("PHIM HOT NHẤT", rows);
 }
 
-/**
- * 🆕 PHIM MỚI - ORDER BY created_at DESC
- */
 async function getNewMovies() {
-    try {
-        const [rows] = await db.promise().query(`
-            SELECT m.id, m.title, m.release_date, m.avatar_url, m.required_vip_level, m.created_at,
-                   GROUP_CONCAT(DISTINCT g.name SEPARATOR ', ') as genres,
-                   IFNULL(ROUND(AVG(r.rating), 1), 0) AS rating
-            FROM movies m
-            LEFT JOIN movie_genres mg ON m.id = mg.movie_id
-            LEFT JOIN genres g ON mg.genre_id = g.id
-            LEFT JOIN ratings r ON m.id = r.movie_id
-            GROUP BY m.id
-            ORDER BY m.created_at DESC
-            LIMIT 8
-        `);
-
-        if (rows.length === 0) return null;
-
-        const movieCards = rows.map(m => ({
-            id: m.id,
-            title: m.title,
-            poster: m.avatar_url || '',
-            rating: m.rating || 0,
-            year: m.release_date ? new Date(m.release_date).getFullYear() : null,
-            genre: m.genres || 'N/A',
-            is_vip: m.required_vip_level > 0
-        }));
-
-        return `╔══════════════════════════════════════════╗
-║       🆕 PHIM MỚI (Mới thêm)            ║
-╚══════════════════════════════════════════╝
-${rows.map((m, i) => `${i + 1}. ${m.title} - ${new Date(m.created_at).toLocaleDateString('vi-VN')}`).join('\n')}
-
-✨ FORMAT: Dùng \`\`\`moviecard cho từng phim
-⚠️ LINK PHIM: /movie/{ID}
-
-📋 JSON:
-${JSON.stringify(movieCards, null, 2)}`;
-    } catch (err) {
-        return null;
-    }
+    const [rows] = await db.promise().query(`
+        SELECT id, title, avatar_url, required_vip_level, 
+               (SELECT IFNULL(ROUND(AVG(rating), 1), 0) FROM ratings WHERE movie_id = movies.id) as rating
+        FROM movies 
+        ORDER BY created_at DESC LIMIT 5
+    `);
+    return formatMovieContext("PHIM MỚI CẬP NHẬT", rows);
 }
 
-/**
- * TÌM PHIM THEO THỂ LOẠI / TÊN
- */
-async function getMoviesContext(query) {
-    try {
-        let sql = `
-            SELECT m.id, m.title, m.release_date, m.avatar_url, m.required_vip_level,
-                   GROUP_CONCAT(DISTINCT g.name SEPARATOR ', ') as genres,
-                   IFNULL(ROUND(AVG(r.rating), 1), 0) AS rating
-            FROM movies m
-            LEFT JOIN movie_genres mg ON m.id = mg.movie_id
-            LEFT JOIN genres g ON mg.genre_id = g.id
-            LEFT JOIN ratings r ON m.id = r.movie_id
-            WHERE 1=1
-        `;
-        const params = [];
-
-        // Genre mapping
-        const genreMap = {
-            'hành động': 'Hành Động', 'action': 'Hành Động', 'đánh nhau': 'Hành Động', 'chiến đấu': 'Hành Động',
-            'comedy': 'Comedy', 'hài': 'Comedy',
-            'horror': 'Horror', 'kinh dị': 'Horror',
-            'romance': 'Romance', 'tình cảm': 'Romance',
-            'animation': 'Animation', 'hoạt hình': 'Animation',
-            'sci-fi': 'Sci-Fi', 'khoa học': 'Sci-Fi'
-        };
-
-        let genreFound = false;
-        for (const [keyword, genreName] of Object.entries(genreMap)) {
-            if (query.includes(keyword)) {
-                sql += " AND g.name LIKE ?";
-                params.push(`%${genreName}%`);
-                genreFound = true;
-                break;
-            }
-        }
-
-        const searchKeyword = extractSearchKeyword(query);
-        if (searchKeyword && searchKeyword.length > 1 && !genreFound) {
-            sql += " AND (m.title LIKE ? OR m.description LIKE ?)";
-            params.push(`%${searchKeyword}%`, `%${searchKeyword}%`);
-        }
-
-        sql += " GROUP BY m.id ORDER BY rating DESC, m.created_at DESC LIMIT 8";
-
-        const [rows] = await db.promise().query(sql, params);
-        if (rows.length === 0) return null;
-
-        const movieCards = rows.map(m => ({
-            id: m.id,
-            title: m.title,
-            poster: m.avatar_url || '',
-            rating: m.rating || 0,
-            year: m.release_date ? new Date(m.release_date).getFullYear() : null,
-            genre: m.genres || 'N/A',
-            is_vip: m.required_vip_level > 0
-        }));
-
-        return `╔══════════════════════════════════════════╗
-║       TÌM THẤY ${rows.length} PHIM                  ║
-╚══════════════════════════════════════════╝
-${rows.map((m, i) => `${i + 1}. ${m.title} - ⭐${m.rating} - ${m.required_vip_level > 0 ? 'VIP' : 'Free'}`).join('\n')}
-
-✨ FORMAT: \`\`\`moviecard cho từng phim
-⚠️ LINK: /movie/{ID} (VD: /movie/${rows[0].id})
-
-📋 JSON:
-${JSON.stringify(movieCards, null, 2)}`;
-    } catch (err) {
-        return null;
-    }
+async function getMoviesByGenre(genreName) {
+    const [rows] = await db.promise().query(`
+        SELECT m.id, m.title, m.avatar_url, m.required_vip_level,
+               IFNULL(ROUND(AVG(r.rating), 1), 0) AS rating
+        FROM movies m 
+        JOIN movie_genres mg ON m.id = mg.movie_id 
+        JOIN genres g ON mg.genre_id = g.id 
+        LEFT JOIN ratings r ON m.id = r.movie_id
+        WHERE g.name LIKE ? 
+        GROUP BY m.id
+        LIMIT 5`, [`%${genreName}%`]);
+    return formatMovieContext(`PHIM THỂ LOẠI ${genreName}`, rows);
 }
 
-module.exports = { getRelevantContext: exports.getRelevantContext };
+function formatMovieContext(title, movies) {
+    const listDescription = movies.map((m, i) => `${i + 1}. ${m.title} (Rating: ${m.rating}, VIP: ${m.required_vip_level > 0 ? 'Có' : 'Không'})`).join('\n');
+    
+    // Tạo mảng các JSON moviecard để AI dễ copy-paste
+    const cards = movies.map(m => ({
+        id: m.id,
+        title: m.title,
+        poster: m.avatar_url,
+        rating: m.rating,
+        is_vip: m.required_vip_level > 0
+    }));
+
+    return `╔══════════════════════════════════════════╗
+║ ${title.padEnd(38)} ║
+╚══════════════════════════════════════════╝
+${listDescription}
+
+✨ CÁCH HIỂN THỊ: Cho mỗi phim trên, hãy tạo một block \`\`\`moviecard CHỈ chứa JSON sau:
+${cards.map(c => `\`\`\`moviecard\n${JSON.stringify(c)}\n\`\`\``).join('\n')}`;
+}
+
+function getGeneralFallbackContext(isLoggedIn) {
+    let context = `→ Cinema New là rạp phim trực tuyến hàng đầu, hỗ trợ xem phim, mua VIP và quản lý tài khoản.`;
+    if (!isLoggedIn) {
+        context += `\n→ LƯU Ý: User CHƯA đăng nhập. Hãy lịch sự yêu cầu user đăng nhập tại /login để xem được lịch sử và mua VIP.`;
+    }
+    return context;
+}
+
+function getAuthRequiredContext(action) {
+    return `╔══════════════════════════════════════════╗
+║       YÊU CẦU ĐĂNG NHẬP                  ║
+╚══════════════════════════════════════════╝
+- User cần đăng nhập để ${action}.
+- Hãy lịch sự yêu cầu user đăng nhập tại đây: [Đăng nhập](/login)
+- TRẢ VỀ FLAG: [NEED_LOGIN] trong câu trả lời nếu thấy phù hợp.`;
+}

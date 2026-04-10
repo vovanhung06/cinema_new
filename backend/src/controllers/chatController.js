@@ -5,469 +5,284 @@ const { v4: uuidv4 } = require('uuid');
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
- * CONTROLLER: AI CHAT - Xử lý chat streaming với AI
+ * CONTROLLER: AI CHAT - Xử lý chat 2 lớp (Intent Detection + RAG)
  * ═══════════════════════════════════════════════════════════════════════
  */
 
+// Rate limiter dùng Map — 20 req/60s per sessionId|IP
+const rateLimitMap = new Map();
+const RATE_LIMIT_MAX = 20;
+const RATE_LIMIT_WINDOW_MS = 60 * 1000;
+
+function checkRateLimit(key) {
+    const now = Date.now();
+    const record = rateLimitMap.get(key);
+    if (!record || now - record.windowStart > RATE_LIMIT_WINDOW_MS) {
+        rateLimitMap.set(key, { count: 1, windowStart: now });
+        return true;
+    }
+    if (record.count >= RATE_LIMIT_MAX) return false;
+    record.count++;
+    return true;
+}
+
 /**
- * Tạo System Prompt cho AI
+ * Tạo System Prompt cho AI (Layer 2)
  */
 const createSystemPrompt = (context) => {
     return {
         role: "system",
-        content: `Bạn là AI trợ lý thân thiện của Cinema New - website xem phim online 🎬
+        content: `Bạn là AI trợ lý thân thiện của Cinema New 🎬
 
-═══════════════════════════════════════════════════════════════
-                    TÍNH CÁCH & PHONG CÁCH
-═══════════════════════════════════════════════════════════════
-• Thân thiện, vui vẻ, dùng emoji phù hợp
-• Xưng "tôi", gọi khách là "bạn" hoặc TÊN KHÁCH nếu có trong context
-• Trả lời ngắn gọn, đi thẳng vào vấn đề
-• Nhiệt tình giúp đỡ, không từ chối hỗ trợ
-
-═══════════════════════════════════════════════════════════════
-                    KHẢ NĂNG CỦA BẠN
-═══════════════════════════════════════════════════════════════
-✅ Tìm kiếm phim theo thể loại, tên, rating
-✅ Giới thiệu gói VIP và hướng dẫn nâng cấp
-✅ Kiểm tra trạng thái VIP của khách (nếu đã login)
-✅ Xưng hô bằng tên khách (nếu có trong context)
-✅ Chat tự nhiên, trả lời câu hỏi chung
-
-═══════════════════════════════════════════════════════════════
-                    QUY TẮC QUAN TRỌNG
-═══════════════════════════════════════════════════════════════
-1. CHỈ dùng thông tin từ CONTEXT bên dưới
-2. KHÔNG bịa tên phim, giá VIP, thông tin không có
-3. Nếu không tìm thấy → gợi ý khách hỏi khác, đừng nói "không hỗ trợ"
-4. Với phim → hiển thị bằng block \`\`\`moviecard
-5. Với VIP → giới thiệu hấp dẫn, hướng dẫn link /vip (ĐÚNG LINK)
-
-═══════════════════════════════════════════════════════════════
-                    FORMAT PHIM (moviecard)
-═══════════════════════════════════════════════════════════════
-MỖI PHIM = 1 block riêng, ĐÚNG FORMAT JSON:
-
-\`\`\`moviecard
-{"id":16,"title":"John Wick","poster":"https://...","rating":3.0,"year":2014,"genre":"Hành Động","is_vip":true}
-\`\`\`
-
-⚠️ LƯU Ý:
-- KHÔNG thêm slug vào JSON
-- Link phim: /movie/{ID} (VD: /movie/16)
-- Link VIP: /vip
-
-═══════════════════════════════════════════════════════════════
-                    VÍ DỤ TRẢ LỜI TỐT
-═══════════════════════════════════════════════════════════════
-
-User: "phim hành động"
-AI: "Chào bạn! 🎬 Cinema New có nhiều phim hành động hay:
-
-\`\`\`moviecard
-{"id":16,"title":"John Wick","poster":"https://...","rating":3.0,"year":2014,"genre":"Hành Động","is_vip":true}
-\`\`\`
-
-\`\`\`moviecard
-{"id":10,"title":"Inception","poster":"https://...","rating":3.5,"year":2010,"genre":"Hành Động","is_vip":false}
-\`\`\`
-
-Bạn muốn xem phim nào? 😊"
-
----
-
-User: "mua vip"
-AI: "Bạn muốn nâng cấp VIP? Tuyệt vời! 👑
-
-Cinema New có gói VIP PREMIUM: 450.000 VNĐ/30 ngày
-
-Quyền lợi:
-• Xem phim VIP không giới hạn
-• Không quảng cáo
-• Chất lượng HD/4K
-
-👉 Nâng cấp ngay: [Nâng cấp VIP](/vip)
-
-Bạn cần tư vấn thêm không? 😊"
+QUY TẮC QUAN TRỌNG:
+1. CHỈ dùng thông tin từ CONTEXT bên dưới. TUYỆT ĐỐI KHÔNG BỊA (hallucinate) thông tin phim không có trong Database.
+2. Nếu Context ghi là [KHÔNG TÌM THẤY PHIM] -> Hãy thành thật xin lỗi và báo là kho phim hiện chưa có, TUYỆT ĐỐI KHÔNG gợi ý phim bừa bãi.
+3. Phim: dùng block \`\`\`moviecard cho từng phim. CHỈ chứa nội dung JSON duy nhất giữa { và }. TUYỆT ĐỐI không chứa tiêu đề (như # Tên phim), Markdown hay mô tả bên trong block này.
+4. VIP: giới thiệu các gói và dùng cú pháp [CTA:Nâng cấp VIP ngay|/vip] để tạo nút bấm. Link dẫn là /vip.
+5. Đăng nhập: CHỈ gợi ý đăng nhập tại /login nếu nhìn Context thấy user CHƯA đăng nhập. Tuyệt đối KHÔNG nhắc chuyện đăng nhập nếu user đã login (nhìn context [TRẠNG THÁI: ĐÃ ĐĂNG NHẬP]).
+6. Nút bấm tương tác: Có thể dùng cú pháp [CTA:Tên nút|/đường-dẫn] để tạo nút bấm nhanh (Ví dụ: [CTA:Về trang chủ|/], [CTA:Xem trang cá nhân|/profile]).
+7. Nếu context yêu cầu trả về flag [NEED_LOGIN], hãy đặt nó ở cuối câu trả lời nếu user thực sự chưa login.
 
 ═══════════════════════════════════════════════════════════════
                     CONTEXT DATABASE
 ═══════════════════════════════════════════════════════════════
-
 ${context}
-
 ═══════════════════════════════════════════════════════════════
 
-Hãy trả lời tự nhiên, thân thiện!`
+Hãy trả lời tự nhiên, thân thiện và hữu ích!`
     };
 };
 
 /**
- * Phát hiện Intent từ message
+ * Ánh xạ Intent sang thông điệp trạng thái cho Frontend
  */
-const detectIntent = (message) => {
-    const msg = message.toLowerCase().trim();
-
-    const keywords = {
-        MOVIE_SEARCH: ['tìm phim', 'phim nào', 'xem phim', 'có phim', 'search'],
-        MOVIE_RECOMMEND: ['gợi ý', 'phim hay', 'trending', 'hot', 'nên xem'],
-        VIP_INFO: ['vip', 'gói', 'nâng cấp', 'giá vip', 'đăng ký'],
-        GENERAL: ['hướng dẫn', 'help', 'trợ giúp']
-    };
-
-    for (const [intent, words] of Object.entries(keywords)) {
-        if (words.some(keyword => msg.includes(keyword))) {
-            return intent;
-        }
+const getIntentStatusMsg = (intentObj) => {
+    const { intent, subIntent } = intentObj;
+    if (intent === 'MOVIE') {
+        if (subIntent === 'search_by_mood') return '🔍 Đang tìm phim theo tâm trạng...';
+        if (subIntent === 'similar') return '🎬 Đang tìm phim tương tự...';
+        return '🔍 Đang tra cứu kho phim...';
     }
+    if (intent === 'VIP') return '👑 Đang kiểm tra thông tin VIP...';
+    if (intent === 'ACCOUNT') return '👤 Đang truy xuất thông tin tài khoản...';
+    return '💬 Đang xử lý câu hỏi...';
+};
 
-    return 'GENERAL';
+/**
+ * Sinh Quick Actions động dựa trên Intent
+ */
+const generateDynamicQuickActions = (intentObj) => {
+    const { intent } = intentObj;
+    if (intent === 'MOVIE') {
+        return [
+            { id: 'hot', icon: '🔥', label: 'Phim hot', prompt: 'Cho tôi xem phim đang hot nhất' },
+            { id: 'new', icon: '🆕', label: 'Phim mới', prompt: 'Phim mới cập nhật gần đây' },
+            { id: 'mood_sad', icon: '😢', label: 'Phim buồn', prompt: 'Tìm cho tôi phim nào buồn buồn' },
+            { id: 'mood_funny', icon: '😂', label: 'Phim hài', prompt: 'Tôi muốn xem phim gì đó hài hước' }
+        ];
+    }
+    if (intent === 'VIP') {
+        return [
+            { id: 'pricing', icon: '💰', label: 'Giá VIP', prompt: 'Các gói VIP giá thế nào?' },
+            { id: 'check', icon: '✅', label: 'Check VIP', prompt: 'Kiểm tra trạng thái VIP của tôi' },
+            { id: 'buy', icon: '🛒', label: 'Mua VIP', prompt: 'Hướng dẫn tôi mua VIP' }
+        ];
+    }
+    // Mặc định cho GENERAL hoặc ACCOUNT
+    return [
+        { id: 'trending', icon: '🔥', label: 'Phim hot', prompt: 'Cho tôi xem phim đang hot nhất' },
+        { id: 'vip', icon: '👑', label: 'Gói VIP', prompt: 'Cho tôi biết về các gói VIP' },
+        { id: 'history', icon: '🕒', label: 'Lịch sử xem', prompt: 'Tôi đã xem phim gì gần đây?' }
+    ];
 };
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
- * MAIN CHAT HANDLER - Streaming Response
+ * MAIN CHAT HANDLER
  * ═══════════════════════════════════════════════════════════════════════
  */
 exports.chat = async (req, res) => {
     const { message } = req.body;
     const userId = req.user ? req.user.id : null;
 
-    // Tạo hoặc lấy session_id từ cookie
     let sessionId = req.cookies?.chat_session_id;
     if (!sessionId) {
         sessionId = uuidv4();
         res.cookie('chat_session_id', sessionId, {
             maxAge: 30 * 24 * 60 * 60 * 1000,
             httpOnly: true,
-            secure: process.env.NODE_ENV === 'production'
+            secure: process.env.NODE_ENV === 'production',
+            sameSite: 'lax'
         });
     }
 
-    // ──────────────────────────────────────────────────────────────
-    // VALIDATION
-    // ──────────────────────────────────────────────────────────────
-    if (!message || message.trim().length === 0) {
-        return res.status(400).json({
-            success: false,
-            message: 'Nội dung tin nhắn không được trống.'
-        });
+    const rateLimitKey = sessionId || req.ip;
+    if (!checkRateLimit(rateLimitKey)) {
+        return res.status(429).json({ success: false, message: 'Spam alert! Vui lòng đợi 1 phút.' });
     }
 
-    if (message.length > 500) {
-        return res.status(400).json({
-            success: false,
-            message: 'Tin nhắn quá dài. Vui lòng nhập tối đa 500 ký tự.'
-        });
-    }
+    if (!message?.trim()) return res.status(400).json({ success: false, message: 'Tin nhắn trống.' });
 
     try {
-        // ──────────────────────────────────────────────────────────
-        // 1. DETECT INTENT
-        // ──────────────────────────────────────────────────────────
-        const intent = detectIntent(message);
-
-        // ──────────────────────────────────────────────────────────
-        // 2. SAVE USER MESSAGE TO DB
-        // ──────────────────────────────────────────────────────────
-        await db.promise().query(
-            `INSERT INTO chat_history (user_id, session_id, role, content, intent) 
-             VALUES (?, ?, ?, ?, ?)`,
-            [userId, sessionId, 'user', message, intent]
-        );
-
-        // ──────────────────────────────────────────────────────────
-        // 3. FETCH CONTEXT FROM DATABASE
-        // ──────────────────────────────────────────────────────────
-        const rawContext = await contextService.getRelevantContext(message, userId);
-        const context = rawContext.substring(0, 3000);
-
-        // ──────────────────────────────────────────────────────────
-        // 4. FETCH RECENT CHAT HISTORY
-        // ──────────────────────────────────────────────────────────
-        const [recentHistory] = await db.promise().query(
-            `SELECT role, content 
-             FROM chat_history 
-             WHERE (user_id = ? OR session_id = ?)
-             AND role IN ('user', 'assistant')
-             ORDER BY created_at DESC 
-             LIMIT 4`,
-            [userId, sessionId]
-        );
-
-        const historyMessages = recentHistory.reverse().map(h => ({
-            role: h.role,
-            content: h.content.substring(0, 300)
-        }));
-
-        // ──────────────────────────────────────────────────────────
-        // 5. BUILD MESSAGES ARRAY FOR AI
-        // ──────────────────────────────────────────────────────────
-        const systemPrompt = createSystemPrompt(context);
-        const messages = [
-            systemPrompt,
-            ...historyMessages.slice(-3),
-            { role: 'user', content: message }
-        ];
-
-        // ──────────────────────────────────────────────────────────
-        // 6. GET AI STREAM
-        // ──────────────────────────────────────────────────────────
-        console.log(`💬 [Chat] User: ${userId || 'Guest'}, Intent: ${intent}, Query: "${message}"`);
-
-        const { stream, isOllama } = await aiService.getChatStream(messages);
-
-        // ──────────────────────────────────────────────────────────
-        // 7. SETUP SSE HEADERS
-        // ──────────────────────────────────────────────────────────
+        // SETUP SSE HEADERS NGAY ĐỂ GỬI STATUS
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
         res.setHeader('X-Accel-Buffering', 'no');
 
-        let fullContent = "";
-        let buffer = "";
-        let chunkCount = 0;
+        // ──────────────────────────────────────────────────────────
+        // 1. LAYER 1: INTENT DETECTION
+        // ──────────────────────────────────────────────────────────
+        // Lấy 3 tin nhắn cuối từ DB để làm context cho classifier
+        const [recentHistory] = await db.promise().query(
+            `SELECT role, content FROM chat_history 
+             WHERE (user_id = ? OR session_id = ?) 
+             ORDER BY created_at DESC LIMIT 3`, 
+            [userId, sessionId]
+        );
+        const classificationHistory = recentHistory.reverse();
+
+        const intentObj = await aiService.getIntent(message, classificationHistory);
+        const intent = intentObj.intent;
 
         // ──────────────────────────────────────────────────────────
-        // 8. PROCESS STREAM - ROBUST PARSER
+        // 2. SEND STATUS TO CLIENT
         // ──────────────────────────────────────────────────────────
+        const statusMsg = getIntentStatusMsg(intentObj);
+        res.write(`data: ${JSON.stringify({ type: 'status', message: statusMsg })}\n\n`);
+
+        // ──────────────────────────────────────────────────────────
+        // 3. LAYER 2: CONTEXT RETRIEVAL (RAG)
+        // ──────────────────────────────────────────────────────────
+        const context = await contextService.getRelevantContext(intentObj, userId);
+
+        // ──────────────────────────────────────────────────────────
+        // 4. LAYER 2: CHAT RESPONSE
+        // ──────────────────────────────────────────────────────────
+        // Chuẩn bị lịch sử cho Layer 2 (giới hạn độ dài)
+        const chatHistoryForLayer2 = classificationHistory.map(h => ({
+            role: h.role,
+            content: h.content.substring(0, 300)
+        }));
+
+        const systemPrompt = createSystemPrompt(context);
+        const messages = [
+            systemPrompt,
+            ...chatHistoryForLayer2,
+            { role: 'user', content: message }
+        ];
+
+        const { stream, isOllama } = await aiService.getChatStream(messages);
+
+        let fullContent = "";
+        let buffer = "";
+
         const processLine = (line) => {
             const trimmed = line.trim();
             if (!trimmed) return;
-
             try {
                 let content = "";
-
                 if (isOllama) {
-                    // Ollama format
                     const parsed = JSON.parse(trimmed);
                     content = parsed.message?.content || "";
-
                     if (content) {
                         fullContent += content;
                         res.write(`data: ${JSON.stringify({ content, done: false })}\n\n`);
                     }
-
-                    if (parsed.done) {
-                        res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-                    }
                 } else {
-                    // Groq/OpenAI SSE format
                     if (!trimmed.startsWith("data:")) return;
-
                     const dataStr = trimmed.slice(5).trim();
-
-                    if (dataStr === "[DONE]") {
-                        res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-                        return;
-                    }
-
+                    if (dataStr === "[DONE]") return;
                     const parsed = JSON.parse(dataStr);
                     content = parsed.choices?.[0]?.delta?.content || "";
-
                     if (content) {
                         fullContent += content;
                         res.write(`data: ${JSON.stringify({ content, done: false })}\n\n`);
                     }
                 }
-            } catch (parseError) {
-                // Ignore partial chunks - không log nữa để tránh spam
-            }
+            } catch (e) {}
         };
 
         stream.on('data', (chunk) => {
             buffer += chunk.toString();
             const lines = buffer.split(/\r?\n/);
             buffer = lines.pop() || "";
-
-            for (const line of lines) {
-                processLine(line);
-                chunkCount++;
-            }
+            for (const line of lines) processLine(line);
         });
 
-        // ──────────────────────────────────────────────────────────
-        // 9. STREAM END
-        // ──────────────────────────────────────────────────────────
         stream.on('end', async () => {
-            // Xử lý dòng cuối trong buffer
-            if (buffer.trim()) {
-                processLine(buffer);
-            }
+            if (buffer.trim()) processLine(buffer);
 
-            console.log(`✅ [Chat] Stream ended. Chunks: ${chunkCount}, Length: ${fullContent.length}`);
+            // Gửi Quick Actions động & done signal
+            const quickActions = generateDynamicQuickActions(intentObj);
+            res.write(`data: ${JSON.stringify({ done: true, quickActions })}\n\n`);
 
-            // Gửi done signal
-            res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-
-            // Lưu vào DB
-            if (fullContent.trim().length > 0) {
+            // SAVE TO DB
+            if (fullContent.trim()) {
                 try {
+                    // Lưu user message trước (nếu chưa lưu) - Ở đây ta đã lưu trong bản trước?
+                    // Hãy lưu cả 2 để đồng bộ
                     await db.promise().query(
-                        `INSERT INTO chat_history (user_id, session_id, role, content, intent) 
-                         VALUES (?, ?, ?, ?, ?)`,
-                        [userId, sessionId, 'assistant', fullContent, intent]
+                        `INSERT INTO chat_history (user_id, session_id, role, content, intent) VALUES (?, ?, ?, ?, ?)`,
+                        [userId, sessionId, 'user', message, intent]
                     );
-                } catch (dbError) {
-                    console.error("❌ Failed to save assistant message:", dbError);
-                }
+                    await db.promise().query(
+                        `INSERT INTO chat_history (user_id, session_id, role, content, intent) VALUES (?, ?, ?, ?, ?)`,
+                        [userId, sessionId, 'assistant', fullContent.substring(0, 5000), intent]
+                    );
+                } catch (dbErr) { console.error("DB Save Fail:", dbErr); }
             }
-
             res.end();
         });
 
-        // ──────────────────────────────────────────────────────────
-        // 10. STREAM ERROR
-        // ──────────────────────────────────────────────────────────
         stream.on('error', (err) => {
-            console.error("❌ AI Stream Error:", err);
-
-            res.write(`data: ${JSON.stringify({
-                error: 'AI tạm thời không khả dụng. Vui lòng thử lại sau.',
-                done: true
-            })}\n\n`);
-
+            res.write(`data: ${JSON.stringify({ error: 'AI Stream Error', done: true })}\n\n`);
             res.end();
         });
 
     } catch (err) {
-        console.error("❌ Chat Controller Error:", err.message || err);
-
+        console.error("❌ ChatController Fail:", err);
         if (!res.headersSent) {
-            res.status(500).json({
-                success: false,
-                message: err.message || 'Lỗi server khi xử lý chat.',
-                ...(process.env.NODE_ENV === 'development' && { stack: err.stack })
-            });
+            res.status(500).json({ success: false, message: 'Lỗi hệ thống.' });
         } else {
-            try {
-                res.write(`data: ${JSON.stringify({
-                    error: err.message || 'Lỗi server',
-                    done: true
-                })}\n\n`);
-            } catch (writeErr) { }
+            res.write(`data: ${JSON.stringify({ error: 'Lỗi server', done: true })}\n\n`);
             res.end();
         }
     }
 };
 
-/**
- * ═══════════════════════════════════════════════════════════════════════
- * GET CHAT HISTORY
- * ═══════════════════════════════════════════════════════════════════════
- */
 exports.getHistory = async (req, res) => {
     const userId = req.user ? req.user.id : null;
     const sessionId = req.cookies?.chat_session_id;
-
-    if (!userId && !sessionId) {
-        return res.json({ success: true, history: [] });
-    }
-
+    if (!userId && !sessionId) return res.json({ success: true, history: [] });
     try {
         const [rows] = await db.promise().query(
-            `SELECT id, role, content, intent, created_at 
-             FROM chat_history 
-             WHERE (user_id = ? OR session_id = ?)
-             ORDER BY created_at ASC
-             LIMIT 100`,
+            `SELECT id, role, content, intent, created_at FROM chat_history 
+             WHERE (user_id = ? OR session_id = ?) ORDER BY created_at ASC LIMIT 100`,
             [userId, sessionId]
         );
-
         res.json({
             success: true,
-            history: rows.map(row => ({
-                id: row.id,
-                role: row.role,
-                content: row.content,
-                intent: row.intent,
-                timestamp: row.created_at
-            }))
+            history: rows.map(r => ({ id: r.id, role: r.role, content: r.content, intent: r.intent, timestamp: r.created_at }))
         });
-    } catch (err) {
-        console.error("❌ Get History Error:", err);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi khi tải lịch sử chat.'
-        });
-    }
+    } catch (err) { res.status(500).json({ success: false, message: 'Lỗi lịch sử.' }); }
 };
 
-/**
- * ═══════════════════════════════════════════════════════════════════════
- * CLEAR CHAT HISTORY
- * ═══════════════════════════════════════════════════════════════════════
- */
 exports.clearHistory = async (req, res) => {
     const userId = req.user ? req.user.id : null;
     const sessionId = req.cookies?.chat_session_id;
-
-    if (!userId && !sessionId) {
-        return res.json({
-            success: true,
-            message: 'Không có lịch sử để xóa.'
-        });
-    }
-
     try {
-        const [result] = await db.promise().query(
-            `DELETE FROM chat_history 
-             WHERE user_id = ? OR session_id = ?`,
-            [userId, sessionId]
-        );
-
-        res.json({
-            success: true,
-            message: `Đã xóa ${result.affectedRows} tin nhắn.`
-        });
-    } catch (err) {
-        console.error("❌ Clear History Error:", err);
-        res.status(500).json({
-            success: false,
-            message: 'Lỗi khi xóa lịch sử chat.'
-        });
-    }
+        await db.promise().query(`DELETE FROM chat_history WHERE user_id = ? OR session_id = ?`, [userId, sessionId]);
+        res.json({ success: true, message: 'Đã xóa.' });
+    } catch (err) { res.status(500).json({ success: false, message: 'Lỗi xóa.' }); }
 };
 
-/**
- * ═══════════════════════════════════════════════════════════════════════
- * GET QUICK ACTIONS
- * ═══════════════════════════════════════════════════════════════════════
- */
 exports.getQuickActions = (req, res) => {
-    const quickActions = [
-        {
-            id: 'trending',
-            icon: '🔥',
-            label: 'Phim đang hot',
-            prompt: 'Cho tôi xem phim đang hot nhất'
-        },
-        {
-            id: 'new',
-            icon: '🆕',
-            label: 'Phim mới',
-            prompt: 'Phim mới cập nhật gần đây'
-        },
-        {
-            id: 'vip',
-            icon: '👑',
-            label: 'Gói VIP',
-            prompt: 'Cho tôi biết về các gói VIP'
-        },
-        {
-            id: 'recommend',
-            icon: '🎬',
-            label: 'Gợi ý phim',
-            prompt: 'Gợi ý phim hay để xem'
-        },
-        {
-            id: 'action',
-            icon: '💥',
-            label: 'Phim hành động',
-            prompt: 'Tìm phim hành động'
-        }
+    // Trả về mặc định
+    const actions = [
+        { id: 'trending', icon: '🔥', label: 'Phim hot', prompt: 'Cho tôi xem phim đang hot nhất' },
+        { id: 'vip', icon: '👑', label: 'Gói VIP', prompt: 'Cho tôi biết về các gói VIP' },
+        { id: 'recommend', icon: '🎬', label: 'Gợi ý phim', prompt: 'Gợi ý phim hay để xem' }
     ];
-
-    res.json({ success: true, actions: quickActions });
+    res.json({ success: true, actions });
 };
