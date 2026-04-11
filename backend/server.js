@@ -38,6 +38,8 @@ const allowedOrigins = [
   "http://127.0.0.1:5174",
   "http://127.0.0.1:8080",
   "http://127.0.0.1:3000",
+  "http://cinema.io.vn",
+  "http://cinema.io.vn",
   process.env.FRONTEND_URL
 ].filter(Boolean);
 
