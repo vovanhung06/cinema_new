@@ -170,7 +170,7 @@ const Watch = () => {
                   <PlyrPlayer
                     url={obfuscate(
                       sourceType === 'db' ? movie.movie_url :
-                        'http://14.252.145.3:8090/video1.mp4'
+                        'https://video.cinema.io.vn:8090/video1.mp4'
                     )}
                     poster={movie.image}
                     title={movie.title}
