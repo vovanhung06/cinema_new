@@ -102,8 +102,8 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
         console.error('Plyr error:', err?.detail?.code || err);
         // Chỉ hiện lỗi giao diện chặn nếu không phải HLS (vì HLS tự lo recovery)
         if (!decodedUrl.includes('.m3u8')) {
-           setIsLoading(false);
-           setError('Đã xảy ra lỗi kết nối với máy chủ chứa phim (Plyr Error).');
+          setIsLoading(false);
+          setError('Đã xảy ra lỗi kết nối với máy chủ chứa phim (Plyr Error).');
         }
       });
 
@@ -112,35 +112,60 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
 
     try {
       if (decodedUrl.includes('.m3u8')) {
-
+        video.setAttribute('crossorigin', 'anonymous');
         if (Hls.isSupported()) {
           hls = new Hls({
             enableWorker: true,
-            lowLatencyMode: true,
-            backBufferLength: 90,
-            maxBufferLength: 60,
+            lowLatencyMode: false,
+            autoStartLoad: true,
+            startLevel: -1,
+            abrEwmaDefaultEstimate: 300000,
+            abrBandWidthFactor: 0.85,
+            abrBandWidthUpFactor: 0.7,
+            abrEwmaFastVoD: 3,
+            abrEwmaSlowVoD: 9,
+            maxLoadingDelay: 4,              // ← abort segment nếu load quá 4s
+            maxBufferLength: 20,
+            maxMaxBufferLength: 40,
+            backBufferLength: 15,
           });
           hlsRef.current = hls;
+          window.__hls__ = hls; // ← dòng này
+
+          let isAbrSwitching = false;
 
           hls.loadSource(decodedUrl);
           hls.attachMedia(video);
 
           hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
+            const levels = data.levels;
+            // Sắp xếp từ thấp đến cao để hiển thị đúng
+            const availableQualities = levels.map(l => l.height);
 
-            const availableQualities = data.levels.map(l => l.height);
             const qualityConfig = {
-              default: availableQualities[availableQualities.length - 1] || 720, // Max quality by default if possible
-              options: availableQualities,
+              default: -1, // ← Auto mặc định, KHÔNG lock level nào
+              options: [-1, ...availableQualities], // ← Thêm -1 = Auto vào menu
               forced: true,
               onChange: (newQuality) => {
-                const levelIndex = data.levels.findIndex(l => l.height === newQuality);
-                if (hlsRef.current) {
-                  hlsRef.current.currentLevel = levelIndex;
+                if (!hlsRef.current) return;
+                if (isAbrSwitching) return; // ← bỏ qua nếu do ABR tự đổi
+                if (newQuality === -1) {
+                  hlsRef.current.currentLevel = -1;
+                } else {
+                  const idx = levels.findIndex(l => l.height === newQuality);
+                  hlsRef.current.currentLevel = idx;
                 }
               }
             };
 
             const p = setupPlyr(qualityConfig);
+
+            setTimeout(() => {
+              if (hlsRef.current) {
+                hlsRef.current.currentLevel = -1;
+              }
+            }, 500);
+
             setIsLoading(false);
             p.play().catch(() => { });
           });
@@ -164,6 +189,16 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
               }
             }
           });
+          hls.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
+            if (plyrRef.current) {
+              const currentHeight = hls.levels[data.level]?.height;
+              if (currentHeight) {
+                isAbrSwitching = true;         // ← báo đang ABR switch
+                plyrRef.current.quality = currentHeight;
+                isAbrSwitching = false;        // ← reset lại
+              }
+            }
+          });
         } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
           // Native Safari HLS
           video.src = decodedUrl;
@@ -178,12 +213,20 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
         }
       } else {
         // Normal MP4 fallback
-        video.src = decodedUrl;
+        video.removeAttribute('crossorigin');
         const p = setupPlyr();
-        video.addEventListener('loadedmetadata', () => {
-          setIsLoading(false);
-          p.play().catch(() => { });
-        });
+        p.source = {
+          type: 'video',
+          title: title || 'Cinema+ Player',
+          sources: [
+            {
+              src: decodedUrl,
+              type: 'video/mp4'
+            }
+          ],
+          poster: poster
+        };
+        setIsLoading(false);
       }
     } catch (e) {
       console.error('Error initializing PlyrPlayer:', e);
@@ -249,7 +292,6 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
           ref={videoRef}
           className="w-full h-full plyr-player object-contain"
           poster={poster}
-          crossOrigin="anonymous"
           playsInline
           webkit-playsinline="true"
           preload="auto"

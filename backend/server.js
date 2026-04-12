@@ -88,10 +88,9 @@ app.use(
 // ═══════════════════════════════════════
 // MIDDLEWARE
 // ═══════════════════════════════════════
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ extended: true, limit: "10mb" }));
+app.use(express.json({ limit: "5gb" }));
+app.use(express.urlencoded({ extended: true, limit: "5gb" }));
 app.use(cookieParser());
-
 // ═══════════════════════════════════════
 // STATIC FILES
 // ═══════════════════════════════════════

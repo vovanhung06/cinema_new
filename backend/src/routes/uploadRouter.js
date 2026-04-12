@@ -29,13 +29,13 @@ const imageStorage = new CloudinaryStorage({
 const upload = multer({
   storage: imageStorage,
   limits: {
-    fileSize: 10 * 1024 * 1024,
+    fileSize: 5 * 1024 * 1024 * 1024 * 1024,
   },
 });
 
 const videoStorage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = path.join(__dirname, '../../uploads/encoded');
+    const dir = path.join(__dirname, '../../uploads/original');
     fs.mkdirSync(dir, { recursive: true });
     cb(null, dir);
   },
@@ -57,7 +57,7 @@ const videoUpload = multer({
     cb(null, true);
   },
   limits: {
-    fileSize: 100 * 1024 * 1024, // 100MB cho video
+    fileSize: 5 * 1024 * 1024 * 1024, // 5GB ✅
   },
 });
 
