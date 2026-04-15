@@ -109,9 +109,9 @@ const ChatMessage = ({ role, content, timestamp }) => {
                 )}
 
                 {ctaButtons.length > 0 && role === 'assistant' && (
-                    <div className="login-prompt-area" style={{ marginTop: '10px', display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    <div className="login-prompt-area" style={{ marginTop: '12px', display: 'flex', gap: '8px', flexWrap: 'wrap', width: '100%' }}>
                         {ctaButtons.map((btn, i) => (
-                            <Link key={i} to={btn.path} className="login-prompt-btn">
+                            <Link key={i} to={btn.path} className="login-prompt-btn" style={{ flex: '1 1 auto', textAlign: 'center', justifyContent: 'center' }}>
                                 ⚡ {btn.label}
                             </Link>
                         ))}

@@ -15,8 +15,8 @@ const ProfileOverview = ({ user, setIsEditing }) => {
           transition={{ duration: 0.8 }}
         >
           <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Account Dashboard</p>
-          <h1 className="text-6xl font-black text-white tracking-tighter italic leading-tight uppercase">
-            Chào trở lại, <span className="text-glow text-primary">{(user?.name || "").split(" ")}.</span>
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter italic leading-tight uppercase">
+            Chào trở lại, <span className="text-glow text-primary">{(user?.name || "").split(" ")[0]}.</span>
           </h1>
         </motion.div>
 
@@ -27,8 +27,8 @@ const ProfileOverview = ({ user, setIsEditing }) => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-16">
         {/* Profile Card & Stats */}
         <div className="lg:col-span-8 space-y-8">
-          <div className="glass-dark rounded-[3.5rem] p-10 md:p-14 relative overflow-hidden group border border-white/5 shadow-2xl">
-            <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[100px] -mr-32 -mt-32 group-hover:bg-primary/20 transition-colors duration-700"></div>
+          <div className="glass-dark rounded-[2.5rem] md:rounded-[3.5rem] p-6 sm:p-10 md:p-14 relative overflow-hidden group border border-white/5 shadow-2xl">
+            <div className="absolute top-0 right-0 w-64 md:w-96 h-64 md:h-96 bg-primary/10 rounded-full blur-[80px] md:blur-[100px] -mr-16 md:-mr-32 -mt-16 md:-mt-32 group-hover:bg-primary/20 transition-colors duration-700"></div>
 
             <div className="relative z-10 flex flex-col md:flex-row gap-12 items-center md:items-start text-center md:text-left">
               <div className="relative group/avatar">
@@ -38,7 +38,7 @@ const ProfileOverview = ({ user, setIsEditing }) => {
                     user.avatar ||
                     `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}&background=random`
                   }
-                  className="w-40 h-40 rounded-[2.5rem] object-cover shadow-2xl border-4 border-white/5 relative z-10"
+                  className="w-28 h-28 md:w-40 md:h-40 rounded-[1.5rem] md:rounded-[2.5rem] object-cover shadow-2xl border-4 border-white/5 relative z-10"
                   alt="Profile"
                   referrerPolicy="no-referrer"
                 />
@@ -56,11 +56,11 @@ const ProfileOverview = ({ user, setIsEditing }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-y-8 gap-x-12">
                   <div className="space-y-1">
                     <label className="text-[10px] uppercase tracking-[0.3em] text-on-surface-variant/40 font-black">Họ và tên</label>
-                    <p className="text-2xl font-black text-white italic">{user?.name || "User"}</p>
+                    <p className="text-lg md:text-2xl font-black text-white italic">{user?.name || "User"}</p>
                   </div>
                   <div className="space-y-1">
                     <label className="text-[10px] uppercase tracking-[0.3em] text-on-surface-variant/40 font-black">Địa chỉ Email</label>
-                    <p className="text-2xl font-black text-white italic truncate">{user.email}</p>
+                    <p className="text-lg md:text-2xl font-black text-white italic truncate">{user.email}</p>
                   </div>
                 </div>
               </div>
@@ -105,7 +105,7 @@ const ProfileOverview = ({ user, setIsEditing }) => {
               <div className="inline-block px-4 py-2 bg-white/10 backdrop-blur-xl rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] mb-8 border border-white/10">
                 Premium Status
               </div>
-              <h3 className={`text-5xl font-black italic tracking-tighter mb-2 uppercase leading-none ${isVipActive(user) ? 'text-yellow-400' : 'text-white'}`}>
+              <h3 className={`text-3xl md:text-5xl font-black italic tracking-tighter mb-2 uppercase leading-none ${isVipActive(user) ? 'text-yellow-400' : 'text-white'}`}>
                 {isVipActive(user) ? 'VIP MEMBER' : 'STANDARD'}
               </h3>
               <p className="text-white/60 text-[10px] font-black uppercase tracking-[0.2em] mb-10">

@@ -15,7 +15,7 @@ const GenreCard = ({ genre }) => {
         }}
         whileTap={{ scale: 0.95 }}
         transition={{ duration: 0.3, ease: "easeOut" }}
-        className="group glass-dark p-8 rounded-3xl cursor-pointer flex flex-col items-center gap-5 border border-outline-variant/20 transition-colors"
+        className="group glass-dark p-4 md:p-8 rounded-3xl cursor-pointer flex flex-col items-center gap-3 md:gap-5 border border-outline-variant/20 transition-colors"
       >
         <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:bg-white/20 transition-colors">
           <Icon className="w-8 h-8 text-primary group-hover:text-white transition-all duration-300" />

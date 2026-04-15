@@ -98,7 +98,7 @@ const Notifications = () => {
            animate={{ opacity: 1, y: 0 }}
         >
           <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">System Alerts</p>
-          <h2 className="text-5xl font-black text-on-surface italic tracking-tighter uppercase">Trung tâm <span className="text-glow text-primary">Thông báo.</span></h2>
+          <h2 className="text-3xl md:text-5xl font-black text-on-surface italic tracking-tighter uppercase">Trung tâm <span className="text-glow text-primary">Thông báo.</span></h2>
         </motion.div>
         
         <div className="flex flex-col sm:flex-row items-center gap-4">
@@ -138,7 +138,7 @@ const Notifications = () => {
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.4, delay: i * 0.05 }}
                   onClick={() => handleMarkAsRead(n.id)}
-                  className={`glass-dark p-6 rounded-[2.5rem] border flex gap-6 hover:bg-outline-variant/10 transition-all group relative cursor-pointer ${n.read ? 'border-outline-variant/20 opacity-60 hover:opacity-100' : 'border-primary/20 shadow-[0_10px_30px_rgba(229,9,20,0.1)]'}`}
+                  className={`glass-dark p-4 md:p-6 rounded-3xl md:rounded-[2.5rem] border flex flex-col sm:flex-row gap-4 md:gap-6 hover:bg-outline-variant/10 transition-all group relative cursor-pointer ${n.read ? 'border-outline-variant/20 opacity-60 hover:opacity-100' : 'border-primary/20 shadow-[0_10px_30px_rgba(229,9,20,0.1)]'}`}
                 >
                   {!n.read && (
                      <div className="absolute top-6 right-6 w-2.5 h-2.5 bg-primary rounded-full shadow-[0_0_15px_rgba(229,9,20,0.8)] animate-pulse"></div>
@@ -149,8 +149,8 @@ const Notifications = () => {
                   </div>
                   
                   <div className="flex-1 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <h4 className={`text-lg font-black italic uppercase tracking-tight ${n.read ? 'text-on-surface/60' : 'text-on-surface'}`}>{n.title}</h4>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-y-1">
+                      <h4 className={`text-base md:text-lg font-black italic uppercase tracking-tight ${n.read ? 'text-on-surface/60' : 'text-on-surface'}`}>{n.title}</h4>
                       <p className="text-[9px] font-black text-on-surface-variant/30 uppercase tracking-[0.2em]">{formatTime(n.created_at)}</p>
                     </div>
                     <p className="text-on-surface-variant/60 text-sm leading-relaxed max-w-2xl">{n.message}</p>

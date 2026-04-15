@@ -30,6 +30,16 @@ const Chatbox = () => {
         }
     }, [messages, isTyping, statusText]);
 
+    // [MOD-MB-01] Scroll lock on mobile when chat is open
+    useEffect(() => {
+        if (isOpen && window.innerWidth <= 480) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => { document.body.style.overflow = 'unset'; };
+    }, [isOpen]);
+
     // [FIX-IMP-05] Thêm messages.length vào dependency array
     useEffect(() => {
         if (isOpen && messages.length === 0) {
@@ -216,11 +226,11 @@ const Chatbox = () => {
                             <button className="icon-btn" onClick={() => setShowConfirm(true)} title="Xóa lịch sử">
                                 <Trash2 size={16} color="#9ca3af" />
                             </button>
-                            <button className="icon-btn" onClick={() => setIsOpen(false)}>
+                            <button className="icon-btn hidden md:flex" onClick={() => setIsOpen(false)}>
                                 <Minus size={18} color="#9ca3af" />
                             </button>
                             <button className="icon-btn" onClick={() => setIsOpen(false)}>
-                                <X size={18} color="#9ca3af" />
+                                <X size={20} color="#9ca3af" strokeWidth={2.5} />
                             </button>
                         </div>
                     </div>

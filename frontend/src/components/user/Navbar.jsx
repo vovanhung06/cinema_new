@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Search, Bell, X, History, Clock, TrendingUp, Star, Menu } from 'lucide-react';
+import { Search, Bell, X, History, Clock, TrendingUp, Star, Menu, ChevronRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { searchMovies } from '../../service/movie_service';
 import { useAuth } from '../../hooks/useAuth';
@@ -19,6 +19,7 @@ const Navbar = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isSearching, setIsSearching] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const searchRef = useRef(null);
 
   const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
@@ -47,6 +48,7 @@ const Navbar = () => {
       addSearchHistory(trimmedQuery);
       navigate(`/search?q=${encodeURIComponent(trimmedQuery)}`);
       setIsSearchFocused(false);
+      setIsMobileSearchOpen(false);
     }
   };
 
@@ -87,6 +89,7 @@ const Navbar = () => {
     addSearchHistory(term);
     navigate(`/search?q=${encodeURIComponent(term)}`);
     setIsSearchFocused(false);
+    setIsMobileSearchOpen(false);
   };
 
   useEffect(() => {
@@ -177,9 +180,9 @@ const Navbar = () => {
 
       <nav className={`fixed top-0 w-full z-50 transition-all duration-500 ${isSearchFocused ? 'bg-surface-container-high/90 backdrop-blur-3xl border-b border-outline-variant/20' : 'bg-surface/40 premium-blur border-b border-outline-variant/20'}`}>
         <div className="flex justify-between items-center px-8 py-3 max-w-[1920px] mx-auto h-20">
-          <div className="flex items-center gap-4 md:gap-12">
-            <button className="md:hidden text-on-surface hover:text-primary transition-colors" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-              {isMobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
+          <div className="flex items-center gap-3 md:gap-12">
+            <button className="lg:hidden text-on-surface hover:text-primary transition-colors p-2" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+              {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
             <Link to="/" className="text-2xl md:text-3xl font-black tracking-tighter text-primary uppercase font-manrope hover:scale-105 transition-transform active:scale-95 text-glow">
               CINEMA+
@@ -207,6 +210,13 @@ const Navbar = () => {
           </div>
 
           <div className="flex items-center gap-2 md:gap-8">
+            <button 
+              className="lg:hidden text-on-surface-variant hover:text-primary transition-colors p-2"
+              onClick={() => setIsMobileSearchOpen(true)}
+            >
+              <Search className="w-6 h-6" />
+            </button>
+
             <div ref={searchRef} className="relative hidden lg:block">
               <form onSubmit={handleSearchSubmit} className={`flex items-center bg-surface-container rounded-2xl px-5 py-3 transition-all duration-500 border group ${isSearchFocused ? 'w-[500px] border-primary/50 bg-surface shadow-[0_0_30px_rgba(229,9,20,0.1)]' : 'w-72 border-outline-variant/10 hover:border-outline-variant/20'}`}>
                 <Search className={`w-4 h-4 mr-4 transition-colors duration-300 ${isSearchFocused ? 'text-primary shadow-primary' : 'text-on-surface-variant group-hover:text-primary'}`} />
@@ -385,18 +395,138 @@ const Navbar = () => {
         </div>
       </nav>
 
+      {/* Mobile Search Overlay */}
+      <AnimatePresence>
+        {isMobileSearchOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] bg-surface flex flex-col"
+          >
+            <div className="flex items-center gap-4 px-6 h-20 border-b border-outline-variant/20">
+              <button onClick={() => setIsMobileSearchOpen(false)} className="p-2 text-on-surface-variant">
+                <ChevronRight className="w-6 h-6 rotate-180" />
+              </button>
+              <form onSubmit={handleSearchSubmit} className="flex-1">
+                <input
+                  autoFocus
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Tìm kiếm phim..."
+                  className="w-full bg-transparent border-none focus:ring-0 text-lg text-on-surface placeholder:text-on-surface-variant/40 outline-none font-bold"
+                />
+              </form>
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} className="p-2 text-on-surface-variant">
+                  <X className="w-6 h-6" />
+                </button>
+              )}
+            </div>
+
+            <div className="flex-1 overflow-y-auto px-6 py-8 hide-scrollbar">
+              {searchQuery.trim() ? (
+                <div className="space-y-6">
+                  <h3 className="text-[10px] uppercase tracking-[0.2em] font-black text-on-surface-variant/60">Kết quả tìm kiếm</h3>
+                  {isSearching ? (
+                    <div className="py-20 flex justify-center">
+                      <Search className="w-8 h-8 text-primary animate-spin" />
+                    </div>
+                  ) : searchResults.length > 0 ? (
+                    <div className="space-y-4">
+                      {searchResults.map((movie) => (
+                        <Link
+                          key={movie.id}
+                          to={`/movie/${movie.id}`}
+                          onClick={() => setIsMobileSearchOpen(false)}
+                          className="flex gap-4 p-3 rounded-2xl bg-surface-container/50 active:bg-surface-container transition-colors"
+                        >
+                          <div className="w-16 h-24 rounded-xl overflow-hidden flex-shrink-0">
+                            <img src={movie.image} alt={movie.title} className="w-full h-full object-cover" referrerPolicy="no-referrer" />
+                          </div>
+                          <div className="flex flex-col justify-center">
+                            <h4 className="text-on-surface font-bold text-sm line-clamp-1">{movie.title}</h4>
+                            <p className="text-xs text-on-surface-variant mt-1">{movie.year} • {movie.genre}</p>
+                            <div className="flex items-center gap-1 mt-2 text-primary">
+                              <Star className="w-3 h-3 fill-primary" />
+                              <span className="text-[10px] font-black">{movie.rating ?? '0'}</span>
+                            </div>
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="text-center py-20 text-on-surface-variant text-sm font-bold uppercase tracking-widest">Không có kết quả</p>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-black text-[10px] uppercase tracking-[0.2em] text-on-surface flex items-center gap-3">
+                      <History className="w-4 h-4 text-primary" />
+                      Lịch sử tìm kiếm
+                    </h3>
+                  </div>
+                  <div className="space-y-3">
+                    {searchHistory.length > 0 ? (
+                      searchHistory.map((item, index) => (
+                        <div key={index} className="flex items-center justify-between group">
+                          <button
+                            onClick={() => handleHistoryItemClick(item)}
+                            className="flex-1 text-left py-3 text-sm font-bold text-on-surface/80"
+                          >
+                            {item}
+                          </button>
+                          <button onClick={(e) => removeSearchHistoryItem(e, item)} className="p-2 text-on-surface-variant/40">
+                            <X className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-center py-10 text-on-surface-variant/40 text-xs font-bold uppercase tracking-widest">Trống</p>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Mobile Menu Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="fixed top-20 left-0 w-full bg-surface/95 backdrop-blur-3xl border-b border-outline-variant/20 z-40 md:hidden flex flex-col p-6 gap-6 shadow-2xl"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -20 }}
+            className="fixed inset-0 top-20 bg-surface/98 backdrop-blur-3xl z-[90] lg:hidden flex flex-col p-8 gap-8 shadow-2xl"
           >
-            <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black text-on-surface hover:text-primary transition-colors uppercase tracking-widest border-b border-outline-variant/10 pb-4">Trang chủ</Link>
-            <Link to="/filter" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black text-on-surface hover:text-primary transition-colors uppercase tracking-widest border-b border-outline-variant/10 pb-4">Lọc Phim</Link>
-            <Link to="/vip" onClick={() => setIsMobileMenuOpen(false)} className="text-lg font-black text-on-surface hover:text-primary transition-colors uppercase tracking-widest border-b border-outline-variant/10 pb-4">Gói VIP</Link>
+            <div className="space-y-6">
+              <Link to="/" onClick={() => setIsMobileMenuOpen(false)} className="block text-2xl font-black text-on-surface hover:text-primary transition-colors uppercase tracking-widest border-l-4 border-transparent hover:border-primary pl-4">Trang chủ</Link>
+              <Link to="/filter" onClick={() => setIsMobileMenuOpen(false)} className="block text-2xl font-black text-on-surface hover:text-primary transition-colors uppercase tracking-widest border-l-4 border-transparent hover:border-primary pl-4">Lọc Phim</Link>
+              <Link to="/vip" onClick={() => setIsMobileMenuOpen(false)} className="block text-2xl font-black text-on-surface hover:text-primary transition-colors uppercase tracking-widest border-l-4 border-transparent hover:border-primary pl-4">Gói VIP</Link>
+            </div>
+
+            {!user && (
+              <div className="mt-auto flex flex-col gap-4">
+                <Link
+                  to="/login"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full py-4 rounded-2xl border border-outline-variant/20 text-center font-black uppercase tracking-widest text-on-surface"
+                >
+                  Đăng nhập
+                </Link>
+                <Link
+                  to="/register"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full py-4 rounded-2xl bg-primary text-center font-black uppercase tracking-widest text-white shadow-lg shadow-primary/20"
+                >
+                  Đăng ký
+                </Link>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

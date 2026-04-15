@@ -17,7 +17,7 @@ const MovieCard = ({ movie, variant = 'vertical' }) => {
       );
     }
     return (
-      <div className={`flex-none ${variant === 'compact' ? 'w-32 md:w-44' : 'w-48 md:w-64'} snap-start mb-4`}>
+      <div className={`flex-none ${variant === 'compact' ? 'w-28 md:w-44' : 'w-40 md:w-64'} snap-start mb-4`}>
         <div className={`relative aspect-[2/3] rounded-2xl bg-surface-container-high animate-pulse ${variant === 'compact' ? 'mb-2' : 'mb-4'}`}></div>
         <div className={`h-4 md:h-5 bg-surface-container-high rounded-md w-3/4 mb-1.5 animate-pulse`}></div>
         <div className="h-3 bg-surface-container-high rounded-md w-1/4 animate-pulse"></div>
@@ -73,7 +73,7 @@ const MovieCard = ({ movie, variant = 'vertical' }) => {
 
   return (
   <Link to={`/movie/${movie.id}`}>
-    <div className={`group cursor-pointer flex-none ${variant === 'compact' ? 'w-32 md:w-44' : 'w-48 md:w-64'} snap-start relative`}>
+    <div className={`group cursor-pointer flex-none ${variant === 'compact' ? 'w-28 md:w-44' : 'w-40 md:w-64'} snap-start relative`}>
       {isVip && (
         <div className={`absolute ${variant === 'compact' ? 'top-2 left-2' : 'top-3 left-3'} z-20 px-2 py-1 rounded bg-yellow-500/90 text-[10px] font-black text-white backdrop-blur-md flex items-center gap-1 pointer-events-none`}>
           <Gem className={`${variant === 'compact' ? 'w-2.5 h-2.5' : 'w-3 h-3'}`} />
@@ -81,7 +81,7 @@ const MovieCard = ({ movie, variant = 'vertical' }) => {
         </div>
       )}
       <motion.div 
-        whileHover={{ y: -12, scale: 1.05 }}
+        whileHover={{ y: -8, scale: 1.02 }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
       <div className={`relative aspect-[2/3] rounded-2xl overflow-hidden ${variant === 'compact' ? 'mb-2' : 'mb-4'} border border-outline-variant/20 bg-surface-container shadow-xl transition-shadow group-hover:shadow-2xl`}>
@@ -93,8 +93,8 @@ const MovieCard = ({ movie, variant = 'vertical' }) => {
           referrerPolicy="no-referrer"
         />
 
-        {/* Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
+        {/* Overlay - Hidden on mobile for better performance/UX, shown on group-hover */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex flex-col justify-end p-5">
           <div className={`w-full ${variant === 'compact' ? 'py-1.5' : 'py-2.5'} bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-center`}>
             Chi tiết
           </div>
@@ -108,7 +108,7 @@ const MovieCard = ({ movie, variant = 'vertical' }) => {
       </div>
 
       <div className="px-1">
-        <h3 className={`font-bold text-on-surface group-hover:text-primary ${variant === 'compact' ? 'text-xs md:text-sm' : 'text-base md:text-lg'} line-clamp-1`}>
+        <h3 className={`font-bold text-on-surface group-hover:text-primary ${variant === 'compact' ? 'text-[11px] md:text-sm' : 'text-sm md:text-lg'} line-clamp-1`}>
           {movie.title}
         </h3>
         <div className={`flex items-center gap-2 ${variant === 'compact' ? 'mt-0.5' : 'mt-1.5'} opacity-60`}>

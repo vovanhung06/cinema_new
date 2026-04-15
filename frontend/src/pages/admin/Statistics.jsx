@@ -129,7 +129,7 @@ export default function Statistics() {
   ];
 
   return (
-    <div className="p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <div className="p-4 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
       <PageHeader
         title="Báo cáo & Thống kê"
         description="Dữ liệu phân tích chi tiết cho chu kỳ kinh doanh hiện tại."
@@ -176,13 +176,13 @@ export default function Statistics() {
             <BarChart3 className="w-24 h-24 text-primary-container opacity-20 -rotate-12 group-hover:rotate-0 transition-transform duration-700" />
           </div>
           <div className="flex justify-between items-start mb-8">
-            <div>
-              <h3 className="text-xl font-bold font-headline mb-1">Doanh thu tổng hợp</h3>
-              <p className="text-sm text-on-surface-variant">{revenueData.growth} so với kỳ trước</p>
+            <div className="w-full lg:w-auto">
+              <h3 className="text-lg md:text-xl font-bold font-headline mb-1">Doanh thu tổng hợp</h3>
+              <p className="text-[10px] md:text-sm text-on-surface-variant font-medium uppercase tracking-widest">{revenueData.growth} so với kỳ trước</p>
             </div>
-            <div className="flex items-center gap-2 text-primary-container font-bold text-2xl">
+            <div className="flex items-center gap-2 text-primary-container font-black text-xl md:text-2xl mt-4 lg:mt-0">
               <span>{revenueData.total}</span>
-              <TrendingUp className="w-6 h-6" />
+              <TrendingUp className="w-5 h-5 md:w-6 md:h-6" />
             </div>
           </div>
 
@@ -226,12 +226,12 @@ export default function Statistics() {
               </h3>
               <p className="text-on-surface-variant max-w-lg">Số lượng người dùng nâng cấp gói Premium qua từng giai đoạn ({timeRange}).</p>
             </div>
-            <div className="flex flex-col items-end gap-2">
-              <div className="flex items-center gap-2 bg-primary-container text-white px-5 py-2.5 rounded-xl shadow-lg shadow-primary-container/20">
-                <Star className="w-5 h-5 fill-white" />
-                <span className="text-sm font-black uppercase tracking-widest">{userStats.vip} VIP Hiện tại</span>
+            <div className="flex flex-col items-end gap-2 shrink-0">
+              <div className="flex items-center gap-2 bg-primary-container text-white px-3 md:px-5 py-2 md:py-2.5 rounded-xl shadow-lg shadow-primary-container/20">
+                <Star className="w-4 h-4 md:w-5 md:h-5 fill-white" />
+                <span className="text-[10px] md:text-sm font-black uppercase tracking-widest">{userStats.vip} VIP</span>
               </div>
-              <span className="text-[10px] font-bold text-on-surface-variant italic uppercase tracking-tighter">Cập nhật ngay bây giờ</span>
+              <span className="text-[8px] md:text-[10px] font-bold text-on-surface-variant italic uppercase tracking-tighter">Live Update</span>
             </div>
           </div>
 
@@ -294,10 +294,10 @@ export default function Statistics() {
           <table className="w-full text-left">
             <thead>
               <tr className="bg-surface-container text-[10px] uppercase font-bold text-on-surface-variant tracking-[0.2em]">
-                <th className="px-6 py-4">Hạng</th>
-                <th className="px-6 py-4">Phim</th>
-                <th className="px-6 py-4">Lượt Xem</th>
-                <th className="px-6 py-4">Đánh Giá</th>
+                <th className="px-6 py-4 whitespace-nowrap">Hạng</th>
+                <th className="px-6 py-4 whitespace-nowrap">Phim</th>
+                <th className="px-6 py-4 whitespace-nowrap">Lượt Xem</th>
+                <th className="px-6 py-4 whitespace-nowrap">Đánh Giá</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/5">
@@ -351,12 +351,12 @@ export default function Statistics() {
       <section className="bg-surface-container-low rounded-xl overflow-hidden shadow-xl border border-outline-variant/10">
         {/* Header */}
         <div className="p-6 border-b border-outline-variant/10 bg-surface-container-low flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div>
-            <h3 className="text-xl font-bold font-headline mb-1 flex items-center gap-2">
+          <div className="w-full lg:w-auto">
+            <h3 className="text-lg md:text-xl font-bold font-headline mb-1 flex items-center gap-2">
               <Receipt className="w-5 h-5 text-primary" />
-              Lịch sử Doanh thu VIP
+              Lịch sử Doanh thu
             </h3>
-            <p className="text-sm text-on-surface-variant">Tất cả giao dịch nâng cấp từ bảng <code className="bg-surface-container px-1.5 py-0.5 rounded text-primary text-xs font-mono">vip_history</code></p>
+            <p className="text-[10px] md:text-sm text-on-surface-variant font-medium">Báo cáo giao dịch từ <code className="bg-surface-container px-1.5 py-0.5 rounded text-primary text-[10px] font-mono whitespace-nowrap">vip_history</code></p>
           </div>
           {/* Summary mini-cards */}
           <div className="flex gap-3 flex-wrap">
@@ -394,13 +394,13 @@ export default function Statistics() {
           <table className="w-full text-left">
             <thead>
               <tr className="bg-surface-container text-[10px] uppercase font-bold text-on-surface-variant tracking-[0.2em]">
-                <th className="px-6 py-4">#ID</th>
-                <th className="px-6 py-4">Khách hàng</th>
-                <th className="px-6 py-4">Email</th>
-                <th className="px-6 py-4">Gói VIP</th>
-                <th className="px-6 py-4">Số tiền</th>
-                <th className="px-6 py-4">Ngày đăng ký</th>
-                <th className="px-6 py-4">Hết hạn</th>
+                <th className="px-6 py-4 whitespace-nowrap">#ID</th>
+                <th className="px-6 py-4 whitespace-nowrap">Khách hàng</th>
+                <th className="px-6 py-4 whitespace-nowrap">Email</th>
+                <th className="px-6 py-4 whitespace-nowrap">Gói VIP</th>
+                <th className="px-6 py-4 whitespace-nowrap">Số tiền</th>
+                <th className="px-6 py-4 whitespace-nowrap">Ngày đăng ký</th>
+                <th className="px-6 py-4 whitespace-nowrap">Hết hạn</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/5">

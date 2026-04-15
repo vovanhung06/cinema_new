@@ -78,7 +78,7 @@ const Favorites = () => {
            animate={{ opacity: 1, y: 0 }}
         >
           <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Your Collection</p>
-          <h2 className="text-5xl font-black text-on-surface italic tracking-tighter uppercase">Danh sách <span className="text-glow text-primary">Yêu thích.</span></h2>
+          <h2 className="text-3xl md:text-5xl font-black text-on-surface italic tracking-tighter uppercase">Danh sách <span className="text-glow text-primary">Yêu thích.</span></h2>
         </motion.div>
         
         <div className="flex items-center gap-4">
@@ -124,7 +124,7 @@ const Favorites = () => {
           <motion.div 
             key="favorites-grid"
             layout
-            className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-8"
+            className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8"
           >
             {favorites.map((movie) => (
               <motion.div
@@ -137,9 +137,9 @@ const Favorites = () => {
                 className="relative group aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border border-outline-variant/20 bg-surface-container-low"
               >
                 {movie.required_vip_level > 0 && (
-                   <div className="absolute top-6 left-6 px-3 py-1 bg-yellow-500 rounded-xl flex items-center gap-1 border border-outline-variant/20 z-20 shadow-xl pointer-events-none">
-                      <Gem className="w-3 h-3 text-on-surface" />
-                      <span className="text-[8px] font-black text-on-surface uppercase tracking-widest">VIP</span>
+                   <div className="absolute top-4 left-4 md:top-6 md:left-6 px-2 md:px-3 py-1 bg-yellow-500 rounded-xl flex items-center gap-1 border border-outline-variant/20 z-20 shadow-xl pointer-events-none">
+                      <Gem className="w-2.5 h-2.5 md:w-3 md:h-3 text-on-surface" />
+                      <span className="text-[7px] md:text-[8px] font-black text-on-surface uppercase tracking-widest">VIP</span>
                    </div>
                 )}
 
@@ -186,8 +186,8 @@ const Favorites = () => {
                 </div>
                 
                 {/* Static indicator */}
-                <div className="absolute top-6 right-6 w-10 h-10 glass-dark rounded-2xl flex items-center justify-center border border-outline-variant/20 group-hover:opacity-0 transition-opacity">
-                   <Heart className="w-5 h-5 text-primary fill-primary" />
+                <div className="absolute top-4 right-4 md:top-6 md:right-6 w-8 h-8 md:w-10 md:h-10 glass-dark rounded-xl md:rounded-2xl flex items-center justify-center border border-outline-variant/20 group-hover:opacity-0 transition-opacity">
+                   <Heart className="w-4 h-4 md:w-5 md:h-5 text-primary fill-primary" />
                 </div>
               </motion.div>
             ))}

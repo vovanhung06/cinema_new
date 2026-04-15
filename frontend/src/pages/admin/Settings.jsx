@@ -22,7 +22,7 @@ export default function Settings() {
   } = useSettings();
 
   return (
-    <div className="p-8 space-y-12 max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <div className="p-4 md:p-8 space-y-8 md:space-y-12 max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-1000">
       <PageHeader
         title="CÀI ĐẶT HỆ THỐNG"
         description="Cấu hình tham số vận hành, bảo mật và giao diện của CINEMA+."
@@ -38,23 +38,23 @@ export default function Settings() {
       </PageHeader>
 
       <div className="grid grid-cols-12 gap-8">
-        <div className="col-span-12 lg:col-span-4 space-y-4">
+        <div className="col-span-12 lg:col-span-4 flex lg:flex-col gap-3 overflow-x-auto lg:overflow-visible pb-4 lg:pb-0 no-scrollbar">
           {tabs.map((item, i) => (
             <button
               key={i}
               onClick={() => handleTabChange(item.label)}
               className={cn(
-                "w-full flex items-center justify-between p-4 rounded-2xl transition-all group",
+                "flex-none lg:w-full flex items-center justify-between p-4 rounded-2xl transition-all group whitespace-nowrap",
                 activeTab === item.label
                   ? "bg-primary-container text-white shadow-lg shadow-primary-container/20"
                   : "bg-surface-container-low text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface"
               )}
             >
               <div className="flex items-center gap-3">
-                <item.icon className="w-5 h-5" />
-                <span className="text-sm font-bold uppercase tracking-tight">{item.label}</span>
+                <item.icon className="w-5 h-5 md:w-5 md:h-5" />
+                <span className="text-xs md:text-sm font-bold uppercase tracking-tight">{item.label}</span>
               </div>
-              <ChevronRight className={cn("w-4 h-4 transition-transform group-hover:translate-x-1", activeTab === item.label ? "text-white" : "text-on-surface-variant")} />
+              <ChevronRight className={cn("hidden lg:block w-4 h-4 transition-transform group-hover:translate-x-1", activeTab === item.label ? "text-white" : "text-on-surface-variant")} />
             </button>
           ))}
         </div>
@@ -129,7 +129,7 @@ export default function Settings() {
             </div>
           </div>
 
-          <div className="bg-surface-container-low rounded-3xl p-8 border border-outline-variant/10 border-primary-container/20">
+          <div className="bg-surface-container-low rounded-3xl p-6 md:p-8 border border-outline-variant/10 border-primary-container/20">
             <h3 className="text-xl font-black font-headline mb-2 uppercase tracking-tight text-primary-container">Vùng nguy hiểm</h3>
             <p className="text-xs text-on-surface-variant mb-6">Các hành động này có thể ảnh hưởng nghiêm trọng đến dữ liệu hệ thống.</p>
             <div className="flex flex-col md:flex-row gap-4">

@@ -88,7 +88,7 @@ export default function MovieManagement() {
   };
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="p-4 md:p-8 space-y-6 md:space-y-8">
       <input 
         type="file" 
         ref={fileInputRef} 
@@ -111,18 +111,18 @@ export default function MovieManagement() {
           )}
         >
           <Filter className="w-4 h-4" />
-          {isFilterVisible ? 'Đóng bộ lọc' : 'Bộ lọc'}
+          <span className="hidden sm:inline">{isFilterVisible ? 'Đóng bộ lọc' : 'Bộ lọc'}</span>
         </button>
         <button
           onClick={openAddModal}
-          className="px-6 py-3 bg-primary-container text-white rounded-xl text-sm font-black shadow-xl shadow-primary-container/20 flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
+          className="px-4 md:px-6 py-3 bg-primary-container text-white rounded-xl text-sm font-black shadow-xl shadow-primary-container/20 flex items-center gap-2 hover:scale-[1.02] active:scale-[0.98] transition-all"
         >
           <Plus className="w-5 h-5" />
-          Thêm phim mới
+          <span className="hidden sm:inline">Thêm phim mới</span>
         </button>
       </PageHeader>
 
-      <div className="bg-surface-container-low rounded-[2rem] overflow-hidden border border-outline-variant/10 shadow-2xl">
+      <div className="bg-surface-container-low rounded-2xl md:rounded-[2rem] overflow-hidden border border-outline-variant/10 shadow-2xl">
         <AnimatePresence>
           {isFilterVisible && (
             <motion.div
@@ -198,9 +198,9 @@ export default function MovieManagement() {
           )}
         </AnimatePresence>
 
-        <div className="p-6 border-b border-outline-variant/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="p-4 md:p-6 border-b border-outline-variant/10 flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <span className="text-xs font-bold text-on-surface-variant uppercase tracking-widest italic">
+            <span className="text-[10px] md:text-xs font-bold text-on-surface-variant uppercase tracking-widest italic">
               Hiện có <span className="text-on-surface font-black not-italic">{pagination?.total || 0}</span> tác phẩm
             </span>
           </div>
@@ -222,9 +222,9 @@ export default function MovieManagement() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-container-high/30">
-                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Phim & Thông tin</th>
-                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Thể loại</th>
-                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant">Ngày phát hành</th>
+                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant whitespace-nowrap">Phim & Thông tin</th>
+                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant whitespace-nowrap">Thể loại</th>
+                <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant whitespace-nowrap text-center">Ngày phát hành</th>
                 <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant text-center">VIP</th>
                 <th className="px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant text-right">Thao tác</th>
               </tr>
@@ -399,10 +399,10 @@ export default function MovieManagement() {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="bg-surface-container w-full max-w-4xl rounded-[2.5rem] shadow-[0_32px_64px_rgba(0,0,0,0.6)] overflow-hidden border border-outline-variant/20 flex flex-col max-h-[90vh]"
             >
-              <div className="px-10 pt-10 pb-6 flex justify-between items-center bg-surface-container-high/30">
+              <div className="px-6 md:px-10 pt-6 md:pt-10 pb-4 md:pb-6 flex justify-between items-center bg-surface-container-high/30">
                 <div className="space-y-1">
-                  <h2 className="text-3xl font-black font-headline tracking-tight text-on-surface uppercase italic">Thêm phim mới</h2>
-                  <p className="text-xs font-bold text-on-surface-variant uppercase tracking-[0.2em]">Cấu hình thông tin và nội dung đa phương tiện</p>
+                  <h2 className="text-xl md:text-3xl font-black font-headline tracking-tight text-on-surface uppercase italic">Thêm phim mới</h2>
+                  <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em]">Cấu hình thông tin hệ thống</p>
                 </div>
                 <button
                   onClick={closeAddModal}
@@ -591,7 +591,7 @@ export default function MovieManagement() {
                 </div>
               </div>
 
-              <div className="p-10 bg-surface-container-high/30 border-t border-outline-variant/10 flex flex-col md:flex-row gap-4">
+              <div className="p-6 md:p-10 bg-surface-container-high/30 border-t border-outline-variant/10 flex flex-col md:flex-row gap-4">
                 <button
                   onClick={handleAddMovie}
                   disabled={isLoading}
@@ -628,10 +628,10 @@ export default function MovieManagement() {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               className="bg-surface-container w-full max-w-4xl rounded-[2.5rem] shadow-[0_32px_64px_rgba(0,0,0,0.6)] overflow-hidden border border-outline-variant/20 flex flex-col max-h-[90vh]"
             >
-              <div className="px-10 pt-10 pb-6 flex justify-between items-center bg-surface-container-high/30">
+              <div className="px-6 md:px-10 pt-6 md:pt-10 pb-4 md:pb-6 flex justify-between items-center bg-surface-container-high/30">
                 <div className="space-y-1">
-                  <h2 className="text-3xl font-black font-headline tracking-tight text-on-surface uppercase italic">Cập nhật thông tin phim</h2>
-                  <p className="text-xs font-bold text-on-surface-variant uppercase tracking-[0.2em]">Thay đổi thông tin cho phim: {selectedMovie?.title}</p>
+                  <h2 className="text-xl md:text-3xl font-black font-headline tracking-tight text-on-surface uppercase italic">Cập nhật thông tin</h2>
+                  <p className="text-[10px] font-bold text-on-surface-variant uppercase tracking-[0.2em] truncate max-w-[200px] md:max-w-none">Phim: {selectedMovie?.title}</p>
                 </div>
                 <button
                   onClick={closeEditModal}
@@ -810,7 +810,7 @@ export default function MovieManagement() {
                 </div>
               </div>
 
-              <div className="p-10 bg-surface-container-high/30 border-t border-outline-variant/10 flex flex-col md:flex-row gap-4">
+              <div className="p-6 md:p-10 bg-surface-container-high/30 border-t border-outline-variant/10 flex flex-col md:flex-row gap-4">
                 <button
                   onClick={handleUpdateMovie}
                   disabled={isLoading}

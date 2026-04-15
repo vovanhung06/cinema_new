@@ -91,39 +91,39 @@ const AdminNotifications = () => {
   const unreadCount = notifications.filter(n => !n.read).length;
 
   return (
-    <div className="p-8 max-w-4xl mx-auto space-y-8">
+    <div className="p-4 md:p-8 max-w-4xl mx-auto space-y-6 md:space-y-8">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <p className="text-xs font-black uppercase tracking-[0.3em] text-on-surface-variant mb-2">Quản trị hệ thống</p>
-          <h1 className="text-3xl font-black text-on-surface tracking-tight flex items-center gap-3">
-            <Bell className="w-8 h-8 text-primary-container" />
-            Hoạt Động Gần Đây
+          <p className="text-[10px] md:text-xs font-black uppercase tracking-[0.3em] text-on-surface-variant mb-2">Hệ thống</p>
+          <h1 className="text-xl md:text-3xl font-black text-on-surface tracking-tight flex items-center gap-2 md:gap-3">
+            <Bell className="w-5 h-5 md:w-8 md:h-8 text-primary-container" />
+            Thông báo
             {unreadCount > 0 && (
-              <span className="text-sm bg-primary-container text-white font-black px-3 py-1 rounded-full">
+              <span className="text-[10px] md:text-sm bg-primary-container text-white font-black px-2 md:px-3 py-0.5 md:py-1 rounded-full whitespace-nowrap">
                 {unreadCount} mới
               </span>
             )}
           </h1>
-          <p className="text-on-surface-variant text-sm mt-1">Theo dõi hoạt động người dùng và hệ thống</p>
+          <p className="text-on-surface-variant text-[10px] md:text-sm mt-1 uppercase font-bold tracking-widest hidden sm:block">Hoạt động hệ thống</p>
         </div>
 
-        <div className="flex flex-col sm:flex-row items-center gap-3">
+        <div className="flex flex-row items-center gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar pb-1">
           {unreadCount > 0 && (
             <button
               onClick={handleMarkAllRead}
-              className="flex items-center gap-2 px-5 py-2.5 bg-surface-container-highest rounded-xl border border-outline-variant/20 text-xs font-black uppercase tracking-widest text-on-surface-variant hover:text-on-surface hover:bg-surface-container-low transition-all"
+              className="flex items-center gap-2 px-4 py-2 bg-surface-container-highest rounded-xl border border-outline-variant/20 text-[10px] font-black uppercase tracking-widest text-on-surface-variant hover:text-on-surface transition-all whitespace-nowrap"
             >
-              <Check className="w-4 h-4" />
-              Đánh dấu tất cả đã đọc
+              <Check className="w-3.5 h-3.5" />
+              Đọc hết
             </button>
           )}
           {notifications.length > unreadCount && (
              <button 
                onClick={handleDeleteRead}
-               className="flex items-center gap-2 px-5 py-2.5 bg-red-500/10 rounded-xl border border-red-500/20 text-xs font-black uppercase tracking-widest text-red-400 hover:text-white hover:bg-red-500/80 transition-all shadow-sm"
+               className="flex items-center gap-2 px-4 py-2 bg-red-500/10 rounded-xl border border-red-500/20 text-[10px] font-black uppercase tracking-widest text-red-400 hover:text-white transition-all whitespace-nowrap"
              >
-                <Trash2 className="w-4 h-4" /> {unreadCount === 0 ? "Xóa tất cả" : "Xóa đã đọc"}
+                <Trash2 className="w-3.5 h-3.5" /> Xóa đã đọc
              </button>
            )}
         </div>
@@ -132,13 +132,13 @@ const AdminNotifications = () => {
       {/* Stats Bar */}
       <div className="grid grid-cols-3 gap-4">
         {[
-          { label: 'Tổng thông báo', value: notifications.length, color: 'text-on-surface' },
+          { label: 'Tổng số', value: notifications.length, color: 'text-on-surface' },
           { label: 'Chưa đọc', value: unreadCount, color: 'text-primary-container' },
           { label: 'Đã đọc', value: notifications.length - unreadCount, color: 'text-emerald-400' },
         ].map((stat) => (
-          <div key={stat.label} className="bg-surface-container-low border border-outline-variant/10 rounded-2xl p-4 text-center">
-            <p className={`text-2xl font-black ${stat.color}`}>{stat.value}</p>
-            <p className="text-[10px] text-on-surface-variant uppercase tracking-widest mt-1">{stat.label}</p>
+          <div key={stat.label} className="bg-surface-container-low border border-outline-variant/10 rounded-2xl p-3 md:p-4 text-center">
+            <p className={`text-lg md:text-2xl font-black ${stat.color}`}>{stat.value}</p>
+            <p className="text-[8px] md:text-[10px] text-on-surface-variant uppercase tracking-widest mt-1 opacity-60 font-black">{stat.label}</p>
           </div>
         ))}
       </div>
@@ -161,7 +161,7 @@ const AdminNotifications = () => {
                   exit={{ opacity: 0, x: 40 }}
                   transition={{ duration: 0.3, delay: i * 0.04 }}
                   onClick={() => handleMarkAsRead(n.id)}
-                  className={`bg-surface-container-low rounded-2xl border flex gap-5 p-5 cursor-pointer group hover:bg-surface-container-highest/40 transition-all relative ${
+                  className={`bg-surface-container-low rounded-2xl border flex gap-3 md:gap-5 p-4 md:p-5 cursor-pointer group hover:bg-surface-container-highest/40 transition-all relative ${
                     n.read ? 'border-outline-variant/10 opacity-60 hover:opacity-100' : 'border-primary-container/30 shadow-lg shadow-primary-container/5'
                   }`}
                 >

@@ -126,7 +126,7 @@ const MovieDetail = () => {
   return (
     <div className="min-h-screen bg-surface overflow-x-hidden">
       {/* Hero Section with Parallax Background */}
-      <div className="relative min-h-[90vh] w-full flex items-end pt-32 md:pt-40">
+      <div className="relative min-h-[70vh] md:min-h-[90vh] w-full flex items-end pt-20 md:pt-40">
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img
             src={movie.background || movie.image}
@@ -144,12 +144,12 @@ const MovieDetail = () => {
         {/* Back Button */}
         <button
           onClick={() => navigate(-1)}
-          className="fixed top-28 left-8 z-40 p-3 md:p-4 rounded-2xl glass hover:bg-primary hover:text-white transition-all group shadow-2xl"
+          className="fixed top-24 md:top-28 left-4 md:left-8 z-40 p-3 md:p-4 rounded-2xl glass hover:bg-primary hover:text-white transition-all group shadow-2xl"
         >
           <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
         </button>
 
-        <div className="relative z-10 max-w-[1920px] mx-auto w-full px-6 md:px-16 pb-16 flex flex-col md:flex-row gap-8 md:gap-16 items-center md:items-end">
+        <div className="relative z-10 max-w-[1920px] mx-auto w-full px-6 md:px-16 pb-12 md:pb-16 flex flex-col md:flex-row gap-8 md:gap-16 items-center md:items-end">
           {/* Main Poster */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 40 }}
@@ -187,7 +187,7 @@ const MovieDetail = () => {
                 </motion.div>
               )}
 
-              <h1 className="text-4xl md:text-6xl lg:text-8xl font-black font-manrope tracking-tighter text-on-surface uppercase leading-[0.85] text-glow drop-shadow-2xl">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-8xl font-black font-manrope tracking-tighter text-on-surface uppercase leading-[0.85] text-glow drop-shadow-2xl">
                 {movie.title}
               </h1>
 
@@ -209,7 +209,7 @@ const MovieDetail = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.8 }}
-              className="flex flex-wrap items-center justify-center md:justify-start gap-5 pt-4"
+              className="flex flex-col sm:flex-row flex-wrap items-center justify-center md:justify-start gap-4 md:gap-5 pt-4"
             >
               <button
                 onClick={() => {
@@ -234,7 +234,7 @@ const MovieDetail = () => {
               <button
                 disabled={favoriteLoading}
                 onClick={handleToggleFavorite}
-                className={`btn-secondary px-8 py-5 text-base uppercase tracking-widest flex items-center gap-3 rounded-2xl transition-all shadow-xl ${isFavorite ? 'bg-primary text-white border-primary shadow-primary/20' : 'bg-surface-container border-outline-variant/10 hover:border-primary/40'}`}
+                className={`btn-secondary w-full sm:w-auto px-8 py-5 text-base uppercase tracking-widest flex items-center justify-center gap-3 rounded-2xl transition-all shadow-xl ${isFavorite ? 'bg-primary text-white border-primary shadow-primary/20' : 'bg-surface-container border-outline-variant/10 hover:border-primary/40'}`}
               >
                 <Heart className={`w-6 h-6 ${isFavorite ? 'fill-white animate-bounce' : 'group-hover:text-primary'}`} />
                 <span className="relative text-on-surface">{favoriteLoading ? 'Đang xử lý...' : isFavorite ? 'Đã yêu thích' : 'Yêu thích'}</span>
@@ -244,8 +244,8 @@ const MovieDetail = () => {
         </div>
       </div>
 
-      <main className="max-w-[1920px] mx-auto px-6 md:px-16 py-24">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-16 lg:gap-24">
+      <main className="max-w-[1920px] mx-auto px-6 md:px-16 py-12 md:py-24">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 lg:gap-24">
           {/* Left Column: Details & Comments */}
           <div className="lg:col-span-3 space-y-24">
             {/* Synopsis */}
@@ -254,7 +254,7 @@ const MovieDetail = () => {
                 <div className="w-1 h-8 bg-primary rounded-full"></div>
                 <h3 className="text-3xl font-black uppercase tracking-tight text-on-surface italic">Nội dung phim</h3>
               </div>
-              <p className="text-xl text-on-surface-variant leading-relaxed font-medium max-w-5xl">
+              <p className="text-lg md:text-xl text-on-surface-variant leading-relaxed font-medium max-w-5xl">
                 {movie.description || "Một hành trình xuyên không gian đầy kịch tính quy tụ dàn diễn viên tinh hoa nhất. Khám phá những bí ẩn chưa từng được tiết lộ trong vũ trụ điện ảnh kỳ vĩ này, nơi mọi ranh giới của sự tưởng tượng bị xóa nhòa."}
               </p>
             </section>
@@ -339,7 +339,7 @@ const MovieDetail = () => {
                 <div className="w-1 h-6 bg-primary rounded-full"></div>
                 <h3 className="text-xl font-black uppercase tracking-tight text-on-surface italic">Đề xuất phim</h3>
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-x-4 gap-y-8 justify-items-center">
+              <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-x-3 md:gap-x-4 gap-y-6 md:gap-y-8 justify-items-center">
                 {recommendations?.map((rec) => (
                   <MovieCard key={rec.id} movie={rec} variant="compact" />
                 ))}

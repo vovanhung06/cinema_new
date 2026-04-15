@@ -77,10 +77,10 @@ const Search = () => {
   const totalResults = pagination?.total || 0;
 
   return (
-    <div className="min-h-screen bg-surface pt-32 pb-40 px-6 lg:px-12 max-w-[1920px] mx-auto overflow-x-hidden">
+    <div className="min-h-screen bg-surface pt-24 md:pt-32 pb-40 px-4 md:px-12 max-w-[1920px] mx-auto overflow-x-hidden">
       <div className="flex flex-col gap-12">
         {/* Search Header - Cinematic Design */}
-        <header className="relative py-16 px-10 glass-dark rounded-[3.5rem] border border-white/5 overflow-hidden shadow-2xl">
+        <header className="relative py-10 md:py-16 px-6 md:px-10 glass-dark rounded-[2rem] md:rounded-[3.5rem] border border-white/5 overflow-hidden shadow-2xl">
           <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 blur-[120px] -z-10 translate-x-1/3 -translate-y-1/3"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 blur-[80px] -z-10 -translate-x-1/4 translate-y-1/4"></div>
           
@@ -93,17 +93,17 @@ const Search = () => {
               <div className="space-y-4">
                 <h1 className="text-sm font-black text-primary uppercase tracking-[0.4em]">Kết quả tìm kiếm</h1>
                 <div className="flex items-center gap-6">
-                  <span className="text-5xl md:text-7xl font-black font-manrope text-white tracking-tighter text-glow italic">"{query}"</span>
-                  <div className="px-5 py-2 glass-dark rounded-2xl border border-white/10 shadow-xl self-center">
-                    <span className="text-xs font-black text-white uppercase tracking-widest">
-                      {totalResults} bộ phim
+                  <span className="text-3xl md:text-7xl font-black font-manrope text-white tracking-tighter text-glow italic truncate max-w-[200px] md:max-w-none">"{query}"</span>
+                  <div className="px-3 md:px-5 py-1.5 md:py-2 glass-dark rounded-xl md:rounded-2xl border border-white/10 shadow-xl self-center shrink-0">
+                    <span className="text-[10px] md:text-xs font-black text-white uppercase tracking-widest">
+                      {totalResults} phim
                     </span>
                   </div>
                 </div>
               </div>
             </div>
             
-            <Link to="/filter" className="btn-secondary px-8 py-5 text-xs tracking-[0.2em] font-black uppercase shadow-2xl group border border-white/10 hover:bg-white/5">
+            <Link to="/filter" className="btn-secondary w-full md:w-auto px-6 md:px-8 py-4 md:py-5 text-[10px] md:text-xs tracking-[0.2em] font-black uppercase shadow-2xl group border border-white/10 hover:bg-white/5 justify-center">
               <Filter className="w-4 h-4 group-hover:rotate-180 transition-transform text-primary" />
               Bộ lọc nâng cao
             </Link>
@@ -135,7 +135,7 @@ const Search = () => {
                   key="results"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-8 gap-y-16"
+                  className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-x-4 md:gap-x-8 gap-y-10 md:gap-y-16"
                 >
                   {results.map((movie, index) => (
                     <motion.div
@@ -155,16 +155,16 @@ const Search = () => {
                     <button 
                       onClick={() => setPage(page - 1)}
                       disabled={page <= 1}
-                      className="w-14 h-14 flex items-center justify-center rounded-2xl glass hover:bg-white/10 text-white transition-all group border border-white/5 disabled:opacity-30 disabled:pointer-events-none active:scale-90"
+                      className="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center rounded-xl md:rounded-2xl glass hover:bg-white/10 text-white transition-all group border border-white/5 disabled:opacity-30 disabled:pointer-events-none active:scale-90"
                     >
-                      <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                      <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 group-hover:-translate-x-1 transition-transform" />
                     </button>
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1.5 md:gap-3">
                       {Array.from({ length: pagination.totalPages }, (_, i) => {
                         const p = i + 1;
                         if (pagination.totalPages > 7) {
                           if (p !== 1 && p !== pagination.totalPages && Math.abs(p - page) > 1) {
-                            if (p === 2 || p === pagination.totalPages - 1) return <span key={p} className="text-white/20">...</span>;
+                            if (p === 2 || p === pagination.totalPages - 1) return <span key={p} className="text-white/20 text-[10px]">...</span>;
                             return null;
                           }
                         }
@@ -173,7 +173,7 @@ const Search = () => {
                           <button
                             key={p}
                             onClick={() => setPage(p)}
-                            className={`w-14 h-14 flex items-center justify-center rounded-2xl font-black text-xs transition-all border ${p === page ? 'bg-primary border-primary text-white shadow-xl shadow-primary/30 scale-110' : 'glass border-white/5 text-on-surface-variant hover:bg-white/10 hover:text-white'}`}
+                            className={`w-10 h-10 md:w-14 md:h-14 flex items-center justify-center rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs transition-all border ${p === page ? 'bg-primary border-primary text-white shadow-xl shadow-primary/30 scale-110' : 'glass border-white/5 text-on-surface-variant hover:bg-white/10 hover:text-white'}`}
                           >
                             {p}
                           </button>
@@ -183,9 +183,9 @@ const Search = () => {
                     <button 
                       onClick={() => setPage(page + 1)}
                       disabled={page >= pagination.totalPages}
-                      className="w-14 h-14 flex items-center justify-center rounded-2xl glass hover:bg-white/10 text-white transition-all group border border-white/5 disabled:opacity-30 disabled:pointer-events-none active:scale-90"
+                      className="w-10 h-10 md:w-14 md:h-14 flex items-center justify-center rounded-xl md:rounded-2xl glass hover:bg-white/10 text-white transition-all group border border-white/5 disabled:opacity-30 disabled:pointer-events-none active:scale-90"
                     >
-                      <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                      <ChevronRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
                     </button>
                   </nav>
                 )}
@@ -195,34 +195,34 @@ const Search = () => {
                 key="empty"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="flex flex-col items-center justify-center py-40 text-center"
+                className="flex flex-col items-center justify-center py-20 md:py-40 text-center"
               >
                 <div className="w-32 h-32 glass-dark rounded-[2.5rem] flex items-center justify-center mb-10 border border-white/5 shadow-2xl relative group">
                    <div className="absolute inset-0 bg-primary/20 blur-[40px] opacity-0 group-hover:opacity-100 transition-opacity"></div>
                   <SearchIcon className="w-12 h-12 text-white/10 group-hover:text-primary transition-colors duration-500" />
                 </div>
-                <div className="space-y-4 max-w-lg mx-auto mb-16">
-                  <h3 className="text-4xl font-black text-white uppercase tracking-tighter italic">Không tìm thấy phim</h3>
-                  <p className="text-on-surface-variant font-medium leading-relaxed">
-                    Chúng tôi không thể tìm thấy kết quả cho <span className="text-white">"{query}"</span>. Hãy thử kiểm tra lại chính tả hoặc tìm kiếm với từ khóa phổ quát hơn.
+                <div className="space-y-4 max-w-lg mx-auto mb-10 md:mb-16 px-4">
+                  <h3 className="text-2xl md:text-4xl font-black text-white uppercase tracking-tighter italic">Không tìm thấy phim</h3>
+                  <p className="text-sm md:text-on-surface-variant font-medium leading-relaxed opacity-60">
+                    Chúng tôi không thể tìm thấy kết quả cho <span className="text-white">"{query}"</span>. Hãy thử kiểm tra lại chính tả hoặc từ khóa khác.
                   </p>
                 </div>
-                <div className="flex flex-wrap justify-center gap-5">
-                  <Link to="/" className="btn-primary py-4 px-10 text-[10px] uppercase tracking-[0.2em] shadow-xl">
+                <div className="flex flex-col sm:flex-row justify-center gap-4 w-full px-6">
+                  <Link to="/" className="btn-primary py-4 px-10 text-[10px] uppercase tracking-[0.2em] shadow-xl w-full sm:w-auto text-center">
                     Về trang chủ
                   </Link>
-                  <Link to="/filter" className="btn-secondary py-4 px-10 text-[10px] uppercase tracking-[0.2em] bg-white/5">
-                    Khám phá kho phim
+                  <Link to="/filter" className="btn-secondary py-4 px-10 text-[10px] uppercase tracking-[0.2em] bg-white/5 w-full sm:w-auto text-center">
+                    Khám phá
                   </Link>
                 </div>
 
-                <div className="pt-32 w-full max-w-6xl">
-                  <div className="flex items-center gap-4 mb-12">
-                     <TrendingUp className="w-5 h-5 text-primary" />
-                     <h4 className="text-xs font-black text-white uppercase tracking-[0.3em]">Có thể bạn quan tâm (Phim nổi bật)</h4>
+                <div className="pt-24 md:pt-32 w-full max-w-6xl px-4">
+                  <div className="flex items-center gap-4 mb-8 md:mb-12">
+                     <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-primary" />
+                     <h4 className="text-[10px] md:text-xs font-black text-white uppercase tracking-[0.3em]">Phim nổi bật</h4>
                      <div className="h-px flex-grow bg-white/5"></div>
                   </div>
-                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-8 text-left">
+                  <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 md:gap-8 text-left">
                     {featuredMovies.map(movie => (
                       <Link key={movie.id} to={`/movie/${movie.id}`} className="group space-y-4">
                         <div className="aspect-[2/3] rounded-3xl overflow-hidden relative shadow-2xl border border-white/5">

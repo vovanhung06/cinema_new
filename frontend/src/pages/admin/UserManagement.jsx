@@ -57,7 +57,7 @@ export default function UserManagement() {
   ];
 
   return (
-    <section className="p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <section className="p-4 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
       <PageHeader
         title="DANH SÁCH THÀNH VIÊN"
         description="Quản lý và cấp quyền người dùng trong hệ thống Cinematic"
@@ -65,7 +65,7 @@ export default function UserManagement() {
       >
       </PageHeader>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map((stat, i) => (
           <div key={i} className="bg-surface-container-low p-6 rounded-xl border border-outline-variant/10">
             <div className="flex justify-between items-start mb-4">
@@ -80,12 +80,12 @@ export default function UserManagement() {
 
       {/* User Table */}
       <div className="bg-surface-container-low rounded-2xl overflow-hidden border border-outline-variant/10">
-        <div className="p-6 border-b border-surface-container-high flex items-center justify-between">
-          <div className="flex gap-4">
+        <div className="p-4 md:p-6 border-b border-surface-container-high flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex gap-4 overflow-x-auto w-full sm:w-auto no-scrollbar">
             <button 
               onClick={() => setFilter('all')}
               className={cn(
-                "text-sm font-bold transition-all pb-1 border-b-2",
+                "text-sm font-bold transition-all pb-1 border-b-2 whitespace-nowrap",
                 filter === 'all' ? "text-primary-container border-primary-container" : "text-on-surface-variant hover:text-on-surface border-transparent"
               )}
             >
@@ -94,7 +94,7 @@ export default function UserManagement() {
             <button 
               onClick={() => setFilter('admin')}
               className={cn(
-                "text-sm font-bold transition-all pb-1 border-b-2",
+                "text-sm font-bold transition-all pb-1 border-b-2 whitespace-nowrap",
                 filter === 'admin' ? "text-primary-container border-primary-container" : "text-on-surface-variant hover:text-on-surface border-transparent"
               )}
             >
@@ -103,7 +103,7 @@ export default function UserManagement() {
             <button 
               onClick={() => setFilter('vip')}
               className={cn(
-                "text-sm font-bold transition-all pb-1 border-b-2",
+                "text-sm font-bold transition-all pb-1 border-b-2 whitespace-nowrap",
                 filter === 'vip' ? "text-primary-container border-primary-container" : "text-on-surface-variant hover:text-on-surface border-transparent"
               )}
             >
@@ -111,11 +111,11 @@ export default function UserManagement() {
             </button>
           </div>
 
-          <div className="flex items-center gap-2 bg-surface-container px-3 py-1.5 rounded-lg border border-outline-variant/10">
+          <div className="flex items-center gap-2 bg-surface-container px-3 py-1.5 rounded-lg border border-outline-variant/10 w-full sm:w-auto">
             <Search className="w-4 h-4 text-on-surface-variant" />
             <input
-              className="bg-transparent border-none text-xs focus:ring-0 outline-none w-48"
-              placeholder="Tìm kiếm người dùng..."
+              className="bg-transparent border-none text-xs focus:ring-0 outline-none w-full sm:w-48 appearance-none"
+              placeholder="Tìm kiếm..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -127,10 +127,10 @@ export default function UserManagement() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-surface-container-high/50">
-                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Người dùng</th>
-                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Vai trò</th>
-                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Gói thành viên</th>
-                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant">Thao tác</th>
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant whitespace-nowrap">Người dùng</th>
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant whitespace-nowrap">Vai trò</th>
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant whitespace-nowrap">Gói thành viên</th>
+                <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-on-surface-variant whitespace-nowrap text-right">Thao tác</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-outline-variant/5">
@@ -159,8 +159,8 @@ export default function UserManagement() {
                     </select>
                   </td>
                   <td className="px-6 py-4 text-sm font-bold text-primary-container">{user.tier}</td>
-                  <td className="px-6 py-4">
-                    <div className="flex gap-2">
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex justify-end gap-2">
                       <button
                         onClick={() => handleDeleteClick(user)}
                         className="p-2 rounded-lg bg-surface-container-highest text-on-surface-variant hover:text-primary-container transition-all"

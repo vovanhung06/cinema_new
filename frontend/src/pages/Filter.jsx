@@ -56,19 +56,19 @@ const Filter = () => {
   }, [page, activeFilters]);
 
   return (
-    <div className="min-h-screen bg-surface pt-32 pb-40 px-6 lg:px-12 max-w-[1920px] mx-auto">
-      <div className="flex flex-col lg:flex-row gap-16">
+    <div className="min-h-screen bg-surface pt-24 md:pt-32 pb-40 px-4 md:px-8 lg:px-12 max-w-[1920px] mx-auto">
+      <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
         {/* Sidebar Filters - Glass Design */}
         <aside className="w-full lg:w-80 shrink-0">
-          <div className="sticky top-32 space-y-10">
+          <div className="lg:sticky lg:top-32 space-y-8 lg:space-y-10">
             <div className="space-y-4">
               <div className="flex justify-between items-center">
-                <h1 className="text-4xl font-black text-white uppercase tracking-tighter text-glow">Khám phá</h1>
+                <h1 className="text-3xl md:text-4xl font-black text-white uppercase tracking-tighter text-glow">Khám phá</h1>
               </div>
               <p className="text-on-surface-variant/60 text-xs font-black uppercase tracking-[0.2em]">Lọc theo sở thích của bạn</p>
             </div>
 
-            <div className="glass-dark p-8 rounded-[2.5rem] border border-white/5 space-y-10 shadow-2xl relative overflow-hidden group">
+            <div className="glass-dark p-6 md:p-8 rounded-[2rem] md:rounded-[2.5rem] border border-white/5 space-y-8 lg:space-y-10 shadow-2xl relative overflow-hidden group">
               <div className="absolute top-0 right-0 w-32 h-32 bg-primary/10 blur-[60px] -z-10 group-hover:bg-primary/20 transition-colors"></div>
 
               {/* Sắp xếp */}
@@ -171,15 +171,15 @@ const Filter = () => {
 
         {/* Movie Grid */}
         <div className="flex-1 space-y-12">
-          <div className="flex items-center justify-between pb-8 border-b border-white/5 overflow-x-auto gap-12">
-            <div className="flex items-center gap-6 shrink-0">
+          <div className="flex flex-col md:flex-row md:items-center justify-between pb-8 border-b border-white/5 gap-6">
+            <div className="flex flex-col gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-1 h-4 bg-primary rounded-full"></div>
                 <span className="text-xs font-black uppercase tracking-[0.2em] text-on-surface-variant">
                   Tìm thấy <span className="text-white">{filteredMovies.length}</span> kết quả
                 </span>
               </div>
-              <div className="flex flex-wrap items-center gap-3 mt-3">
+              <div className="flex flex-wrap items-center gap-2">
 
                 {activeFilters.genre !== 'Tất cả' && (
                   <div className="px-4 py-2 bg-primary/10 text-primary rounded-xl text-[10px] font-black uppercase tracking-widest flex items-center gap-2">
@@ -239,7 +239,7 @@ const Filter = () => {
 
           <motion.div
             layout
-            className={`grid gap-x-8 gap-y-16 ${viewMode === 'grid' ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}
+            className={`grid gap-x-4 md:gap-x-8 gap-y-10 md:gap-y-16 ${viewMode === 'grid' ? 'grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1'}`}
           >
             <AnimatePresence mode="popLayout">
               {filteredMovies.map((movie, index) => (
@@ -259,22 +259,22 @@ const Filter = () => {
 
           {/* Pagination - Premium Design */}
           {pagination && pagination.totalPages > 1 && (
-            <nav className="pt-24 flex justify-center items-center gap-4">
+            <nav className="pt-16 md:pt-24 flex justify-center items-center gap-2 md:gap-4 overflow-x-auto pb-4">
               <button 
                 onClick={() => setPage(page - 1)}
                 disabled={page <= 1}
-                className="w-14 h-14 flex items-center justify-center rounded-2xl glass hover:bg-white/10 text-white transition-all group border border-white/5 disabled:opacity-30 disabled:pointer-events-none active:scale-90"
+                className="w-10 h-10 md:w-14 md:h-14 shrink-0 flex items-center justify-center rounded-xl md:rounded-2xl glass hover:bg-white/10 text-white transition-all group border border-white/5 disabled:opacity-30 disabled:pointer-events-none active:scale-90"
               >
-                <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                <ChevronLeft className="w-4 h-4 md:w-5 md:h-5 group-hover:-translate-x-1 transition-transform" />
               </button>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 md:gap-3">
                 {Array.from({ length: Math.min(pagination.totalPages, 7) }, (_, i) => {
                   const p = i + 1;
                   return (
                     <button
                       key={p}
                       onClick={() => setPage(p)}
-                      className={`w-14 h-14 flex items-center justify-center rounded-2xl font-black text-xs transition-all border ${p === page ? 'bg-primary border-primary text-white shadow-xl shadow-primary/30 scale-110' : 'glass border-white/5 text-on-surface-variant hover:bg-white/10 hover:text-white'}`}
+                      className={`w-10 h-10 md:w-14 md:h-14 shrink-0 flex items-center justify-center rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs transition-all border ${p === page ? 'bg-primary border-primary text-white shadow-xl shadow-primary/30 scale-110' : 'glass border-white/5 text-on-surface-variant hover:bg-white/10 hover:text-white'}`}
                     >
                       {p}
                     </button>
@@ -284,9 +284,9 @@ const Filter = () => {
               <button 
                 onClick={() => setPage(page + 1)}
                 disabled={page >= pagination.totalPages}
-                className="w-14 h-14 flex items-center justify-center rounded-2xl glass hover:bg-white/10 text-white transition-all group border border-white/5 disabled:opacity-30 disabled:pointer-events-none active:scale-90"
+                className="w-10 h-10 md:w-14 md:h-14 shrink-0 flex items-center justify-center rounded-xl md:rounded-2xl glass hover:bg-white/10 text-white transition-all group border border-white/5 disabled:opacity-30 disabled:pointer-events-none active:scale-90"
               >
-                <ChevronRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <ChevronRight className="w-4 h-4 md:w-5 md:h-5 group-hover:translate-x-1 transition-transform" />
               </button>
             </nav>
           )}

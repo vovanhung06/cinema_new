@@ -76,7 +76,7 @@ const Billing = () => {
            animate={{ opacity: 1, y: 0 }}
         >
           <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Subscription & Billing</p>
-          <h2 className="text-5xl font-black text-on-surface italic tracking-tighter uppercase">Thanh toán & <span className="text-glow text-primary">Dịch vụ.</span></h2>
+          <h2 className="text-3xl md:text-5xl font-black text-on-surface italic tracking-tighter uppercase">Thanh toán & <span className="text-glow text-primary">Dịch vụ.</span></h2>
         </motion.div>
         
         <div className="flex items-center gap-4">
@@ -91,7 +91,7 @@ const Billing = () => {
         <div className="xl:col-span-12">
           <motion.div 
             whileHover={{ scale: 1.01 }}
-            className="relative rounded-[3.5rem] p-12 text-on-surface overflow-hidden shadow-2xl min-h-[350px] flex flex-col md:flex-row justify-between items-center group shadow-primary/20"
+            className="relative rounded-[2.5rem] md:rounded-[3.5rem] p-6 md:p-12 text-on-surface overflow-hidden shadow-2xl min-h-[300px] md:min-h-[350px] flex flex-col xl:flex-row justify-between items-center group shadow-primary/20"
           >
             {/* Background Layer with Premium Gradient */}
             <div className={`absolute inset-0 bg-gradient-to-br ${isVipActive(user) ? 'from-purple-900 via-indigo-950 to-black' : 'from-primary via-primary-container to-black'} -z-10 transition-transform duration-700 group-hover:scale-110`}></div>
@@ -108,7 +108,7 @@ const Billing = () => {
                   {isVipActive(user) ? '⭐ Current Premium VIP' : 'Recommended Premium Plan'}
 
                 </motion.div>
-                <h3 className={`text-6xl md:text-7xl font-black italic truncate uppercase tracking-tighter leading-none ${isVipActive(user) ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 animate-pulse-slow' : 'text-on-surface'}`}>
+                <h3 className={`text-4xl md:text-6xl lg:text-7xl font-black italic truncate uppercase tracking-tighter leading-none ${isVipActive(user) ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 animate-pulse-slow' : 'text-on-surface'}`}>
 
                   {vipPlan ? vipPlan.title : 'Loading...'}
                 </h3>
@@ -216,29 +216,27 @@ const Billing = () => {
                </button>
              </div>
            </div>
-         )} */}
-
          {/* Billing History Section */}
          <div className={user?.is_vip ? "xl:col-span-12 space-y-8" : "xl:col-span-7 space-y-8"}>
            <div className="glass-dark rounded-[3rem] border border-outline-variant/20 shadow-2xl relative overflow-hidden group">
-             <div className="p-10 pb-4 flex items-center justify-between">
-                <h3 className="text-xs font-black text-on-surface uppercase tracking-[0.3em] flex items-center gap-3">
-                  <History className="w-4 h-4 text-primary" /> Lịch sử giao dịch
-                </h3>
-                <button className="w-10 h-10 bg-outline-variant/10 rounded-2xl flex items-center justify-center hover:bg-white hover:text-black transition-all">
-                   <Download className="w-4 h-4" />
-                </button>
-             </div>
+              <div className="p-6 md:p-10 pb-4 flex items-center justify-between">
+                 <h3 className="text-[10px] md:text-xs font-black text-on-surface uppercase tracking-[0.3em] flex items-center gap-2 md:gap-3">
+                   <History className="w-4 h-4 text-primary" /> Lịch sử giao dịch
+                 </h3>
+                 <button className="w-8 h-8 md:w-10 md:h-10 bg-outline-variant/10 rounded-xl md:rounded-2xl flex items-center justify-center hover:bg-white hover:text-black transition-all">
+                    <Download className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                 </button>
+              </div>
              
              <div className="overflow-x-auto">
                <table className="w-full text-left border-collapse">
                  <thead>
-                   <tr className="border-b border-outline-variant/20">
-                     <th className="px-10 py-6 text-[9px] font-black text-on-surface-variant/30 uppercase tracking-[0.3em]">Hóa đơn</th>
-                     <th className="px-6 py-6 text-[9px] font-black text-on-surface-variant/30 uppercase tracking-[0.3em]">Ngày thực hiện</th>
-                     <th className="px-6 py-6 text-[9px] font-black text-on-surface-variant/30 uppercase tracking-[0.3em]">Số tiền</th>
-                     <th className="px-10 py-6 text-[9px] font-black text-on-surface-variant/30 uppercase tracking-[0.3em] text-right">Trạng thái</th>
-                   </tr>
+                    <tr className="border-b border-outline-variant/20">
+                      <th className="px-6 md:px-10 py-6 text-[9px] font-black text-on-surface-variant/30 uppercase tracking-[0.3em] whitespace-nowrap">Hóa đơn</th>
+                      <th className="px-4 md:px-6 py-6 text-[9px] font-black text-on-surface-variant/30 uppercase tracking-[0.3em] whitespace-nowrap">Ngày thực hiện</th>
+                      <th className="px-4 md:px-6 py-6 text-[9px] font-black text-on-surface-variant/30 uppercase tracking-[0.3em] whitespace-nowrap">Số tiền</th>
+                      <th className="px-6 md:px-10 py-6 text-[9px] font-black text-on-surface-variant/30 uppercase tracking-[0.3em] text-right whitespace-nowrap">Trạng thái</th>
+                    </tr>
                  </thead>
                  <tbody className="divide-y divide-white/5">
                    {loadingHistory ? (
@@ -311,7 +309,7 @@ const Billing = () => {
                    <AlertTriangle className="w-10 h-10 text-red-500" />
                  </div>
                  
-                 <h3 className="text-4xl font-black text-on-surface italic uppercase tracking-tighter mb-6">Xác nhận hủy <span className="text-red-500">gói VIP?</span></h3>
+                 <h3 className="text-3xl md:text-4xl font-black text-on-surface italic uppercase tracking-tighter mb-6">Xác nhận hủy <span className="text-red-500">gói VIP?</span></h3>
                  
                  <p className="text-sm font-bold text-on-surface-variant/70 leading-relaxed uppercase tracking-widest mb-12">
                    Bạn sẽ mất toàn bộ quyền truy cập vào các bộ phim độc quyền, chất lượng <span className="text-on-surface">4K Ultra HD</span>, âm thanh <span className="text-on-surface">Atmos</span> và không còn được xem phim không quảng cáo ngay lập tức.
@@ -365,7 +363,7 @@ const Billing = () => {
                    <CheckCircle2 className="w-10 h-10 text-emerald-500" />
                  </div>
                  
-                 <h3 className="text-4xl font-black text-on-surface italic uppercase tracking-tighter mb-6">Hủy VIP <span className="text-emerald-500">Thành công!</span></h3>
+                 <h3 className="text-3xl md:text-4xl font-black text-on-surface italic uppercase tracking-tighter mb-6">Hủy VIP <span className="text-emerald-500">Thành công!</span></h3>
                  
                  <p className="text-sm font-bold text-on-surface-variant/70 leading-relaxed uppercase tracking-widest mb-12">
                    Chúng tôi rất tiếc khi bạn dừng trải nghiệm VIP. Gói dịch vụ của bạn đã được chuyển về mức <span className="text-on-surface">TIÊU CHUẨN</span>. Bạn luôn có thể nâng cấp lại bất cứ lúc nào!

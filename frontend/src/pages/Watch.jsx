@@ -107,7 +107,7 @@ const Watch = () => {
 
             {/* Premium Video Player Container */}
             <section
-              className="relative z-40 aspect-video rounded-[3rem] overflow-hidden bg-black shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/5 group"
+              className="relative z-40 aspect-video rounded-2xl md:rounded-[3rem] overflow-hidden bg-black shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/5 group"
               onMouseMove={canWatch ? handleMouseMove : undefined}
               onMouseLeave={() => canWatch && isPlaying && setShowControls(false)}
             >
@@ -130,7 +130,7 @@ const Watch = () => {
                       <Star className="w-12 h-12 text-black fill-black" />
                     </motion.div>
                     <div className="space-y-4">
-                      <h2 className="text-4xl lg:text-5xl font-black uppercase tracking-[0.1em] text-white leading-tight">
+                      <h2 className="text-2xl md:text-4xl lg:text-5xl font-black uppercase tracking-[0.1em] text-white leading-tight">
                         Trải nghiệm <span className="text-yellow-500">Đẳng Cấp VIP</span>
                       </h2>
                       <p className="text-sm lg:text-base font-medium text-white/60 leading-relaxed">
@@ -170,7 +170,7 @@ const Watch = () => {
                   <PlyrPlayer
                     url={obfuscate(
                       sourceType === 'db' ? movie.movie_url :
-                        'https://cinema.io.vn/mp4/video1.mp4'
+                        'https://cinema.io.vn/mp4/video2.mp4'
                     )}
                     poster={movie.image}
                     title={movie.title}
@@ -203,7 +203,7 @@ const Watch = () => {
             {/* Content Info & Actions */}
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 px-4">
               <div className="space-y-4">
-                <h1 className="text-5xl lg:text-7xl font-black uppercase tracking-tighter text-glow italic leading-none">{movie.title}</h1>
+                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black uppercase tracking-tighter text-glow italic leading-none">{movie.title}</h1>
                 <p className="text-white/60 font-medium max-w-3xl leading-relaxed italic border-l-2 border-primary/30 pl-6">
                   {movie.description || "Trải nghiệm hành trình điện ảnh đỉnh cao với chất lượng hình ảnh và âm thanh sống động chưa từng có. Một siêu phẩm không thể bỏ lỡ trong mùa hè này."}
                 </p>
@@ -218,10 +218,10 @@ const Watch = () => {
                 <div className="flex items-center gap-4">
                   <div className="w-1 h-10 bg-primary rounded-full"></div>
                   <div>
-                    <h3 className="text-3xl font-black uppercase tracking-tight text-white flex items-center gap-4">
-                      <MessageSquare className="w-7 h-7 text-primary" />
-                      Bình luận & Đánh giá
-                      <span className="text-primary font-manrope text-2xl">{pagination?.total || 0}</span>
+                    <h3 className="text-2xl md:text-3xl font-black uppercase tracking-tight text-white flex items-center gap-4">
+                      <MessageSquare className="w-6 h-6 md:w-7 md:h-7 text-primary" />
+                      Bình luận
+                      <span className="text-primary font-manrope text-xl md:text-2xl">{pagination?.total || 0}</span>
                     </h3>
                   </div>
                 </div>
@@ -307,9 +307,9 @@ const Watch = () => {
                 <Link
                   key={rec.id}
                   to={`/watch/${rec.id}`}
-                  className={`group flex gap-4 p-3 rounded-[1.75rem] border border-transparent transition-all duration-500 relative overflow-hidden hover:bg-white/5 hover:border-white/5 ${String(rec.id) === id ? 'bg-white/10 border-white/10 ring-1 ring-primary/30' : ''}`}
+                  className={`group flex gap-4 p-2 md:p-3 rounded-2xl md:rounded-[1.75rem] border border-transparent transition-all duration-500 relative overflow-hidden hover:bg-white/5 hover:border-white/5 ${String(rec.id) === id ? 'bg-white/10 border-white/10 ring-1 ring-primary/30' : ''}`}
                 >
-                  <div className="w-32 aspect-[3/4] sm:aspect-video xl:aspect-square shrink-0 rounded-2xl overflow-hidden relative border border-white/5 shadow-xl group-hover:shadow-primary/20">
+                  <div className="w-24 md:w-32 aspect-video xl:aspect-square shrink-0 rounded-xl md:rounded-2xl overflow-hidden relative border border-white/5 shadow-xl group-hover:shadow-primary/20">
                     <img src={rec.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={rec.title} />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
                     <div className="absolute bottom-2 right-2 px-1.5 py-0.5 bg-black/60 backdrop-blur-md rounded-md border border-white/10 text-[8px] font-black text-white uppercase">{rec.tag || 'HD'}</div>

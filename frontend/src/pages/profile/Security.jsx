@@ -66,7 +66,7 @@ const Security = ({ showPassword, setShowPassword }) => {
           animate={{ opacity: 1, y: 0 }}
         >
           <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Privacy & Protection</p>
-          <h2 className="text-5xl font-black text-on-surface italic tracking-tighter uppercase">
+          <h2 className="text-3xl md:text-5xl font-black text-on-surface italic tracking-tighter uppercase">
             Bảo mật <span className="text-glow text-primary">Tài khoản.</span>
           </h2>
           <div className="absolute -bottom-4 left-0 w-20 h-1 bg-primary rounded-full"></div>
@@ -87,7 +87,7 @@ const Security = ({ showPassword, setShowPassword }) => {
           </h3>
         </div>
 
-        <div className="glass-dark rounded-[3.5rem] p-10 border border-outline-variant/20 shadow-2xl space-y-8">
+        <div className="glass-dark rounded-[2.5rem] md:rounded-[3.5rem] p-6 md:p-10 border border-outline-variant/20 shadow-2xl space-y-8">
 
           {/* OLD PASSWORD */}
           <div className="space-y-4">
@@ -171,7 +171,7 @@ const Security = ({ showPassword, setShowPassword }) => {
           <button
             onClick={handleChangePassword}
             disabled={loading}
-            className="w-full py-5 bg-white text-black rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] hover:bg-primary hover:text-on-surface transition-all shadow-xl flex items-center justify-center gap-3 group"
+            className="w-full py-5 bg-white text-black rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] hover:bg-primary hover:text-on-surface transition-all shadow-[0_15px_30px_rgba(255,255,255,0.05)] md:shadow-xl flex items-center justify-center gap-3 group"
           >
             {loading ? "Đang xử lý..." : "Cập nhật mật khẩu "}
             <Check className="w-4 h-4 group-hover:scale-110 transition-transform" />
@@ -183,14 +183,14 @@ const Security = ({ showPassword, setShowPassword }) => {
       <motion.div
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
-        className="p-8 bg-red-500/10 border border-red-500/20 rounded-[2.5rem] flex items-start gap-6"
+        className="p-6 md:p-8 bg-red-500/10 border border-red-500/20 rounded-[2rem] md:rounded-[2.5rem] flex flex-col sm:flex-row items-start gap-4 md:gap-6"
       >
         <ShieldAlert className="w-8 h-8 text-red-500 shrink-0" />
         <div className="space-y-2">
-          <h4 className="text-lg font-black text-on-surface italic uppercase tracking-tight">
+          <h4 className="text-base md:text-lg font-black text-on-surface italic uppercase tracking-tight">
             Vùng riêng tư quan trọng
           </h4>
-          <p className="text-on-surface-variant/60 text-sm font-medium leading-relaxed">
+          <p className="text-on-surface-variant/60 text-xs md:text-sm font-medium leading-relaxed">
             Nếu bạn nhận thấy bất kỳ hoạt động đáng ngờ nào, hãy lập tức thay đổi mật khẩu và đăng xuất khỏi mọi thiết bị.
           </p>
         </div>

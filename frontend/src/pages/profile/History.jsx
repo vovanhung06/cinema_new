@@ -69,7 +69,7 @@ const History = () => {
            animate={{ opacity: 1, y: 0 }}
         >
           <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Viewing Activity</p>
-          <h2 className="text-5xl font-black text-on-surface italic tracking-tighter uppercase">Lịch sử <span className="text-glow text-primary">Theo dõi.</span></h2>
+          <h2 className="text-3xl md:text-5xl font-black text-on-surface italic tracking-tighter uppercase">Lịch sử <span className="text-glow text-primary">Theo dõi.</span></h2>
         </motion.div>
         
         <div className="flex items-center gap-4">
@@ -106,12 +106,12 @@ const History = () => {
                 animate={{ opacity: 1, x: 0 }}
                 exit={{ opacity: 0, x: 20, scale: 0.95 }}
                 transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="glass-dark p-6 rounded-[2.5rem] border border-outline-variant/20 flex flex-col md:flex-row gap-8 group hover:bg-outline-variant/10 transition-all relative overflow-hidden"
+                className="glass-dark p-4 md:p-6 rounded-3xl md:rounded-[2.5rem] border border-outline-variant/20 flex flex-col md:flex-row gap-4 md:gap-8 group hover:bg-outline-variant/10 transition-all relative overflow-hidden"
               >
                 {/* Background decorative glow */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[50px] -z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 
-                <div className="w-full md:w-80 h-48 rounded-[1.5rem] overflow-hidden shrink-0 relative shadow-2xl border border-outline-variant/20 bg-surface-container">
+                <div className="w-full md:w-80 h-48 md:h-52 rounded-2xl md:rounded-[1.5rem] overflow-hidden shrink-0 relative shadow-2xl border border-outline-variant/20 bg-surface-container">
                   {item.required_vip_level > 0 && (
                      <div className="absolute top-3 left-3 z-10 bg-primary text-on-surface text-[9px] font-black px-3 py-1.5 rounded-full shadow-lg shadow-primary/30 uppercase tracking-widest backdrop-blur-sm">
                         VIP
@@ -127,12 +127,12 @@ const History = () => {
 
                 <div className="flex flex-col justify-between flex-1 py-1">
                   <div className="space-y-4">
-                    <div className="flex justify-between items-start">
+                    <div className="flex flex-col sm:flex-row justify-between items-start gap-4">
                       <div className="space-y-2">
-                        <h4 className="text-2xl font-black text-on-surface italic group-hover:text-primary transition-colors uppercase tracking-tighter">{item.title}</h4>
+                        <h4 className="text-xl md:text-2xl font-black text-on-surface italic group-hover:text-primary transition-colors uppercase tracking-tighter">{item.title}</h4>
                         <p className="text-on-surface-variant/60 text-[10px] font-black uppercase tracking-[0.2em]">{item.genres || item.country || 'Chưa phân loại'}</p>
                       </div>
-                      <div className="flex items-center gap-2 text-[9px] font-black text-on-surface/50 uppercase tracking-[0.2em] bg-outline-variant/10 px-4 py-2 rounded-full border border-outline-variant/20 shadow-inner">
+                      <div className="flex items-center gap-2 text-[9px] font-black text-on-surface/50 uppercase tracking-[0.2em] bg-outline-variant/10 px-4 py-2 rounded-full border border-outline-variant/20 shadow-inner shrink-0">
                          <Clock className="w-3 h-3 text-primary" /> {formatRelativeTime(item.watched_at)}
                       </div>
                     </div>

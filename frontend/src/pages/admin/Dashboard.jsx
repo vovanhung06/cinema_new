@@ -56,7 +56,7 @@ export default function Dashboard() {
   const trendingMovies = movies.slice(0, 2);
 
   return (
-    <div className="p-8 space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <div className="p-4 md:p-8 space-y-8 md:space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
       <PageHeader 
         title="Tổng quan hệ thống" 
         description="Chào mừng trở lại, Admin. Đây là những gì đang diễn ra hôm nay."
@@ -94,7 +94,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-12 gap-8">
         <div className="col-span-12 lg:col-span-8 space-y-8">
-          <div className="bg-surface-container-low rounded-[2rem] p-8 border border-outline-variant/10 shadow-2xl relative overflow-hidden">
+          <div className="bg-surface-container-low rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 border border-outline-variant/10 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 right-0 p-8 opacity-10">
               <Activity className="w-32 h-32 text-primary-container" />
             </div>

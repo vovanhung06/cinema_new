@@ -74,11 +74,11 @@ const Profile = () => {
     <div className="bg-surface min-h-screen flex">
       <ProfileSidebar onEditProfile={() => setIsEditing(true)} />
       
-      <main className="lg:ml-80 flex-1 relative min-h-screen">
+      <main className="lg:ml-80 flex-1 relative min-h-screen pt-16 lg:pt-0">
         {/* Background Decorative Blur */}
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-primary/5 blur-[120px] -z-10"></div>
         
-        <div className="max-w-6xl mx-auto px-10 pt-32 pb-32">
+        <div className="max-w-6xl mx-auto px-6 md:px-10 pt-28 md:pt-32 pb-32">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeSection + (activeSection === 'profile' ? `-${isEditing}` : '')}

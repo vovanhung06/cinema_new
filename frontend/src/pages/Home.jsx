@@ -138,7 +138,7 @@ const Home = () => {
           </motion.div>
         </AnimatePresence>
 
-        <div className="relative z-10 px-8 md:px-20 max-w-[1920px] mx-auto w-full pt-20">
+        <div className="relative z-10 px-6 md:px-20 max-w-[1920px] mx-auto w-full pt-12 md:pt-20">
           <div className="max-w-4xl space-y-8">
             
             <motion.div
@@ -165,7 +165,7 @@ const Home = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-7xl md:text-9xl font-black font-manrope tracking-tighter leading-[0.85] text-white uppercase text-glow"
+              className="text-4xl sm:text-6xl md:text-8xl lg:text-9xl font-black font-manrope tracking-tighter leading-[0.85] text-white uppercase text-glow"
             >
               {backgroundMovie.title}
             </motion.h1>
@@ -238,8 +238,8 @@ const Home = () => {
                 { title: "Phim Nổi Bật", data: featuredMovies, variant: "default" },
                 { title: "Mới Cập Nhật", data: newUpdates, variant: "horizontal" },
               ].map((section, idx) => (
-                <section key={idx} className="pl-8 md:pl-20">
-                  <div className="flex justify-between items-end mb-12 pr-8 md:pr-20">
+                <section key={idx} className="pl-6 md:pl-20">
+                  <div className="flex justify-between items-end mb-8 md:mb-12 pr-6 md:pr-20">
                     <div className="space-y-2">
                       <div className="flex items-center gap-3">
                         <div className="w-2 h-8 bg-primary rounded-full"></div>
@@ -265,8 +265,8 @@ const Home = () => {
               ))}
 
               {/* Genres Grid */}
-              <section className="px-8 md:px-20">
-                <div className="flex items-center gap-3 mb-12">
+              <section className="px-6 md:px-20">
+                <div className="flex items-center gap-3 mb-8 md:mb-12">
                   <div className="w-2 h-8 bg-primary rounded-full"></div>
                   <h2 className="text-3xl font-black text-on-surface uppercase tracking-tight">Khám Phá Thể Loại</h2>
                 </div>
@@ -278,8 +278,8 @@ const Home = () => {
               </section>
 
               {/* Top 10 Redesign */}
-              <section className="pl-8 md:pl-20">
-                <div className="flex items-center gap-5 mb-16">
+              <section className="pl-6 md:pl-20">
+                <div className="flex items-center gap-5 mb-8 md:mb-16">
                   <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
                     <Trophy className="w-6 h-6 text-primary" />
                   </div>
@@ -290,19 +290,19 @@ const Home = () => {
                     if (movie.isSkeleton) {
                       return (
                         <div key={`top-${index}`} className="shrink-0 flex items-end group cursor-pointer snap-start relative">
-                          <span className="text-[240px] font-black font-manrope leading-[0.7] text-transparent -mr-16 z-0 pointer-events-none italic opacity-30" style={{ WebkitTextStroke: '2px var(--color-outline-variant)' }}>
+                          <span className="text-[120px] md:text-[240px] font-black font-manrope leading-[0.7] text-transparent -mr-8 md:-mr-16 z-0 pointer-events-none italic opacity-30" style={{ WebkitTextStroke: '2px var(--color-outline-variant)' }}>
                             {index + 1}
                           </span>
-                          <div className="w-56 h-80 rounded-4xl bg-surface-container-high/50 animate-pulse relative z-10"></div>
+                          <div className="w-40 md:w-56 h-56 md:h-80 rounded-3xl md:rounded-4xl bg-surface-container-high/50 animate-pulse relative z-10"></div>
                         </div>
                       );
                     }
                     return (
                       <Link key={movie.id} to={`/movie/${movie.id}`} className="shrink-0 flex items-end group cursor-pointer snap-start relative">
-                        <span className="text-[240px] font-black font-manrope leading-[0.7] text-transparent -mr-16 z-0 transition-all duration-700 pointer-events-none italic opacity-30 group-hover:opacity-60" style={{ WebkitTextStroke: '2px var(--color-outline-variant)' }}>
+                        <span className="text-[120px] md:text-[240px] font-black font-manrope leading-[0.7] text-transparent -mr-8 md:-mr-16 z-0 transition-all duration-700 pointer-events-none italic opacity-30 group-hover:opacity-60" style={{ WebkitTextStroke: '2px var(--color-outline-variant)' }}>
                           {index + 1}
                         </span>
-                        <div className="w-56 h-80 rounded-4xl overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.6)] border border-white/5 relative z-10 group-hover:-translate-y-6 transition-all duration-700 ease-out group-hover:shadow-primary/20">
+                        <div className="w-40 md:w-56 h-56 md:h-80 rounded-3xl md:rounded-4xl overflow-hidden shadow-[0_32px_64px_rgba(0,0,0,0.6)] border border-white/5 relative z-10 group-hover:-translate-y-6 transition-all duration-700 ease-out group-hover:shadow-primary/20">
                           <img src={movie.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000" alt={movie.title} referrerPolicy="no-referrer" />
                           <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex flex-col justify-end p-6">
                             <div className="flex items-center gap-2 mb-2">
@@ -324,7 +324,7 @@ const Home = () => {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="px-8 md:px-20 space-y-12"
+              className="px-6 md:px-20 space-y-12"
             >
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/5 pb-12">
                 <div className="flex items-center gap-4">
@@ -341,7 +341,7 @@ const Home = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-12 gap-x-6 justify-items-center">
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-y-12 gap-x-4 md:gap-x-6 justify-items-center">
                 {movies.map(movie => (
                   <MovieCard key={movie.id} movie={movie} variant="compact" />
                 ))}
@@ -367,7 +367,7 @@ const Home = () => {
         <section className="px-8 md:px-20 pb-20">
           <motion.div
             whileHover={{ y: -10 }}
-            className="w-full relative h-[500px] rounded-[4rem] overflow-hidden group cursor-pointer"
+            className="w-full relative h-[300px] md:h-[500px] rounded-3xl md:rounded-[4rem] overflow-hidden group cursor-pointer"
           >
             <img
               src="https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2000"
@@ -379,7 +379,7 @@ const Home = () => {
               <div className="px-5 py-2 glass-dark border border-primary/30 rounded-2xl">
                 <span className="text-primary font-black uppercase tracking-[0.4em] text-xs">Phân hạng đặc quyền</span>
               </div>
-              <h2 className="text-6xl md:text-8xl font-black text-white uppercase tracking-tighter leading-none italic">
+              <h2 className="text-4xl md:text-8xl font-black text-white uppercase tracking-tighter leading-none italic">
                 Nâng cấp <br /> <span className="text-glow text-primary">Gói VIP</span>
               </h2>
               <p className="text-xl text-white/60 font-medium max-w-xl">

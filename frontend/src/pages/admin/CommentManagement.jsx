@@ -46,7 +46,7 @@ export default function CommentManagement() {
   ];
 
   return (
-    <div className="p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+    <div className="p-4 md:p-8 space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-1000">
       <PageHeader
         title="Quản Lý Bình Luận"
         description="Theo dõi và kiểm duyệt các phản hồi từ cộng đồng người xem phim."
@@ -60,14 +60,14 @@ export default function CommentManagement() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="bg-surface-container-low p-6 rounded-3xl border border-outline-variant/10 hover:border-primary-container/30 transition-all group relative overflow-hidden"
+            className="bg-surface-container-low p-5 md:p-6 rounded-3xl border border-outline-variant/10 hover:border-primary-container/30 transition-all group relative overflow-hidden"
           >
              <div className="absolute -right-4 -bottom-4 opacity-[0.03] group-hover:opacity-[0.08] transition-opacity">
-              <stat.icon className="w-24 h-24" />
+              <stat.icon className="w-20 md:w-24 h-20 md:h-24" />
             </div>
             <p className="text-[10px] font-black text-on-surface-variant uppercase tracking-[0.2em] mb-1">{stat.label}</p>
-            <h3 className="text-4xl font-black text-on-surface font-headline italic tracking-tight">{stat.value}</h3>
-            <p className={cn("text-xs mt-2 font-bold uppercase tracking-widest", stat.color)}>{stat.sub}</p>
+            <h3 className="text-2xl md:text-4xl font-black text-on-surface font-headline italic tracking-tight">{stat.value}</h3>
+            <p className={cn("text-[10px] md:text-xs mt-2 font-bold uppercase tracking-widest", stat.color)}>{stat.sub}</p>
           </motion.div>
         ))}
       </div>
@@ -100,18 +100,18 @@ export default function CommentManagement() {
             <motion.div 
               layout
               key={comment.id} 
-              className="p-8 hover:bg-surface-container-high/20 transition-all group border-l-4 border-l-transparent hover:border-l-primary-container"
+              className="p-4 md:p-8 hover:bg-surface-container-high/20 transition-all group border-l-4 border-l-transparent hover:border-l-primary-container"
             >
               <div className="flex gap-6">
                 <div className="relative shrink-0">
                   <img 
                     alt={comment.user} 
-                    className="w-14 h-14 rounded-2xl border-2 border-outline-variant/10 group-hover:border-primary-container/50 transition-colors object-cover" 
+                    className="w-12 h-12 md:w-14 md:h-14 rounded-2xl border-2 border-outline-variant/10 group-hover:border-primary-container/50 transition-colors object-cover" 
                     src={comment.avatar} 
                     referrerPolicy="no-referrer" 
                   />
-                  <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-surface-container rounded-full flex items-center justify-center border border-outline-variant/10">
-                    <CheckCircle2 className="w-3 h-3 text-green-400" />
+                  <div className="absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 bg-surface-container rounded-full flex items-center justify-center border border-outline-variant/10">
+                    <CheckCircle2 className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-400" />
                   </div>
                 </div>
                 
@@ -136,10 +136,10 @@ export default function CommentManagement() {
                     <div className="flex gap-2">
                        <button
                         onClick={() => handleDeleteClick(comment)}
-                        className="p-3 rounded-xl bg-surface-container-highest text-primary-container hover:bg-primary-container hover:text-white transition-all shadow-lg active:scale-95"
+                        className="p-2 md:p-3 rounded-xl bg-surface-container-highest text-primary-container hover:bg-primary-container hover:text-white transition-all shadow-lg active:scale-95"
                         title="Xóa bình luận"
                       >
-                        <Trash2 className="w-5 h-5" />
+                        <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
                       </button>
                     </div>
                   </div>

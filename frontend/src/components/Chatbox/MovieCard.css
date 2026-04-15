@@ -1,9 +1,9 @@
 /* Movie Card trong Chat */
 .movie-cards-container {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 16px;
-    margin: 16px 0;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 12px;
+    margin: 12px 0;
 }
 
 .movie-card-chat {
@@ -124,14 +124,20 @@
 @media (max-width: 600px) {
     .movie-cards-container {
         grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
+        gap: 10px;
+    }
+
+    .movie-card-info {
+        padding: 10px;
+        gap: 6px;
     }
 
     .movie-card-title {
         font-size: 13px;
+        -webkit-line-clamp: 1;
     }
 
     .movie-card-meta {
-        font-size: 11px;
+        font-size: 10px;
     }
 }

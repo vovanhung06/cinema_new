@@ -3,17 +3,17 @@ import { ToggleLeft, ToggleRight, ChevronRight, Monitor, PlayCircle, Mail, Langu
 import { motion } from 'motion/react';
 
 const Settings = () => {
-//   const [settings, setSettings] = React.useState({
-//     autoplay: true,
-//     emailNotif: false,
-//     quality: '1080p (Full HD)',
-//     language: 'Tiếng Việt',
-//     dataServer: 'Singapore',
-//   });
+  const [settings, setSettings] = React.useState({
+    autoplay: true,
+    emailNotif: false,
+    quality: '1080p (Full HD)',
+    language: 'Tiếng Việt',
+    dataServer: 'Singapore',
+  });
 
-//   const toggleSetting = (key) => {
-//     setSettings(prev => ({ ...prev, [key]: !prev[key] }));
-//   };
+  const toggleSetting = (key) => {
+    setSettings(prev => ({ ...prev, [key]: !prev[key] }));
+  };
 
   return (
     <div className="space-y-16 max-w-5xl mx-auto pb-32">
@@ -23,7 +23,7 @@ const Settings = () => {
            animate={{ opacity: 1, y: 0 }}
         >
           <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">System Preferences</p>
-          <h2 className="text-5xl font-black text-on-surface italic tracking-tighter uppercase">Cấu hình <span className="text-glow text-primary">Hệ thống.</span></h2>
+          <h2 className="text-3xl md:text-5xl font-black text-on-surface italic tracking-tighter uppercase">Cấu hình <span className="text-glow text-primary">Hệ thống.</span></h2>
           <div className="absolute -bottom-4 left-0 w-20 h-1 bg-primary rounded-full"></div>
         </motion.div>
       </header>
@@ -101,8 +101,8 @@ const Settings = () => {
               { label: 'Server Truyền tải', value: settings.dataServer, icon: <Shield className="w-4 h-4" />, desc: 'Vị trí máy chủ dữ liệu hiện tại' },
             ].map((item, i) => (
               <div key={i} className="glass-dark p-6 rounded-[2rem] border border-outline-variant/20 flex items-center justify-between group hover:bg-outline-variant/10 transition-all cursor-pointer">
-                <div className="flex items-center gap-6">
-                  <div className="w-12 h-12 bg-outline-variant/10 rounded-2xl flex items-center justify-center text-on-surface/20 group-hover:text-primary transition-colors">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 md:gap-6">
+                  <div className="w-12 h-12 bg-outline-variant/10 rounded-2xl flex items-center justify-center text-on-surface/20 group-hover:text-primary transition-colors shrink-0">
                     {item.icon}
                   </div>
                   <div>
@@ -120,11 +120,11 @@ const Settings = () => {
         </motion.section>
       </div>
 
-      <div className="pt-12 flex flex-col md:flex-row justify-end gap-6">
-        <button className="px-12 py-5 bg-outline-variant/10 border border-outline-variant/20 text-on-surface/40 hover:text-on-surface hover:bg-white/10 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] transition-all flex items-center justify-center gap-3">
+      <div className="pt-12 flex flex-col md:flex-row justify-end gap-4 md:gap-6">
+        <button className="w-full md:w-auto px-12 py-5 bg-outline-variant/10 border border-outline-variant/20 text-on-surface/40 hover:text-on-surface hover:bg-white/10 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] transition-all flex items-center justify-center gap-3">
           <RotateCcw className="w-4 h-4" /> Khôi phục mặc định
         </button>
-        <button className="btn-primary px-16 py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-3 shadow-[0_20px_40px_rgba(229,9,20,0.3)] hover:scale-105 active:scale-95 transition-all">
+        <button className="w-full md:w-auto btn-primary px-16 py-5 rounded-2xl font-black uppercase text-[10px] tracking-[0.3em] flex items-center justify-center gap-3 shadow-[0_20px_40px_rgba(229,9,20,0.3)] hover:scale-105 active:scale-95 transition-all">
           <Save className="w-4 h-4" /> Lưu cấu hình
         </button>
       </div>

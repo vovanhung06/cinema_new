@@ -15,7 +15,7 @@ export function PageHeader({ title, description, badge, children, className }) {
             {badge}
           </span>
         )}
-        <h2 className="text-4xl md:text-5xl font-black font-headline tracking-tighter text-on-surface uppercase italic">
+        <h2 className="text-2xl md:text-5xl font-black font-headline tracking-tighter text-on-surface uppercase italic">
           {title}
         </h2>
         {description && (

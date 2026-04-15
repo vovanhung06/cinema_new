@@ -39,11 +39,11 @@ const ProfileEdit = ({
       >
         <div className="relative">
           <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Account Settings</p>
-          <h2 className="text-5xl font-black text-on-surface italic tracking-tighter uppercase">Chỉnh sửa <span className="text-glow text-primary">Thông tin.</span></h2>
+          <h2 className="text-3xl md:text-5xl font-black text-on-surface italic tracking-tighter uppercase">Chỉnh sửa <span className="text-glow text-primary">Thông tin.</span></h2>
           <div className="absolute -bottom-4 left-0 w-20 h-1 bg-primary rounded-full"></div>
         </div>
 
-        <div className="glass-dark rounded-[3.5rem] p-10 md:p-14 border border-outline-variant/20 shadow-2xl relative overflow-hidden group">
+        <div className="glass-dark rounded-[2.5rem] md:rounded-[3.5rem] p-6 md:p-14 border border-outline-variant/20 shadow-2xl relative overflow-hidden group">
           <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[80px] -z-10 group-hover:bg-primary/10 transition-colors"></div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
@@ -138,18 +138,18 @@ const ProfileEdit = ({
               </AnimatePresence>
             </div>
 
-            <div className="md:col-span-2 pt-2 flex flex-col md:flex-row justify-end gap-6">
+            <div className="md:col-span-2 pt-2 flex flex-col md:flex-row justify-end gap-4 md:gap-6">
               <button
                 onClick={() => setIsEditing(false)}
                 disabled={loading}
-                className="px-12 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] text-on-surface/40 hover:text-on-surface hover:bg-outline-variant/10 transition-all disabled:opacity-50"
+                className="w-full md:w-auto px-12 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] text-on-surface/40 hover:text-on-surface hover:bg-outline-variant/10 transition-all disabled:opacity-50"
               >
                 Hủy bỏ thay đổi
               </button>
               <button
                 onClick={handleSave}
                 disabled={loading}
-                className="btn-primary px-14 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all hover:scale-[1.05] shadow-[0_20px_40px_rgba(229,9,20,0.3)] flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:scale-100 group"
+                className="w-full md:w-auto btn-primary px-14 py-5 rounded-2xl font-black text-[10px] uppercase tracking-[0.3em] transition-all hover:scale-[1.05] shadow-[0_20px_40px_rgba(229,9,20,0.3)] flex items-center justify-center gap-3 disabled:opacity-50 disabled:hover:scale-100 group"
               >
                 {loading ? "Đang lưu..." : "Lưu thông tin"} <Check className="w-4 h-4 group-disabled:hidden" />
               </button>

@@ -1,9 +1,16 @@
 .chatbox-container {
     position: fixed;
-    bottom: 20px;
-    right: 20px;
+    bottom: 24px;
+    right: 24px;
     z-index: 1000;
     font-family: 'Inter', sans-serif;
+}
+
+@media (max-width: 768px) {
+    .chatbox-container {
+        bottom: 24px;
+        right: 20px;
+    }
 }
 
 .chat-toggle-btn {
@@ -420,12 +427,70 @@
 }
 
 @media (max-width: 480px) {
+    .chatbox-container {
+        bottom: 0 !important;
+        right: 0 !important;
+    }
+
     .chat-window {
-        width: 100vw;
-        height: 100vh;
-        bottom: 0;
-        right: 0;
-        border-radius: 0;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: 100dvh !important;
+        z-index: 9999 !important;
+        border-radius: 0 !important;
+        border: none !important;
+        background: rgb(15, 15, 15);
+    }
+
+    .chat-header {
+        padding: 0 20px;
+        height: 70px;
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .chat-messages {
+        padding: 20px 15px;
+    }
+
+    .message {
+        max-width: 92%;
+        font-size: 14px;
+    }
+
+    .chat-input-area {
+        padding: 15px;
+        padding-bottom: calc(env(safe-area-inset-bottom, 20px) + 10px);
+        background: rgba(10, 10, 10, 0.98);
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .quick-actions {
+        padding: 10px 15px;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 8px;
+        scrollbar-width: none;
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .quick-btn {
+        flex-shrink: 0;
+        padding: 8px 16px;
+        white-space: nowrap;
+        font-size: 12px;
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .welcome-msg {
+        padding: 60px 20px;
+    }
+
+    .welcome-msg h3 {
+        font-size: 22px;
     }
 }
 
