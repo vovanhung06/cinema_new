@@ -100,7 +100,7 @@ const Register = () => {
           initial={{ scale: 1.1, opacity: 0 }}
           animate={{ scale: 1, opacity: 0.5 }}
           transition={{ duration: 2, ease: "easeOut" }}
-          src="https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&q=80&w=2000"
+          src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?auto=format&fit=crop&q=80&w=2000"
           className="w-full h-full object-cover"
           alt="Register Background"
           referrerPolicy="no-referrer"
@@ -174,7 +174,7 @@ const Register = () => {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="example@cinema.plus"
+                  placeholder="nguyenvana@gmail.com"
                   className="w-full bg-surface border border-white/5 rounded-2xl px-6 py-4 text-white placeholder-on-surface-variant/20 focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all outline-none text-[11px] font-black uppercase tracking-widest shadow-2xl"
                 />
                 <Mail className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within/input:text-primary transition-colors w-5 h-5" />
