@@ -10,6 +10,10 @@ import { getUnreadCount } from '../../service/notification_service';
 import ThemeToggle from '../shared/ThemeToggle';
 
 
+/**
+ * Thanh điều hướng (Navbar)
+ * Quản lý: Tìm kiếm phim, lịch sử tìm kiếm, thông báo, menu người dùng và menu di động.
+ */
 const Navbar = () => {
   const { user } = useAuth();
   const location = useLocation();
@@ -29,6 +33,7 @@ const Navbar = () => {
   const [searchHistory, setSearchHistory] = useState([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
+  // Lấy số lượng thông báo chưa đọc của người dùng
   useEffect(() => {
     if (user && !isAuthPage) {
       const fetchUnread = async () => {
@@ -41,6 +46,7 @@ const Navbar = () => {
     }
   }, [user, location.pathname]);
 
+  // Xử lý khi người dùng nhấn Enter để tìm kiếm
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     const trimmedQuery = searchQuery.trim();
@@ -103,13 +109,14 @@ const Navbar = () => {
     }
   }, []);
 
-  // Mock trending searches
+  // Danh sách các từ khóa tìm kiếm thịnh hành (Dữ liệu mẫu)
   const trendingSearches = [
     "Avatar 3",
     "Wednesday Season 2",
     "Dune: Part Two"
   ];
 
+  // Xử lý tìm kiếm tức thì (Debounced search) khi người dùng nhập từ khóa
   useEffect(() => {
     if (!searchQuery.trim()) {
       setSearchResults([]);
@@ -149,6 +156,18 @@ const Navbar = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Tắt/Mở khóa cuộn trang khi mở Overlay tìm kiếm hoặc Menu di động
+  useEffect(() => {
+    if (isSearchFocused || isMobileSearchOpen || isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isSearchFocused, isMobileSearchOpen, isMobileMenuOpen]);
+
   if (isAuthPage) {
     return (
       <nav className="fixed top-0 w-full z-50 px-8 py-8">
@@ -166,14 +185,14 @@ const Navbar = () => {
 
   return (
     <>
-      {/* Blurred Overlay */}
+      {/* Lớp phủ làm mờ hình nền (Blurred Overlay) */}
       <AnimatePresence>
         {isSearchFocused && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-surface/60 backdrop-blur-md z-40 pointer-events-none"
+            className="fixed inset-0 bg-surface/60 backdrop-blur-md z-40"
           />
         )}
       </AnimatePresence>
@@ -244,7 +263,7 @@ const Navbar = () => {
                 </AnimatePresence>
               </form>
 
-              {/* Search Dropdown - glass-dark */}
+              {/* Danh sách kết quả tìm kiếm thả xuống (Search Dropdown) */}
               <AnimatePresence>
                 {isSearchFocused && (
                   <motion.div
@@ -395,7 +414,7 @@ const Navbar = () => {
         </div>
       </nav>
 
-      {/* Mobile Search Overlay */}
+      {/* Lớp phủ Tìm kiếm trên di động (Mobile Search Overlay) */}
       <AnimatePresence>
         {isMobileSearchOpen && (
           <motion.div
@@ -494,7 +513,7 @@ const Navbar = () => {
         )}
       </AnimatePresence>
 
-      {/* Mobile Menu Overlay */}
+      {/* Lớp phủ Menu trên di động (Mobile Menu Overlay) */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div

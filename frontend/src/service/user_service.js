@@ -12,12 +12,12 @@ const getAuthHeaders = () => ({
   },
 });
 
-// GET PROFILE
+// LẤY THÔNG TIN HỒ SƠ (GET PROFILE)
 export const getProfile = async () => {
   return axios.get(`${API}/me`, getAuthHeaders());
 };
 
-// UPDATE PROFILE
+// CẬP NHẬT HỒ SƠ (UPDATE PROFILE)
 export const updateProfile = async (data) => {
   return axios.put(
     `${API}/me/update`,

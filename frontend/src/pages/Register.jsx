@@ -160,7 +160,7 @@ const Register = () => {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Nhập tên của bạn"
-                  className="w-full bg-surface border border-white/5 rounded-2xl px-6 py-4 text-white placeholder-on-surface-variant/20 focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all outline-none text-[11px] font-black uppercase tracking-widest shadow-2xl"
+                  className="w-full bg-surface border border-white/5 rounded-2xl px-6 py-4 text-white placeholder-on-surface-variant/20 focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all outline-none text-[11px] font-black  tracking-widest shadow-2xl"
                 />
                 <User className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within/input:text-primary transition-colors w-5 h-5" />
               </div>
@@ -175,7 +175,7 @@ const Register = () => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="nguyenvana@gmail.com"
-                  className="w-full bg-surface border border-white/5 rounded-2xl px-6 py-4 text-white placeholder-on-surface-variant/20 focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all outline-none text-[11px] font-black uppercase tracking-widest shadow-2xl"
+                  className="w-full bg-surface border border-white/5 rounded-2xl px-6 py-4 text-white placeholder-on-surface-variant/20 focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all outline-none text-[11px] font-black  tracking-widest shadow-2xl"
                 />
                 <Mail className="absolute right-6 top-1/2 -translate-y-1/2 text-white/20 group-focus-within/input:text-primary transition-colors w-5 h-5" />
               </div>

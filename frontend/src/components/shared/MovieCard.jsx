@@ -93,7 +93,7 @@ const MovieCard = ({ movie, variant = 'vertical' }) => {
           referrerPolicy="no-referrer"
         />
 
-        {/* Overlay - Hidden on mobile for better performance/UX, shown on group-hover */}
+        {/* Lớp phủ - Ẩn trên di động để tăng hiệu năng/trải nghiệm người dùng, hiển thị khi di chuột (group-hover) */}
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 hidden md:flex flex-col justify-end p-5">
           <div className={`w-full ${variant === 'compact' ? 'py-1.5' : 'py-2.5'} bg-primary text-white rounded-xl text-[10px] font-black uppercase tracking-[0.2em] text-center`}>
             Chi tiết

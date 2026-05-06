@@ -1,5 +1,8 @@
 const db = require('../db');
 
+/**
+ * Lấy thông tin gói VIP mặc định (title, price)
+ */
 exports.getVipPackages = (req, res) => {
     db.query('SELECT id, title, price FROM vip LIMIT 1', (err, results) => {
         if (err) {
@@ -10,6 +13,9 @@ exports.getVipPackages = (req, res) => {
     });
 };
 
+/**
+ * Lấy lịch sử giao dịch/nâng cấp VIP của người dùng hiện tại
+ */
 exports.getVipHistory = (req, res) => {
     const userId = req.user.id;
     const sql = `
@@ -29,6 +35,10 @@ exports.getVipHistory = (req, res) => {
     });
 };
 
+/**
+ * Nâng cấp tài khoản lên VIP (Thời hạn 30 ngày)
+ * Quy trình: Cập nhật trạng thái VIP trong bảng 'users', lưu vào 'vip_history' và gửi thông báo.
+ */
 exports.upgradeVip = async (req, res) => {
     const userId = req.user.id;
     try {
@@ -81,6 +91,9 @@ exports.upgradeVip = async (req, res) => {
     }
 };
 
+/**
+ * Hủy gói VIP (Chuyển về trạng thái cơ bản)
+ */
 exports.cancelVip = async (req, res) => {
     const userId = req.user.id;
     try {

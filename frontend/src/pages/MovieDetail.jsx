@@ -15,6 +15,10 @@ import CommentSection from '../components/shared/CommentSection';
 import CommentForm from '../components/shared/CommentForm';
 import StarRating from '../components/shared/StarRating';
 
+/**
+ * Trang chi tiết phim (Movie Detail Page)
+ * Hiển thị thông tin đầy đủ về phim, Trailer, Đánh giá, Bình luận và Đề xuất.
+ */
 const MovieDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -47,6 +51,7 @@ const MovieDetail = () => {
 
   const isVip = isVipActive(user);
 
+  // Kiểm tra xem phim này có trong danh sách yêu thích của người dùng không
   useEffect(() => {
     if (!user) {
       setIsFavorite(false);
@@ -65,7 +70,7 @@ const MovieDetail = () => {
 
     loadFavorites();
   }, [user, id]);
-
+  // Xử lý Thêm/Xóa phim khỏi danh sách yêu thích
   const handleToggleFavorite = async () => {
     if (!user) {
       navigate('/login');
@@ -125,7 +130,7 @@ const MovieDetail = () => {
 
   return (
     <div className="min-h-screen bg-surface overflow-x-hidden">
-      {/* Hero Section with Parallax Background */}
+      {/* Phần Hero với hình nền hiệu ứng Parallax */}
       <div className="relative min-h-[70vh] md:min-h-[90vh] w-full flex items-end pt-20 md:pt-40">
         <div className="absolute inset-0 z-0 overflow-hidden">
           <img
@@ -141,7 +146,7 @@ const MovieDetail = () => {
           <div className="absolute inset-0 bg-linear-to-r from-surface via-transparent to-surface/30"></div>
         </div>
 
-        {/* Back Button */}
+        {/* Nút Quay lại */}
         <button
           onClick={() => navigate(-1)}
           className="fixed top-24 md:top-28 left-4 md:left-8 z-40 p-3 md:p-4 rounded-2xl glass hover:bg-primary hover:text-white transition-all group shadow-2xl"
@@ -150,7 +155,7 @@ const MovieDetail = () => {
         </button>
 
         <div className="relative z-10 max-w-[1920px] mx-auto w-full px-6 md:px-16 pb-12 md:pb-16 flex flex-col md:flex-row gap-8 md:gap-16 items-center md:items-end">
-          {/* Main Poster */}
+          {/* Poster chính */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9, y: 40 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -168,7 +173,7 @@ const MovieDetail = () => {
             <div className="absolute inset-0 ring-1 ring-inset ring-white/20 rounded-3xl group-hover:ring-primary/40 transition-all"></div>
           </motion.div>
 
-          {/* Movie Info */}
+          {/* Thông tin phim */}
           <div className="flex-1 space-y-8 text-center md:text-left">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -246,9 +251,9 @@ const MovieDetail = () => {
 
       <main className="max-w-[1920px] mx-auto px-6 md:px-16 py-12 md:py-24">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-12 lg:gap-24">
-          {/* Left Column: Details & Comments */}
+          {/* Cột trái: Chi tiết phim & Bình luận */}
           <div className="lg:col-span-3 space-y-24">
-            {/* Synopsis */}
+            {/* Nội dung tóm tắt */}
             <section className="space-y-8">
               <div className="flex items-center gap-4">
                 <div className="w-1 h-8 bg-primary rounded-full"></div>
@@ -259,7 +264,7 @@ const MovieDetail = () => {
               </p>
             </section>
 
-            {/* Comments Section */}
+            {/* Phần Bình luận */}
             <section className="space-y-12">
               <div className="flex items-center justify-between border-b border-white/5 pb-8">
                 <div className="flex items-center gap-4">
@@ -332,7 +337,7 @@ const MovieDetail = () => {
             </section>
           </div>
 
-          {/* Right Column: Sidebar Recommendations */}
+          {/* Cột phải: Thanh bên đề xuất phim */}
           <div className="space-y-16">
             <div className="space-y-8">
               <div className="flex items-center gap-4">
@@ -349,7 +354,7 @@ const MovieDetail = () => {
         </div>
       </main>
 
-      {/* Trailer Modal */}
+      {/* Modal xem Trailer */}
       <AnimatePresence>
         {showTrailerModal && (
           <motion.div

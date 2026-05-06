@@ -7,17 +7,22 @@ import { getAllGenresPublic } from '../service/genre_service';
 import { getAllCountriesPublic } from '../service/country_service';
 import { getMovieYears } from '../service/movie_service';
 
+/**
+ * Trang lọc phim (Filter Page)
+ * Cho phép lọc phim theo Thể loại, Quốc gia, Năm phát hành và Sắp xếp.
+ * Tích hợp phân trang và hiển thị kết quả theo dạng lưới (Grid).
+ */
 const Filter = () => {
   const { activeFilters, filteredMovies, updateFilter, page, setPage, pagination } = useFilter();
   const [isSortOpen, setIsSortOpen] = useState(false);
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' (lưới) hoặc 'list' (danh sách)
 
   const [genres, setGenres] = useState(['Tất cả']);
   const [countries, setCountries] = useState(['Tất cả quốc gia']);
   const [years, setYears] = useState(['Tất cả']);
   const sortOptions = ['Mới nhất', 'Cũ nhất', 'Đánh giá cao', 'Xem nhiều nhất'];
 
-  // Fetch dynamic filters
+  // Fetch dữ liệu các bộ lọc (Thể loại, Quốc gia, Năm) từ Backend khi trang tải
   useEffect(() => {
     const fetchFilters = async () => {
       try {
@@ -38,6 +43,7 @@ const Filter = () => {
     fetchFilters();
   }, []);
 
+  // Reset toàn bộ các bộ lọc về trạng thái mặc định
   const clearFilters = () => {
     updateFilter('genre', 'Tất cả');
     updateFilter('year', 'Tất cả');
@@ -50,7 +56,7 @@ const Filter = () => {
     activeFilters.country !== 'Tất cả quốc gia' ||
     activeFilters.sort !== 'Mới nhất';
 
-  // Scroll to top when page or filters change
+  // Cuộn lên đầu trang khi thay đổi trang hoặc bộ lọc
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [page, activeFilters]);
@@ -58,7 +64,7 @@ const Filter = () => {
   return (
     <div className="min-h-screen bg-surface pt-24 md:pt-32 pb-40 px-4 md:px-8 lg:px-12 max-w-[1920px] mx-auto">
       <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
-        {/* Sidebar Filters - Glass Design */}
+        {/* Thanh bên Bộ lọc - Thiết kế hiệu ứng Glassmorphism */}
         <aside className="w-full lg:w-80 shrink-0">
           <div className="lg:sticky lg:top-32 space-y-8 lg:space-y-10">
             <div className="space-y-4">
@@ -169,7 +175,7 @@ const Filter = () => {
           </div>
         </aside>
 
-        {/* Movie Grid */}
+        {/* Lưới hiển thị Phim */}
         <div className="flex-1 space-y-12">
           <div className="flex flex-col md:flex-row md:items-center justify-between pb-8 border-b border-white/5 gap-6">
             <div className="flex flex-col gap-4">
@@ -257,7 +263,7 @@ const Filter = () => {
             </AnimatePresence>
           </motion.div>
 
-          {/* Pagination - Premium Design */}
+          {/* Phân trang - Thiết kế Cao cấp */}
           {pagination && pagination.totalPages > 1 && (
             <nav className="pt-16 md:pt-24 flex justify-center items-center gap-2 md:gap-4 overflow-x-auto pb-4">
               <button 

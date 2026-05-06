@@ -21,6 +21,11 @@ import { obfuscate } from '../utils/obfuscate';
 import PlyrPlayer from '../components/PlyrPlayer';
 
 
+/**
+ * Trang xem phim (Watch Page)
+ * Tích hợp trình phát video Plyr, hỗ trợ stream HLS và MP4.
+ * Kiểm tra quyền xem phim (VIP/Thường) và hiển thị bình luận, đánh giá.
+ */
 const Watch = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -54,6 +59,7 @@ const Watch = () => {
     window.scrollTo(0, 0);
   }, [id]);
 
+  // Xử lý ẩn/hiện bộ điều khiển (Controls) của trình phát video khi di chuột
   const handleMouseMove = () => {
     setShowControls(true);
     if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
@@ -62,6 +68,7 @@ const Watch = () => {
     }, 3000);
   };
 
+  // Kiểm tra quyền truy cập phim dựa trên cấp độ VIP của người dùng
   const canWatch = canWatchMovie(user, movie);
 
   if (isLoading) {
@@ -93,7 +100,7 @@ const Watch = () => {
 
   return (
     <div className="min-h-screen bg-surface text-white pt-24 pb-32">
-      {/* Immersive Theater Ambient Glow */}
+      {/* Hiệu ứng Hào quang rạp chiếu phim (Theater Ambient Glow) */}
       <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-30">
         <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-primary/20 blur-[150px] rounded-full animate-pulse"></div>
         <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-blue-500/10 blur-[120px] rounded-full"></div>
@@ -102,16 +109,16 @@ const Watch = () => {
       <div className="max-w-[1920px] mx-auto px-6 lg:px-12 relative z-10">
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-10">
 
-          {/* Main Content Area */}
+          {/* Khu vực nội dung chính */}
           <div className="xl:col-span-9 space-y-12 relative z-20">
 
-            {/* Premium Video Player Container */}
+            {/* Khu vực trình phát video cao cấp */}
             <section
               className="relative z-40 aspect-video rounded-2xl md:rounded-[3rem] overflow-hidden bg-black shadow-[0_0_100px_rgba(0,0,0,0.8)] border border-white/5 group"
               onMouseMove={canWatch ? handleMouseMove : undefined}
               onMouseLeave={() => canWatch && isPlaying && setShowControls(false)}
             >
-              {/* Video Player - Plyr with HLS Support */}
+              {/* Trình phát Video - Plyr hỗ trợ HLS */}
               {!canWatch ? (
                 <div className="absolute inset-0 z-0 group/vip">
                   <img
@@ -149,7 +156,7 @@ const Watch = () => {
                 </div>
               ) : movie.movie_url ? (
                 <>
-                  {/* Research / Dev Controls for Video Source */}
+                  {/* Điều khiển dành cho nhà phát triển để chọn nguồn video */}
                   <div className={`absolute top-6 right-6 z-50 flex gap-3 transition-opacity duration-300 ${!isPlaying || showControls ? 'opacity-100' : 'opacity-0'}`}>
                     <button
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSourceType('db'); }}
@@ -179,7 +186,7 @@ const Watch = () => {
                   />
                 </>
               ) : (
-                // Fallback if no movie URL
+                // Trường hợp dự phòng nếu không có URL phim
                 <div className="absolute inset-0 z-0">
                   <img
                     src={movie.image}
@@ -200,7 +207,7 @@ const Watch = () => {
               )}
             </section>
 
-            {/* Content Info & Actions */}
+            {/* Thông tin phim & Các hành động */}
             <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-8 px-4">
               <div className="space-y-4">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-black uppercase tracking-tighter text-glow italic leading-none">{movie.title}</h1>
@@ -212,7 +219,7 @@ const Watch = () => {
 
             </div>
 
-            {/* Advanced Section: Comments */}
+            {/* Phần nâng cao: Bình luận */}
             <div className="px-4 space-y-12 pb-20">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
@@ -293,7 +300,7 @@ const Watch = () => {
             </div>
           </div>
 
-          {/* Sidebar Area: Up Next */}
+          {/* Thanh bên: Gợi ý phim tiếp theo */}
           <aside className="xl:col-span-3 space-y-10 relative z-10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">

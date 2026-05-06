@@ -1,7 +1,7 @@
 const db = require("../db");
 
 
-// ================= CREATE REVIEW =================
+// ================= TẠO ĐÁNH GIÁ (CREATE REVIEW) =================
 exports.createReview = (req, res) => {
 
   const user_id = req.user.id;
@@ -28,7 +28,7 @@ exports.createReview = (req, res) => {
 
 
 
-// ================= GET REVIEWS BY MOVIE =================
+// ================= LẤY ĐÁNH GIÁ THEO PHIM (GET REVIEWS BY MOVIE) =================
 exports.getReviewsByMovie = (req, res) => {
   const movie_id = req.params.movie_id;
 
@@ -49,7 +49,7 @@ exports.getReviewsByMovie = (req, res) => {
 
 
 
-// ================= UPDATE REVIEW =================
+// ================= CẬP NHẬT ĐÁNH GIÁ (UPDATE REVIEW) =================
 exports.updateReview = (req, res) => {
   const review_id = req.params.id;
   const user_id = req.user.id;
@@ -76,7 +76,7 @@ exports.updateReview = (req, res) => {
 
 
 
-// ================= DELETE REVIEW =================
+// ================= XÓA ĐÁNH GIÁ (DELETE REVIEW) =================
 exports.deleteReview = (req, res) => {
   const review_id = req.params.id;
   const user_id = req.user.id;

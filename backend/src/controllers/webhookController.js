@@ -14,7 +14,7 @@ exports.sepayWebhook = async (req, res) => {
         const content = payload.content ? payload.content.toUpperCase() : '';
         const amount = parseInt(payload.transferAmount, 10) || 0;
 
-        // New pattern: NAME USERID CINEMA VIP XXXX (4 random chars at the end)
+        // Cú pháp mới: [NAME] [USERID] CINEMA VIP XXXX (4 ký tự ngẫu nhiên ở cuối)
         const match = content.match(/(\d+)\s+CINEMA\s+VIP\s+([A-Z0-9]{4})/);
         if (!match) {
             return res.json({ success: true, message: "Transaction content does not match VIP syntax." });
@@ -23,26 +23,25 @@ exports.sepayWebhook = async (req, res) => {
         const userId = parseInt(match[1], 10);
         const randomCode = match[2];
 
-        // Mark the session as completed
-        paymentSessions.completeSession(randomCode);
+        // Đánh dấu phiên thanh toán là đã hoàn thành
 
-        // Check user exists
+        // Kiểm tra xem người dùng có tồn tại không
         const [userCheck] = await db.promise().query('SELECT id, username FROM users WHERE id = ?', [userId]);
         if (userCheck.length === 0) {
             return res.json({ success: false, message: "Email không tồn tại" });
         }
 
-        // Compute expire date (30 days)
+        // Tính toán ngày hết hạn (30 ngày)
         const expireDate = new Date();
         expireDate.setDate(expireDate.getDate() + 30);
 
-        // Upgrade user to VIP
+        // Nâng cấp người dùng lên gói VIP
         await db.promise().query(
             'UPDATE users SET is_vip = 1, vip_expired_at = ?, role_id = CASE WHEN role_id = 1 THEN 1 ELSE 2 END WHERE id = ?',
             [expireDate, userId]
         );
 
-        // Save vip_history
+        // Lưu thông tin vào lịch sử VIP (vip_history)
         const [vipPackages] = await db.promise().query('SELECT id, title, price FROM vip LIMIT 1');
         const vip = vipPackages[0];
         const startDate = new Date();
@@ -51,7 +50,7 @@ exports.sepayWebhook = async (req, res) => {
             [userId, vip?.id || 1, amount, startDate, expireDate]
         );
 
-        // Notification for user
+        // Gửi thông báo cho người dùng
         const notifTitle = 'Thanh toán tự động thành công';
         const notifMessage = `Hệ thống đã ghi nhận khoản thanh toán ${amount.toLocaleString('vi-VN')}đ. Gói VIP của bạn đã được kích hoạt, hạn sử dụng đến ${expireDate.toLocaleDateString('vi-VN')}.`;
         await db.promise().query(
@@ -59,7 +58,7 @@ exports.sepayWebhook = async (req, res) => {
             [userId, notifTitle, notifMessage, 'billing']
         );
 
-        // Admin notification
+        // Gửi thông báo cho Admin
         const { sendToAdmins } = require("../utils/notificationUtils");
         const username = userCheck[0].username;
         sendToAdmins('SePay Auto-Pay', `${username} vừa thanh toán tự động thành công gói VIP Cinema+.`, 'billing');

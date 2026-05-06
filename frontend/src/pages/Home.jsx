@@ -8,6 +8,10 @@ import { usePublicMovies } from '../hooks/usePublicMovies';
 import { getAllGenresPublic } from '../service/genre_service';
 import { useAuth } from '../hooks/useAuth';
 
+/**
+ * Trang chủ (Home Page)
+ * Hiển thị Banner nổi bật, danh sách phim theo danh mục và bộ sưu tập thể loại.
+ */
 const Home = () => {
   const { user, setLoginModalOpen } = useAuth();
   const navigate = useNavigate();
@@ -17,7 +21,7 @@ const Home = () => {
   const [showAll, setShowAll] = useState(false);
   const [dbGenres, setDbGenres] = useState([]);
 
-  // Mapping genre names to icons
+  // Ánh xạ tên thể loại sang icon tương ứng
   const genreIconMap = {
     'Hành động': Swords,
     'Hành Động': Swords,
@@ -45,20 +49,20 @@ const Home = () => {
     'Ma': Ghost,
   };
 
-  // Fetch Genres
+  // Fetch danh sách thể loại từ Backend và gán icon tương ứng
   useEffect(() => {
     const fetchGenres = async () => {
       try {
         const data = await getAllGenresPublic();
         
-        // Shuffle genres to show random selection
+        // Trộn ngẫu nhiên danh sách thể loại để hiển thị đa dạng
         const shuffled = [...data].sort(() => 0.5 - Math.random());
-        // Take top 6
+        // Lấy 6 thể loại đầu tiên sau khi trộn
         const selected = shuffled.slice(0, 6);
 
         const mappedGenres = selected.map(g => ({
           ...g,
-          icon: genreIconMap[g.name] || Film // Default icon if not mapped
+          icon: genreIconMap[g.name] || Film // Icon mặc định nếu không tìm thấy ánh xạ
         }));
         setDbGenres(mappedGenres);
       } catch (error) {
@@ -69,7 +73,7 @@ const Home = () => {
   }, []);
 
 
-  // Transform backend data to frontend format
+  // Chuyển đổi định dạng dữ liệu phim từ Backend sang Frontend
   const transformMovie = (movie) => ({
     id: movie.id,
     title: movie.title,
@@ -94,7 +98,7 @@ const Home = () => {
   const newUpdates = isLoading ? skeletonMovies : (movies.length > 0 ? [...movies].reverse() : []);
   const trendingMovies = isLoading ? skeletonMovies.slice(0, 10) : (movies.length > 0 ? movies : []);
 
-  // Auto-slide background carousel
+  // Tự động chuyển đổi hình nền (Background Carousel) sau mỗi 8 giây
   useEffect(() => {
     if (isLoading || movies.length === 0) return;
     const timer = setInterval(() => {
@@ -115,7 +119,7 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-surface overflow-x-hidden">
-      {/* Immersive Background Section */}
+      {/* Phần Hình nền siêu thực (Immersive Background) */}
       <section className="relative h-[95vh] w-full flex items-center overflow-hidden">
         <AnimatePresence mode="wait">
           <motion.div
@@ -208,7 +212,7 @@ const Home = () => {
               </Link>
             </motion.div>
 
-            {/* Carousel Indicators */}
+            {/* Các chấm chỉ báo chuyển trang (Carousel Indicators) */}
             <div className="flex gap-3 pt-12">
               {movies.map((_, i) => (
                 <button
@@ -264,7 +268,7 @@ const Home = () => {
                 </section>
               ))}
 
-              {/* Genres Grid */}
+              {/* Lưới các Thể loại phim */}
               <section className="px-6 md:px-20">
                 <div className="flex items-center gap-3 mb-8 md:mb-12">
                   <div className="w-2 h-8 bg-primary rounded-full"></div>
@@ -277,7 +281,7 @@ const Home = () => {
                 </div>
               </section>
 
-              {/* Top 10 Redesign */}
+              {/* Thiết kế lại danh sách Top 10 */}
               <section className="pl-6 md:pl-20">
                 <div className="flex items-center gap-5 mb-8 md:mb-16">
                   <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
@@ -363,7 +367,7 @@ const Home = () => {
         </AnimatePresence>
 
 
-        {/* VIP Section Call-to-action */}
+        {/* Phần Kêu gọi nâng cấp VIP (Call-to-action) */}
         <section className="px-8 md:px-20 pb-20">
           <motion.div
             whileHover={{ y: -10 }}

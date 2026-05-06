@@ -1,7 +1,10 @@
 const db = require("../db");
 const { parsePagination, buildPagination } = require("../utils/pagination");
 
-// ================= CREATE COMMENT =================
+// ================= TẠO BÌNH LUẬN =================
+/**
+ * [USER] Tạo bình luận mới cho phim
+ */
 exports.createComment = (req, res) => {
   const user_id = req.user.id;
   const { movieId, content } = req.body;
@@ -27,7 +30,10 @@ exports.createComment = (req, res) => {
   });
 };
 
-// ================= GET COMMENTS BY MOVIE =================
+// ================= LẤY BÌNH LUẬN THEO PHIM =================
+/**
+ * [PUBLIC] Lấy danh sách bình luận của một bộ phim (có phân trang)
+ */
 exports.getCommentsByMovie = async (req, res) => {
   const movieId = req.params.movieId;
   const { page, limit, offset } = parsePagination(req);
@@ -63,13 +69,17 @@ exports.getCommentsByMovie = async (req, res) => {
   }
 };
 
-// ================= GET ALL COMMENTS (ADMIN) =================
+// ================= LẤY TẤT CẢ BÌNH LUẬN (ADMIN) =================
+/**
+ * [ADMIN] Lấy toàn bộ bình luận trong hệ thống
+ * Hỗ trợ: Tìm kiếm theo nội dung, tên người dùng hoặc tên phim.
+ */
 exports.getAllComments = async (req, res) => {
   const { page, limit, offset } = parsePagination(req);
   const search = req.query.search || "";
 
   try {
-    // 1️⃣ Count total comments (with search if provided)
+    // 1️⃣ Đếm tổng số bình luận (có hỗ trợ tìm kiếm)
     let countSql = `
       SELECT COUNT(*) AS total 
       FROM comments c
@@ -85,7 +95,7 @@ exports.getAllComments = async (req, res) => {
     const [countRows] = await db.promise().query(countSql, countParams);
     const total = countRows[0]?.total || 0;
 
-    // 2️⃣ Get comments for current page
+    // 2️⃣ Lấy danh sách bình luận cho trang hiện tại
     let sql = `
       SELECT
         c.id,
@@ -119,7 +129,11 @@ exports.getAllComments = async (req, res) => {
   }
 };
 
-// ================= DELETE COMMENT =================
+// ================= XÓA BÌNH LUẬN =================
+/**
+ * [USER/ADMIN] Xóa bình luận
+ * Quyền hạn: Admin có thể xóa mọi bình luận, người dùng chỉ có thể xóa bình luận của chính mình.
+ */
 exports.deleteComment = (req, res) => {
   const commentId = req.params.id;
   const userId = req.user.id;

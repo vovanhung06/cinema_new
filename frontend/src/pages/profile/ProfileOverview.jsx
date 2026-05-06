@@ -14,18 +14,18 @@ const ProfileOverview = ({ user, setIsEditing }) => {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Account Dashboard</p>
+          <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Bảng điều khiển tài khoản</p>
           <h1 className="text-3xl md:text-5xl lg:text-6xl font-black text-white tracking-tighter italic leading-tight uppercase">
             Chào trở lại, <span className="text-glow text-primary">{(user?.name || "").split(" ")[0]}.</span>
           </h1>
         </motion.div>
 
-        {/* Decorative line */}
+        {/* Đường kẻ trang trí */}
         <div className="absolute -bottom-6 left-0 w-24 h-1 bg-primary rounded-full"></div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-16">
-        {/* Profile Card & Stats */}
+        {/* Thẻ Hồ sơ & Số liệu thống kê */}
         <div className="lg:col-span-8 space-y-8">
           <div className="glass-dark rounded-[2.5rem] md:rounded-[3.5rem] p-6 sm:p-10 md:p-14 relative overflow-hidden group border border-white/5 shadow-2xl">
             <div className="absolute top-0 right-0 w-64 md:w-96 h-64 md:h-96 bg-primary/10 rounded-full blur-[80px] md:blur-[100px] -mr-16 md:-mr-32 -mt-16 md:-mt-32 group-hover:bg-primary/20 transition-colors duration-700"></div>
@@ -67,7 +67,7 @@ const ProfileOverview = ({ user, setIsEditing }) => {
             </div>
           </div>
 
-          {/* Activity */}
+          {/* Hoạt động */}
             <motion.div
               whileHover={{ y: -5 }}
               className="glass-dark rounded-[2.5rem] p-8 border border-white/5 group hover:border-primary/20 transition-all shadow-xl"
@@ -88,13 +88,13 @@ const ProfileOverview = ({ user, setIsEditing }) => {
             </motion.div>
         </div>
 
-        {/* VIP Sidebar */}
+        {/* Thanh bên VIP */}
         <div className="lg:col-span-4 space-y-8">
           <motion.div
             whileHover={{ scale: 1.02 }}
             className="relative rounded-[3rem] p-10 text-white overflow-hidden shadow-2xl shadow-primary/30 min-h-[400px] flex flex-col justify-between"
           >
-            {/* Background Layer */}
+            {/* Lớp nền */}
             <div className={`absolute inset-0 bg-gradient-to-br ${isVipActive(user) ? 'from-yellow-600 via-yellow-700 to-black' : 'from-primary via-primary-container to-black'} -z-10`}></div>
 
             <div className="absolute top-0 right-0 p-4 opacity-5 translate-x-1/4 -translate-y-1/4">
@@ -103,7 +103,7 @@ const ProfileOverview = ({ user, setIsEditing }) => {
 
             <div className="relative z-10">
               <div className="inline-block px-4 py-2 bg-white/10 backdrop-blur-xl rounded-2xl text-[10px] font-black uppercase tracking-[0.3em] mb-8 border border-white/10">
-                Premium Status
+                Trạng thái Premium
               </div>
               <h3 className={`text-3xl md:text-5xl font-black italic tracking-tighter mb-2 uppercase leading-none ${isVipActive(user) ? 'text-yellow-400' : 'text-white'}`}>
                 {isVipActive(user) ? 'VIP MEMBER' : 'STANDARD'}
@@ -129,7 +129,7 @@ const ProfileOverview = ({ user, setIsEditing }) => {
                     <CheckCircle2 className={`w-3 h-3 ${isVipActive(user) ? 'text-yellow-400' : 'text-white/40'}`} />
                   </div>
 
-                  Zero Ads Experience
+                  Trải nghiệm Không quảng cáo
                 </li>
                 <li className={`flex items-center gap-3 text-xs font-black uppercase tracking-widest ${isVipActive(user) ? 'text-white' : 'text-white/40'}`}>
                   <div className={`w-6 h-6 rounded-lg ${isVipActive(user) ? 'bg-yellow-500/20' : 'bg-white/10'} flex items-center justify-center`}>

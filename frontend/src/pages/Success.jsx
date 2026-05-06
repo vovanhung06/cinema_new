@@ -2,6 +2,11 @@ import { BadgeCheck, Monitor, Volume2, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import MovieCard from '../components/shared/MovieCard.jsx';
 
+/**
+ * Trang thông báo thành công (Success Page)
+ * Hiển thị lời chào mừng khi người dùng nâng cấp VIP thành công.
+ * Gợi ý một số phim nổi bật để người dùng bắt đầu trải nghiệm.
+ */
 export default function Success() {
   const navigate = useNavigate();
 

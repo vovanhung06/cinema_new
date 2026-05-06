@@ -11,7 +11,7 @@ const getAuthHeaders = () => {
   };
 };
 
-// Get all movies 
+// Lấy danh sách tất cả phim
 export const getAllMovies = async (params = {}) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/movies`, {
@@ -28,7 +28,7 @@ export const getAllMovies = async (params = {}) => {
   }
 };
 
-// Get all public movies (NO AUTH REQUIRED)
+// Lấy danh sách tất cả phim công khai (KHÔNG YÊU CẦU ĐĂNG NHẬP)
 export const getPublicMovies = async (params = {}) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/movies/public/filter`, {
@@ -44,7 +44,7 @@ export const getPublicMovies = async (params = {}) => {
   }
 };
 
-// Get movie years
+// Lấy danh sách năm phát hành phim
 export const getMovieYears = async () => {
   try {
     const response = await axios.get(`${API_BASE_URL}/movies/years`);
@@ -55,7 +55,7 @@ export const getMovieYears = async () => {
   }
 };
 
-// Get movie by ID
+// Lấy thông tin phim theo ID
 export const getMovieById = async (id) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/movies/${id}`);
@@ -66,7 +66,7 @@ export const getMovieById = async (id) => {
   }
 };
 
-// Search movies
+// Tìm kiếm phim
 export const searchMovies = async (query, { page = 1, limit = 10 } = {}) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/movies/search`, {
@@ -82,7 +82,7 @@ export const searchMovies = async (query, { page = 1, limit = 10 } = {}) => {
   }
 };
 
-// Get movies by genre
+// Lấy danh sách phim theo thể loại
 export const getMoviesByGenre = async (genreId) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/movies/genre/${genreId}`);
@@ -93,7 +93,7 @@ export const getMoviesByGenre = async (genreId) => {
   }
 };
 
-// Get movies by country
+// Lấy danh sách phim theo quốc gia
 export const getMoviesByCountry = async (countryId) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/movies/country/${countryId}`);
@@ -104,7 +104,7 @@ export const getMoviesByCountry = async (countryId) => {
   }
 };
 
-// Create movie (admin only)
+// Tạo phim mới (Chỉ dành cho Admin)
 export const createMovie = async (movieData) => {
   try {
     const payload = {
@@ -125,7 +125,7 @@ export const createMovie = async (movieData) => {
   }
 };
 
-// Update movie (admin only)
+// Cập nhật thông tin phim (Chỉ dành cho Admin)
 export const updateMovie = async (id, movieData) => {
   try {
     const payload = {
@@ -146,7 +146,7 @@ export const updateMovie = async (id, movieData) => {
   }
 };
 
-// Delete movie (admin only)
+// Xóa phim (Chỉ dành cho Admin)
 export const deleteMovie = async (id) => {
   try {
     const response = await axios.delete(
@@ -160,7 +160,7 @@ export const deleteMovie = async (id) => {
   }
 };
 
-// Upload movie avatar and background images
+// Tải lên ảnh đại diện và ảnh nền cho phim
 export const uploadMovieImages = async (files = {}) => {
   try {
     const formData = new FormData();
@@ -184,7 +184,7 @@ export const uploadMovieImages = async (files = {}) => {
     throw error;
   }
 };
-// Upload movie video file for encoding
+// Tải lên tệp video phim để mã hóa (Encoding)
 export const uploadMovieVideo = async (movieId, videoFile, onUploadProgress) => {
   try {
     const formData = new FormData();

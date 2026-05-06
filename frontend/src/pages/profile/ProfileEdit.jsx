@@ -31,14 +31,14 @@ const ProfileEdit = ({
 
   return (
     <div className="space-y-16 max-w-5xl mx-auto pb-32">
-      {/* Section 1: Personal Info */}
+      {/* Phần 1: Thông tin cá nhân */}
       <motion.section
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="space-y-10"
       >
         <div className="relative">
-          <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Account Settings</p>
+          <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Cấu hình Tài khoản</p>
           <h2 className="text-3xl md:text-5xl font-black text-on-surface italic tracking-tighter uppercase">Chỉnh sửa <span className="text-glow text-primary">Thông tin.</span></h2>
           <div className="absolute -bottom-4 left-0 w-20 h-1 bg-primary rounded-full"></div>
         </div>

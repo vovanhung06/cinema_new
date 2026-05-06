@@ -1,3 +1,7 @@
+/**
+ * [ADMIN] Xử lý tải hình ảnh lên Cloudinary
+ * Nhận tệp tin 'avatar' và 'background' từ request và trả về URL ảnh đã tải lên.
+ */
 exports.uploadImages = (req, res) => {
   const files = req.files || {};
   const uploaded = {};

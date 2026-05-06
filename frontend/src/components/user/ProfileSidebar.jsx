@@ -32,12 +32,12 @@ const ProfileSidebar = ({ onEditProfile }) => {
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* Thanh bên cho máy tính (Desktop Sidebar) */}
       <aside className="fixed left-0 top-0 h-full w-80 glass-dark border-r border-white/5 z-40 lg:flex hidden flex-col pt-32 pb-10 px-6">
-        {/* Decorative background glow */}
+        {/* Ánh sáng nền trang trí (Decorative background glow) */}
         <div className="absolute top-0 left-0 w-full h-64 bg-primary/5 blur-[100px] -z-10"></div>
 
-        {/* User info section */}
+        {/* Phần thông tin người dùng (User info section) */}
         <div className="mb-12 px-2">
           <div className="flex flex-col items-center text-center space-y-4">
             <div className="relative group">
@@ -78,7 +78,7 @@ const ProfileSidebar = ({ onEditProfile }) => {
           </div>
         </div>
 
-        {/* Navigation menu */}
+        {/* Danh mục điều hướng (Navigation menu) */}
         <nav className="flex-1 space-y-2 overflow-y-auto custom-scrollbar pr-2">
           <p className="px-4 mb-4 text-[10px] font-bold text-on-surface-variant/40 uppercase tracking-[0.3em]">Hệ thống tài khoản</p>
 
@@ -115,7 +115,7 @@ const ProfileSidebar = ({ onEditProfile }) => {
           })}
         </nav>
 
-        {/* Logout section */}
+        {/* Phần Đăng xuất (Logout section) */}
         <div className="mt-8 pt-8 border-t border-white/5 px-2">
           <button
             onClick={logout}
@@ -129,7 +129,7 @@ const ProfileSidebar = ({ onEditProfile }) => {
         </div>
       </aside>
 
-      {/* Mobile Horizontal Navigation */}
+      {/* Điều hướng Ngang cho Di động (Mobile Horizontal Navigation) */}
       <div className="lg:hidden fixed top-20 left-0 w-full z-40 bg-surface/80 backdrop-blur-xl border-b border-white/5 px-4">
         <div className="flex items-center gap-2 overflow-x-auto hide-scrollbar py-4 scroll-smooth">
           {menuItems.map((item) => {

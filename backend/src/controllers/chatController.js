@@ -9,7 +9,7 @@ const { v4: uuidv4 } = require('uuid');
  * ═══════════════════════════════════════════════════════════════════════
  */
 
-// Rate limiter dùng Map — 20 req/60s per sessionId|IP
+// Giới hạn lượt truy cập dùng Map — 20 req/60s cho mỗi sessionId|IP
 const rateLimitMap = new Map();
 const RATE_LIMIT_MAX = 20;
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
@@ -88,7 +88,7 @@ const generateDynamicQuickActions = (intentObj) => {
             { id: 'buy', icon: '🛒', label: 'Mua VIP', prompt: 'Hướng dẫn tôi mua VIP' }
         ];
     }
-    // Mặc định cho GENERAL hoặc ACCOUNT
+    // Mặc định cho CHUNG hoặc TÀI KHOẢN
     return [
         { id: 'trending', icon: '🔥', label: 'Phim hot', prompt: 'Cho tôi xem phim đang hot nhất' },
         { id: 'vip', icon: '👑', label: 'Gói VIP', prompt: 'Cho tôi biết về các gói VIP' },
@@ -100,6 +100,15 @@ const generateDynamicQuickActions = (intentObj) => {
  * ═══════════════════════════════════════════════════════════════════════
  * MAIN CHAT HANDLER
  * ═══════════════════════════════════════════════════════════════════════
+ */
+/**
+ * [USER/CÔNG KHAI] Xử lý cuộc trò chuyện với AI
+ * Quy trình:
+ * 1. Nhận diện ý định (Intent Detection) của người dùng.
+ * 2. Gửi trạng thái xử lý về cho Frontend.
+ * 3. Truy xuất ngữ cảnh liên quan (RAG) từ cơ sở dữ liệu.
+ * 4. Gọi AI Stream để trả lời dựa trên ngữ cảnh và lịch sử trò chuyện.
+ * 5. Lưu lịch sử vào DB và gửi các hành động nhanh (Quick Actions).
  */
 exports.chat = async (req, res) => {
     const { message } = req.body;
@@ -124,16 +133,16 @@ exports.chat = async (req, res) => {
     if (!message?.trim()) return res.status(400).json({ success: false, message: 'Tin nhắn trống.' });
 
     try {
-        // SETUP SSE HEADERS NGAY ĐỂ GỬI STATUS
+        // THIẾT LẬP SSE HEADERS NGAY ĐỂ GỬI TRẠNG THÁI
         res.setHeader('Content-Type', 'text/event-stream');
         res.setHeader('Cache-Control', 'no-cache');
         res.setHeader('Connection', 'keep-alive');
         res.setHeader('X-Accel-Buffering', 'no');
 
         // ──────────────────────────────────────────────────────────
-        // 1. LAYER 1: INTENT DETECTION
+        // 1. LỚP 1: NHẬN DIỆN Ý ĐỊNH (INTENT DETECTION)
         // ──────────────────────────────────────────────────────────
-        // Lấy 3 tin nhắn cuối từ DB để làm context cho classifier
+        // Lấy 3 tin nhắn cuối từ DB để làm ngữ cảnh cho bộ phân loại (classifier)
         const [recentHistory] = await db.promise().query(
             `SELECT role, content FROM chat_history 
              WHERE (user_id = ? OR session_id = ?) 
@@ -146,20 +155,20 @@ exports.chat = async (req, res) => {
         const intent = intentObj.intent;
 
         // ──────────────────────────────────────────────────────────
-        // 2. SEND STATUS TO CLIENT
+        // 2. GỬI TRẠNG THÁI CHO CLIENT
         // ──────────────────────────────────────────────────────────
         const statusMsg = getIntentStatusMsg(intentObj);
         res.write(`data: ${JSON.stringify({ type: 'status', message: statusMsg })}\n\n`);
 
         // ──────────────────────────────────────────────────────────
-        // 3. LAYER 2: CONTEXT RETRIEVAL (RAG)
+        // 3. LỚP 2: TRUY XUẤT NGỮ CẢNH (RAG)
         // ──────────────────────────────────────────────────────────
         const context = await contextService.getRelevantContext(intentObj, userId);
 
         // ──────────────────────────────────────────────────────────
-        // 4. LAYER 2: CHAT RESPONSE
+        // 4. LỚP 2: PHẢN HỒI CHAT
         // ──────────────────────────────────────────────────────────
-        // Chuẩn bị lịch sử cho Layer 2 (giới hạn độ dài)
+        // Chuẩn bị lịch sử cho Lớp 2 (giới hạn độ dài)
         const chatHistoryForLayer2 = classificationHistory.map(h => ({
             role: h.role,
             content: h.content.substring(0, 300)
@@ -217,7 +226,7 @@ exports.chat = async (req, res) => {
             const quickActions = generateDynamicQuickActions(intentObj);
             res.write(`data: ${JSON.stringify({ done: true, quickActions })}\n\n`);
 
-            // SAVE TO DB
+            // LƯU VÀO CƠ SỞ DỮ LIỆU
             if (fullContent.trim()) {
                 try {
                     // Lưu user message trước (nếu chưa lưu) - Ở đây ta đã lưu trong bản trước?
@@ -230,13 +239,13 @@ exports.chat = async (req, res) => {
                         `INSERT INTO chat_history (user_id, session_id, role, content, intent) VALUES (?, ?, ?, ?, ?)`,
                         [userId, sessionId, 'assistant', fullContent.substring(0, 5000), intent]
                     );
-                } catch (dbErr) { console.error("DB Save Fail:", dbErr); }
+                } catch (dbErr) { console.error("Lỗi lưu DB:", dbErr); }
             }
             res.end();
         });
 
         stream.on('error', (err) => {
-            res.write(`data: ${JSON.stringify({ error: 'AI Stream Error', done: true })}\n\n`);
+            res.write(`data: ${JSON.stringify({ error: 'Lỗi AI Stream', done: true })}\n\n`);
             res.end();
         });
 
@@ -251,6 +260,9 @@ exports.chat = async (req, res) => {
     }
 };
 
+/**
+ * Lấy lịch sử trò chuyện của người dùng dựa trên userId hoặc sessionId
+ */
 exports.getHistory = async (req, res) => {
     const userId = req.user ? req.user.id : null;
     const sessionId = req.cookies?.chat_session_id;
@@ -268,6 +280,9 @@ exports.getHistory = async (req, res) => {
     } catch (err) { res.status(500).json({ success: false, message: 'Lỗi lịch sử.' }); }
 };
 
+/**
+ * Xóa toàn bộ lịch sử trò chuyện
+ */
 exports.clearHistory = async (req, res) => {
     const userId = req.user ? req.user.id : null;
     const sessionId = req.cookies?.chat_session_id;
@@ -277,6 +292,9 @@ exports.clearHistory = async (req, res) => {
     } catch (err) { res.status(500).json({ success: false, message: 'Lỗi xóa.' }); }
 };
 
+/**
+ * Lấy danh sách các hành động gợi ý mặc định
+ */
 exports.getQuickActions = (req, res) => {
     // Trả về mặc định
     const actions = [

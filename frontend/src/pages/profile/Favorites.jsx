@@ -77,13 +77,13 @@ const Favorites = () => {
            initial={{ opacity: 0, y: 20 }}
            animate={{ opacity: 1, y: 0 }}
         >
-          <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Your Collection</p>
+          <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Bộ sưu tập của bạn</p>
           <h2 className="text-3xl md:text-5xl font-black text-on-surface italic tracking-tighter uppercase">Danh sách <span className="text-glow text-primary">Yêu thích.</span></h2>
         </motion.div>
         
         <div className="flex items-center gap-4">
            <div className="px-4 py-2 bg-outline-variant/10 rounded-2xl border border-outline-variant/20 text-[10px] font-black uppercase tracking-widest text-on-surface-variant/60">
-              {favorites.length} Tác phẩm
+              {favorites.length} phim đã yêu thích
            </div>
         </div>
       </header>
@@ -132,7 +132,7 @@ const Favorites = () => {
                 layout
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.8 }} // Removed blur(10px) to prevent "mờ câm" issue
+                exit={{ opacity: 0, scale: 0.8 }} // Đã loại bỏ blur(10px) để tránh vấn đề "mờ câm"
                 whileHover={{ y: -10 }}
                 className="relative group aspect-[2/3] rounded-2xl overflow-hidden shadow-xl border border-outline-variant/20 bg-surface-container-low"
               >
@@ -150,7 +150,7 @@ const Favorites = () => {
                   referrerPolicy="no-referrer"
                 />
                 
-                {/* Premium Overlay */}
+                {/* Lớp phủ cao cấp (Premium Overlay) */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col justify-end p-8">
                    <motion.div 
                     initial={{ y: 20, opacity: 0 }}
@@ -185,7 +185,7 @@ const Favorites = () => {
                    </motion.div>
                 </div>
                 
-                {/* Static indicator */}
+                {/* Biểu tượng chỉ báo trạng thái tĩnh */}
                 <div className="absolute top-4 right-4 md:top-6 md:right-6 w-8 h-8 md:w-10 md:h-10 glass-dark rounded-xl md:rounded-2xl flex items-center justify-center border border-outline-variant/20 group-hover:opacity-0 transition-opacity">
                    <Heart className="w-4 h-4 md:w-5 md:h-5 text-primary fill-primary" />
                 </div>

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { getMyHistory, removeFromHistory, clearHistory as apiClearHistory } from '../../service/history_service';
 
-// Utility for relative time
+// Tiện ích định dạng thời gian tương đối
 const formatRelativeTime = (dateString) => {
   const date = new Date(dateString);
   const now = new Date();
@@ -31,7 +31,7 @@ const History = () => {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await getMyHistory(20); // Get last 20 movies
+      const data = await getMyHistory(20); // Lấy 20 phim gần nhất
       setHistoryItems(data);
     } catch (err) {
       console.error("Failed to load history:", err);
@@ -68,7 +68,7 @@ const History = () => {
            initial={{ opacity: 0, y: 20 }}
            animate={{ opacity: 1, y: 0 }}
         >
-          <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Viewing Activity</p>
+          <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Hoạt động xem phim</p>
           <h2 className="text-3xl md:text-5xl font-black text-on-surface italic tracking-tighter uppercase">Lịch sử <span className="text-glow text-primary">Theo dõi.</span></h2>
         </motion.div>
         
@@ -108,7 +108,7 @@ const History = () => {
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 className="glass-dark p-4 md:p-6 rounded-3xl md:rounded-[2.5rem] border border-outline-variant/20 flex flex-col md:flex-row gap-4 md:gap-8 group hover:bg-outline-variant/10 transition-all relative overflow-hidden"
               >
-                {/* Background decorative glow */}
+                {/* Hiệu ứng hào quang trang trí nền */}
                 <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 blur-[50px] -z-10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 
                 <div className="w-full md:w-80 h-48 md:h-52 rounded-2xl md:rounded-[1.5rem] overflow-hidden shrink-0 relative shadow-2xl border border-outline-variant/20 bg-surface-container">
@@ -153,7 +153,7 @@ const History = () => {
                   </div>
                 </div>
                 
-                {/* Actions */}
+                {/* Các hành động (Xóa/Xem tiếp) */}
                 <div className="flex md:flex-col justify-end gap-3 px-2">
                    <button 
                      onClick={() => removeItem(item.id)}

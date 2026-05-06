@@ -2,7 +2,11 @@ const db = require("../db");
 const { parsePagination, buildPagination } = require("../utils/pagination");
 
 
-// ================= ADMIN: GET ALL MOVIES =================
+// ================= [ADMIN] LẤY DANH SÁCH PHIM =================
+/**
+ * [ADMIN] Lấy tất cả danh sách phim
+ * Hỗ trợ: Tìm kiếm theo tên/thể loại, lọc theo thể loại/quốc gia, phân trang.
+ */
 exports.getAllMovies = async (req, res) => {
   if (!req.user || req.user.role_id !== 1) {
     return res.status(403).json({
@@ -16,7 +20,7 @@ exports.getAllMovies = async (req, res) => {
   const countryId = req.query.countryId;
 
   try {
-    // 1️⃣ Count total movies with filters
+    // 1️⃣ Đếm tổng số phim dựa trên bộ lọc
     let countSql = `
       SELECT COUNT(DISTINCT m.id) AS total 
       FROM movies m
@@ -42,7 +46,7 @@ exports.getAllMovies = async (req, res) => {
     const [countRows] = await db.promise().query(countSql, countParams);
     const total = countRows[0]?.total || 0;
 
-    // 2️⃣ Get movies for current page with filters
+    // 2️⃣ Lấy danh sách phim cho trang hiện tại dựa trên bộ lọc
     let sql = `
       SELECT 
         m.id,
@@ -101,7 +105,11 @@ exports.getAllMovies = async (req, res) => {
   }
 };
 
-// ================= PUBLIC: GET ALL MOVIES (NO AUTH) =================
+// ================= [PUBLIC] LẤY DANH SÁCH PHIM CÔNG KHAI (KHÔNG CẦN ĐĂNG NHẬP) =================
+/**
+ * [PUBLIC] Lấy danh sách phim công khai (không cần đăng nhập)
+ * Hỗ trợ: Lọc theo thể loại, quốc gia, sắp xếp (mới nhất, lượt xem, đánh giá), phân trang.
+ */
 exports.getPublicMovies = async (req, res) => {
   const { page, limit, offset } = parsePagination(req);
   const { genre, country, sort } = req.query;
@@ -117,7 +125,7 @@ exports.getPublicMovies = async (req, res) => {
     `;
     let countParams = [];
 
-    // Filter logic for count
+    // Logic lọc cho việc đếm tổng số bản ghi
     if (genre) {
       countSql += ` AND g.name = ?`;
       countParams.push(genre);
@@ -130,7 +138,7 @@ exports.getPublicMovies = async (req, res) => {
     const [countRows] = await db.promise().query(countSql, countParams);
     const total = countRows[0]?.total || 0;
 
-    // Main query
+    // Truy vấn chính
     let sql = `
       SELECT 
         m.id,
@@ -169,7 +177,7 @@ exports.getPublicMovies = async (req, res) => {
 
     sql += ` GROUP BY m.id`;
 
-    // Sort mapping
+    // Ánh xạ logic sắp xếp
     if (sort === 'new') {
       sql += ` ORDER BY m.release_date DESC`;
     } else if (sort === 'old') {
@@ -196,7 +204,11 @@ exports.getPublicMovies = async (req, res) => {
   }
 };
 
-// ================= ADMIN: CREATE MOVIE =================
+// ================= [ADMIN] TẠO PHIM MỚI =================
+/**
+ * [ADMIN] Thêm phim mới
+ * Quy trình: Lưu thông tin phim vào bảng 'movies', sau đó lưu các thể loại vào 'movie_genres'.
+ */
 exports.createMovie = (req, res) => {
 
   if (!req.user || req.user.role_id !== 1) {
@@ -269,7 +281,11 @@ exports.createMovie = (req, res) => {
   );
 };
 
-// ================= ADMIN: UPDATE MOVIE =================
+// ================= [ADMIN] CẬP NHẬT PHIM =================
+/**
+ * [ADMIN] Cập nhật thông tin phim
+ * Quy trình: Cập nhật bảng 'movies', xóa thể loại cũ và chèn lại các thể loại mới vào 'movie_genres'.
+ */
 exports.updateMovie = (req, res) => {
 
   if (!req.user || req.user.role_id !== 1) {
@@ -357,7 +373,11 @@ exports.updateMovie = (req, res) => {
   );
 };
 
-// ================= ADMIN: DELETE MOVIE =================
+// ================= [ADMIN] XÓA PHIM =================
+/**
+ * [ADMIN] Xóa phim
+ * Quy trình: Xóa các ràng buộc ở bảng 'movie_genres' trước, sau đó mới xóa phim ở bảng 'movies'.
+ */
 exports.deleteMovie = (req, res) => {
 
   if (!req.user || req.user.role_id !== 1) {
@@ -397,7 +417,11 @@ exports.deleteMovie = (req, res) => {
   );
 };
 
-// ================= USER: GET MOVIE BY ID =================
+// ================= [USER] LẤY PHIM THEO ID =================
+/**
+ * [USER] Lấy thông tin chi tiết một bộ phim theo ID
+ * Bao gồm: Thông tin cơ bản, quốc gia, danh sách thể loại, lượt thích, điểm đánh giá trung bình.
+ */
 exports.getMovieById = (req, res) => {
 
   const { id } = req.params;
@@ -442,7 +466,11 @@ exports.getMovieById = (req, res) => {
   });
 };
 
-// ================= USER: SEARCH MOVIE =================
+// ================= [PUBLIC] TÌM KIẾM PHIM =================
+/**
+ * [USER] Tìm kiếm phim theo từ khóa
+ * Phạm vi tìm kiếm: Tiêu đề phim và tên thể loại (Đã loại bỏ tìm kiếm theo mô tả).
+ */
 exports.searchMovies = async (req, res) => {
   const keyword = req.query.keyword || "";
   const { page, limit, offset } = parsePagination(req);
@@ -456,10 +484,9 @@ exports.searchMovies = async (req, res) => {
         LEFT JOIN movie_genres mg ON m.id = mg.movie_id
         LEFT JOIN genres g ON mg.genre_id = g.id
         WHERE m.title COLLATE utf8mb4_unicode_ci LIKE ?
-          OR m.description COLLATE utf8mb4_unicode_ci LIKE ?
           OR g.name COLLATE utf8mb4_unicode_ci LIKE ?
       `,
-      [searchPattern, searchPattern, searchPattern]
+      [searchPattern, searchPattern]
     );
 
     const sql = `
@@ -475,14 +502,13 @@ exports.searchMovies = async (req, res) => {
       LEFT JOIN movie_genres mg ON m.id = mg.movie_id
       LEFT JOIN genres g ON mg.genre_id = g.id
       WHERE m.title COLLATE utf8mb4_unicode_ci LIKE ?
-        OR m.description COLLATE utf8mb4_unicode_ci LIKE ?
         OR g.name COLLATE utf8mb4_unicode_ci LIKE ?
       GROUP BY m.id
       ORDER BY m.release_date DESC
       LIMIT ? OFFSET ?
     `;
 
-    const [result] = await db.promise().query(sql, [searchPattern, searchPattern, searchPattern, limit, offset]);
+    const [result] = await db.promise().query(sql, [searchPattern, searchPattern, limit, offset]);
 
     res.json({
       data: result,
@@ -493,7 +519,7 @@ exports.searchMovies = async (req, res) => {
   }
 };
 
-// ================= USER: FILTER BY GENRE =================
+// ================= [USER] LỌC THEO THỂ LOẠI =================
 exports.getMoviesByGenre = async (req, res) => {
   const { genre_id } = req.params;
   const { page, limit, offset } = parsePagination(req);
@@ -532,7 +558,7 @@ exports.getMoviesByGenre = async (req, res) => {
   }
 };
 
-// ================= USER: FILTER BY COUNTRY =================
+// ================= [USER] LỌC THEO QUỐC GIA =================
 exports.getMoviesByCountry = async (req, res) => {
   const { country_id } = req.params;
   const { page, limit, offset } = parsePagination(req);
@@ -566,7 +592,11 @@ exports.getMoviesByCountry = async (req, res) => {
   }
 };
 
-// ================= USER: FILTER MOVIES (MAIN API) =================
+// ================= [USER] BỘ LỌC PHIM CHÍNH =================
+/**
+ * [USER] Bộ lọc phim chính (Main API)
+ * Cho phép lọc kết hợp: Thể loại, Quốc gia, Năm phát hành và Sắp xếp linh hoạt.
+ */
 exports.filterMovies = async (req, res) => {
   const { genre, country, year, sort } = req.query;
   const { page, limit, offset } = parsePagination(req);
@@ -581,7 +611,7 @@ exports.filterMovies = async (req, res) => {
 
   let params = [];
 
-  // ===== FILTER GENRE =====
+  // ===== LỌC THEO THỂ LOẠI =====
   if (genre) {
     baseSql += `
       AND EXISTS (
@@ -595,13 +625,13 @@ exports.filterMovies = async (req, res) => {
     params.push(genre);
   }
 
-  // ===== FILTER COUNTRY =====
+  // ===== LỌC THEO QUỐC GIA =====
   if (country) {
     baseSql += " AND c.name = ?";
     params.push(country);
   }
 
-  // ===== FILTER YEAR =====
+  // ===== LỌC THEO NĂM =====
   if (year) {
     if (year === "Trước 2022") {
       baseSql += " AND YEAR(m.release_date) < ?";
@@ -666,7 +696,7 @@ exports.filterMovies = async (req, res) => {
   });
 };
 
-// ================= PUBLIC: GET MOVIE YEARS =================
+// ================= [PUBLIC] LẤY DANH SÁCH CÁC NĂM PHÁT HÀNH =================
 exports.getMovieYears = async (req, res) => {
   try {
     const sql = `

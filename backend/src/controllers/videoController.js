@@ -2,10 +2,10 @@ const path = require('path');
 const { addEncodeJob } = require('../services/encoder.service');
 
 const uploadVideo = async (req, res) => {
-  console.log('--- NEW UPLOAD REQUEST ---');
+  console.log('--- YÊU CẦU TẢI LÊN MỚI (NEW UPLOAD REQUEST) ---');
   console.log('Headers:', req.headers['content-type']);
   console.log('Body:', req.body);
-  console.log('File:', req.file ? 'Received' : 'Missing');
+  console.log('File:', req.file ? 'Đã nhận (Received)' : 'Thiếu (Missing)');
 
   try {
     if (!req) {
@@ -19,7 +19,7 @@ const uploadVideo = async (req, res) => {
     const body = req.body || {};
     const movieId = body.movieId || body.movieid;
 
-    // Validation
+    // Kiểm tra dữ liệu hợp lệ (Validation)
     if (!movieId) {
       return res.status(400).json({
         success: false,

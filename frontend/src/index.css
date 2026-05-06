@@ -38,7 +38,7 @@
   --color-primary: var(--primary);
   --color-outline-variant: var(--outline-variant);
 
-  /* Keep some hardcoded or derived values if needed */
+  /* Giữ một số giá trị cứng hoặc giá trị dẫn xuất nếu cần thiết */
   --color-surface-dim: var(--surface);
   --color-surface-bright: color-mix(in srgb, var(--surface), white 10%);
   --color-primary-container: var(--primary);
@@ -52,7 +52,7 @@
   }
 }
 
-/* Responsive Typography Foundations */
+/* Nền tảng Typography đáp ứng (Responsive Typography Foundations) */
 @layer base {
   h1 { @apply text-4xl md:text-6xl lg:text-8xl; }
   h2 { @apply text-2xl md:text-3xl lg:text-4xl; }
@@ -72,7 +72,7 @@
   border-radius: 10px;
 }
 
-/* Premium UI Utilities */
+/* Tiện ích Giao diện Cao cấp (Premium UI Utilities) */
 @layer components {
   .glass {
     backdrop-filter: blur(12px);
@@ -111,15 +111,15 @@
 
 @layer utilities {
   .hide-scrollbar {
-    -ms-overflow-style: none; /* IE and Edge */
+    -ms-overflow-style: none; /* IE và Edge */
     scrollbar-width: none; /* Firefox */
   }
   .hide-scrollbar::-webkit-scrollbar {
-    display: none; /* Chrome, Safari and Opera */
+    display: none; /* Chrome, Safari và Opera */
   }
 }
 
-/* Plyr Custom Styling */
+/* Tùy chỉnh phong cách Plyr (Plyr Custom Styling) */
 .plyr {
   --plyr-color-main: #e50914;
   --plyr-video-control-color: #ffffff;
@@ -191,7 +191,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Round corners for better aesthetic */
+/* Bo góc để tăng tính thẩm mỹ */
 .plyr__control {
   border-radius: 4px;
 }

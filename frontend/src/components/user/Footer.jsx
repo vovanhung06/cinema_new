@@ -61,7 +61,7 @@ const Footer = () => {
 
         <div className="pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6">
           <p className="text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant/40">
-            © 2024 CINEMA+. Đã đăng ký bản quyền.
+            © 2026 CINEMA+. Đã đăng ký bản quyền.
           </p>
           <div className="flex gap-8 text-[10px] font-black uppercase tracking-[0.2em] text-on-surface-variant/40">
             <Link to="#" className="hover:text-on-surface-variant transition-colors">Quốc gia: Việt Nam</Link>

@@ -5,6 +5,11 @@ import { motion, AnimatePresence } from 'motion/react';
 import { searchMovies, getPublicMovies } from '../service/movie_service';
 import MovieCard from '../components/shared/MovieCard';
 
+/**
+ * Trang tìm kiếm phim (Search Page)
+ * Nhận từ khóa tìm kiếm từ URL (query parameter 'q') và gọi API tìm kiếm.
+ * Hiển thị danh sách kết quả, phân trang và gợi ý phim nổi bật nếu không tìm thấy kết quả.
+ */
 const Search = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
@@ -14,7 +19,7 @@ const Search = () => {
   const [page, setPage] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Fetch featured movies for recommendations
+  // Fetch danh sách phim nổi bật để hiển thị làm gợi ý khi cần thiết
   useEffect(() => {
     const fetchFeatured = async () => {
       try {
@@ -33,16 +38,17 @@ const Search = () => {
     fetchFeatured();
   }, []);
 
-  // Reset page when query changes
+  // Reset trang về 1 khi từ khóa tìm kiếm thay đổi
   useEffect(() => {
     setPage(1);
   }, [query]);
 
-  // Scroll to top when query or page changes
+  // Cuộn lên đầu trang khi từ khóa hoặc trang thay đổi
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [query, page]);
 
+  // Gọi API tìm kiếm phim dựa trên từ khóa (query) và trang hiện tại (page)
   useEffect(() => {
     if (!query.trim()) {
       setResults([]);
@@ -79,7 +85,7 @@ const Search = () => {
   return (
     <div className="min-h-screen bg-surface pt-24 md:pt-32 pb-40 px-4 md:px-12 max-w-[1920px] mx-auto overflow-x-hidden">
       <div className="flex flex-col gap-12">
-        {/* Search Header - Cinematic Design */}
+        {/* Tiêu đề Tìm kiếm - Thiết kế Điện ảnh */}
         <header className="relative py-10 md:py-16 px-6 md:px-10 glass-dark rounded-[2rem] md:rounded-[3.5rem] border border-white/5 overflow-hidden shadow-2xl">
           <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 blur-[120px] -z-10 translate-x-1/3 -translate-y-1/3"></div>
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/10 blur-[80px] -z-10 -translate-x-1/4 translate-y-1/4"></div>
@@ -149,7 +155,7 @@ const Search = () => {
                   ))}
                 </motion.div>
 
-                {/* Pagination Logic */}
+                {/* Logic Phân trang */}
                 {pagination && pagination.totalPages > 1 && (
                   <nav className="flex justify-center items-center gap-4">
                     <button 

@@ -1,9 +1,13 @@
 const db = require('../db');
 
+/**
+ * Lấy dữ liệu thống kê tổng quan (Admin Dashboard)
+ * Bao gồm: Biểu đồ doanh thu (theo tháng/quý/năm), phân bổ thể loại, top phim và thống kê người dùng.
+ */
 exports.getStatistics = async (req, res) => {
     try {
         let rangeRaw = req.query.range || 'Tháng';
-        // Map Vietnamese strings to internal keys if sent
+        // Chuyển đổi tham số dải thời gian sang từ khóa hệ thống
         const rangeMap = {
             'Tháng': 'month',
             'month': 'month',
@@ -14,7 +18,7 @@ exports.getStatistics = async (req, res) => {
         };
         const timeRange = rangeMap[rangeRaw] || 'month';
         
-        // Let's use the timeRange internal key for the logic but keep labels in VN
+        // Sử dụng từ khóa dải thời gian cho logic nhưng giữ nhãn bằng tiếng Việt
         let revenueSql = '';
         let revenueParams = [];
         let labels = [];
@@ -24,7 +28,7 @@ exports.getStatistics = async (req, res) => {
 
         const now = new Date();
 
-        // 1. Revenue & Bar Chart Data
+        // 1. Dữ liệu Doanh thu & Biểu đồ cột
         if (timeRange === 'month') {
             revenueSql = `
                 SELECT 
@@ -37,7 +41,7 @@ exports.getStatistics = async (req, res) => {
             `;
             const [rows] = await db.promise().query(revenueSql);
             
-            // Generate last 6 months labels to ensure we have data for all bars
+            // Tạo nhãn cho 6 tháng gần nhất để đảm bảo biểu đồ có đủ dữ liệu
             for (let i = 5; i >= 0; i--) {
                 let d = new Date(now.getFullYear(), now.getMonth() - i, 1);
                 let lbl = `${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
@@ -46,7 +50,7 @@ exports.getStatistics = async (req, res) => {
                 let found = rows.find(r => r.label === lbl);
                 let val = found ? parseFloat(found.total) : 0;
                 totalRevenue += val;
-                // Scale for bar height (max 100)
+                // Tỷ lệ cho chiều cao cột (tối đa 100)
                 heights.push(Math.min(100, Math.max(10, (val / 1000) * 100))); 
             }
         } else if (timeRange === 'quarter') {
@@ -61,7 +65,7 @@ exports.getStatistics = async (req, res) => {
             `;
             const [rows] = await db.promise().query(revenueSql);
             
-            // Last 4 quarters
+            // 4 quý gần nhất
             for (let i = 3; i >= 0; i--) {
                 let d = new Date();
                 d.setMonth(d.getMonth() - (i * 3));
@@ -74,7 +78,7 @@ exports.getStatistics = async (req, res) => {
                 totalRevenue += val;
                 heights.push(Math.min(100, Math.max(10, (val / 3000) * 100)));
             }
-        } else { // year
+        } else { // năm
             revenueSql = `
                 SELECT 
                     YEAR(start_date) as label,
@@ -97,7 +101,7 @@ exports.getStatistics = async (req, res) => {
             }
         }
 
-        // 2. Genre Distribution (Based on views if possible, otherwise movie count)
+        // 2. Phân bổ Thể loại (Dựa trên lượt xem nếu có, nếu không thì dựa trên số lượng phim)
         const genreSql = `
             SELECT g.name, COUNT(mv.id) as count
             FROM genres g
@@ -116,14 +120,14 @@ exports.getStatistics = async (req, res) => {
             color: colors[i % colors.length]
         }));
 
-        // 3. Top Movies
+        // 3. Top Phim thịnh hành
         const topMoviesSql = `
             SELECT 
                 m.id, m.title, m.avatar_url as image,
                 GROUP_CONCAT(DISTINCT g.name SEPARATOR ', ') as genre,
                 (SELECT COUNT(*) FROM movie_views mv WHERE mv.movie_id = m.id) as views_count,
                 (SELECT IFNULL(ROUND(AVG(rating), 1), 0) FROM ratings WHERE movie_id = m.id) as rating,
-                (SELECT SUM(vh.price_paid) FROM vip_history vh WHERE 1=0) as mock_rev -- placeholder for per-movie revenue if tracked
+                (SELECT SUM(vh.price_paid) FROM vip_history vh WHERE 1=0) as mock_rev -- Giữ chỗ cho doanh thu mỗi phim nếu có theo dõi
             FROM movies m
             LEFT JOIN movie_genres mg ON m.id = mg.movie_id
             LEFT JOIN genres g ON mg.genre_id = g.id
@@ -136,12 +140,12 @@ exports.getStatistics = async (req, res) => {
             title: m.title,
             genre: m.genre || 'Phim mới',
             views: m.views_count.toLocaleString() + ' lượt xem',
-            revenue: '$' + (m.views_count * 0.5).toFixed(1) + 'k', // Estimated revenue based on views
+            revenue: '$' + (m.views_count * 0.5).toFixed(1) + 'k', // Doanh thu ước tính dựa trên lượt xem
             rating: m.rating,
             image: m.image
         }));
 
-        // 4. VIP Trend (Counts of new VIP signups)
+        // 4. Xu hướng VIP (Số lượng đăng ký mới)
         let vipTrendLabels = [];
         let vipTrendCounts = [];
         
@@ -176,7 +180,7 @@ exports.getStatistics = async (req, res) => {
                 let found = signupRows.find(r => r.label === lbl);
                 vipTrendCounts.push(found ? parseInt(found.count) : 0);
             }
-        } else { // year
+        } else { // năm
             const [signupRows] = await db.promise().query(`
                 SELECT YEAR(start_date) as label, COUNT(*) as count
                 FROM vip_history
@@ -192,7 +196,7 @@ exports.getStatistics = async (req, res) => {
             }
         }
 
-        // 5. User Stats
+        // 5. Thống kê Người dùng
         const [totalUsersRows] = await db.promise().query('SELECT COUNT(*) as total FROM users');
         const [vipUsersRows] = await db.promise().query('SELECT COUNT(*) as total FROM users WHERE is_vip = 1');
         const [newUsersRows] = await db.promise().query('SELECT COUNT(*) as total FROM users WHERE create_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)');
@@ -204,7 +208,7 @@ exports.getStatistics = async (req, res) => {
             vipPercentage: Math.round((vipUsersRows[0].total / (totalUsersRows[0].total || 1)) * 100) + '%'
         };
 
-        // Calculate Growth (compare current vs previous period sum)
+        // Tính toán Tỷ lệ tăng trưởng (so sánh tổng thời kỳ hiện tại với trước đó)
         const currentTotal = heights[heights.length - 1] || 0;
         const prevTotal = heights[heights.length - 2] || 0;
         let growthVal = 0;
@@ -241,9 +245,12 @@ exports.getStatistics = async (req, res) => {
 
     } catch (error) {
         console.error("GET STATS ERROR:", error);
-        res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
+        res.status(500).json({ success: false, message: 'Lỗi máy chủ nội bộ', error: error.message });
     }
 };
+/**
+ * Lấy lịch sử doanh thu chi tiết (Danh sách các giao dịch VIP)
+ */
 exports.getRevenueHistory = async (req, res) => {
     try {
         const page = parseInt(req.query.page) || 1;
@@ -269,7 +276,7 @@ exports.getRevenueHistory = async (req, res) => {
 
         const [[{ total }]] = await db.promise().query('SELECT COUNT(*) as total FROM vip_history');
 
-        // Summary stats
+        // Thống kê tóm tắt
         const [[{ totalRevenue }]] = await db.promise().query('SELECT IFNULL(SUM(price_paid), 0) as totalRevenue FROM vip_history');
         const [[{ monthRevenue }]] = await db.promise().query(
             `SELECT IFNULL(SUM(price_paid), 0) as monthRevenue FROM vip_history WHERE start_date >= DATE_FORMAT(NOW(), '%Y-%m-01')`
@@ -300,6 +307,6 @@ exports.getRevenueHistory = async (req, res) => {
         });
     } catch (error) {
         console.error('GET REVENUE HISTORY ERROR:', error);
-        res.status(500).json({ success: false, message: 'Internal Server Error', error: error.message });
+        res.status(500).json({ success: false, message: 'Lỗi máy chủ nội bộ', error: error.message });
     }
 };

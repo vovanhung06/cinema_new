@@ -8,7 +8,7 @@ require('dotenv').config();
  */
 
 // ──────────────────────────────────────────────────────────────
-// CONFIGURATION FROM ENV
+// CẤU HÌNH TỪ BIẾN MÔI TRƯỜNG (CONFIGURATION FROM ENV)
 // ──────────────────────────────────────────────────────────────
 const CLOUD_CONFIG = {
     apiKey: process.env.GROQ_API_KEY,
@@ -34,7 +34,7 @@ if (!CLOUD_CONFIG.apiKey) {
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
- * LAYER 1: INTENT DETECTION (Classification)
+ * LỚP 1: NHẬN DIỆN Ý ĐỊNH (LAYER 1: INTENT DETECTION)
  * ═══════════════════════════════════════════════════════════════════════
  */
 exports.getIntent = async (message, history = []) => {
@@ -83,12 +83,12 @@ User: "Giá VIP bao nhiêu?" -> {"intent":"VIP", "subIntent":"pricing", "entitie
             data: {
                 model: CLOUD_CONFIG.model,
                 messages: messages,
-                stream: false, // Intent detection không dùng stream
+                stream: false, // Nhận diện ý định không sử dụng stream
                 max_tokens: 150,
                 temperature: 0.1, // Độ chính xác cao
                 response_format: { type: "json_object" }
             },
-            timeout: 10000 // Timeout ngắn cho Layer 1
+            timeout: 10000 // Thời gian chờ ngắn cho Lớp 1
         });
 
         const content = response.data.choices[0].message.content;
@@ -126,13 +126,13 @@ User: "Giá VIP bao nhiêu?" -> {"intent":"VIP", "subIntent":"pricing", "entitie
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
- * MAIN FUNCTION: Get Chat Stream với Fallback
+ * HÀM CHÍNH: Lấy luồng chat với cơ chế dự phòng (MAIN FUNCTION: Get Chat Stream với Fallback)
  * ═══════════════════════════════════════════════════════════════════════
  */
 exports.getChatStream = async (messages) => {
 
     // ──────────────────────────────────────────────────────────────
-    // STEP 1: TRY CLOUD AI FIRST (Groq)
+    // BƯỚC 1: THỬ VỚI CLOUD AI TRƯỚC (STEP 1: TRY CLOUD AI FIRST - Groq)
     // ──────────────────────────────────────────────────────────────
     if (CLOUD_CONFIG.apiKey && CLOUD_CONFIG.apiUrl) {
         try {
@@ -209,7 +209,7 @@ exports.getChatStream = async (messages) => {
     }
 
     // ──────────────────────────────────────────────────────────────
-    // STEP 2: FALLBACK TO LOCAL OLLAMA
+    // BƯỚC 2: DỰ PHÒNG VỚI LOCAL OLLAMA (STEP 2: FALLBACK TO LOCAL OLLAMA)
     // ──────────────────────────────────────────────────────────────
     try {
         console.log(`🏠 Connecting to Local Ollama (${LOCAL_CONFIG.model})...`);
@@ -267,7 +267,7 @@ exports.getChatStream = async (messages) => {
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
- * HEALTH CHECK FUNCTION (ĐÃ FIX)
+ * KIỂM TRA TRẠNG THÁI HỆ THỐNG (HEALTH CHECK FUNCTION - ĐÃ FIX)
  * ═══════════════════════════════════════════════════════════════════════
  */
 exports.checkHealth = async () => {
@@ -369,7 +369,7 @@ exports.checkHealth = async () => {
 
 /**
  * ═══════════════════════════════════════════════════════════════════════
- * GET CONFIG INFO (for debugging)
+ * LẤY THÔNG TIN CẤU HÌNH (GET CONFIG INFO - để gỡ lỗi)
  * ═══════════════════════════════════════════════════════════════════════
  */
 exports.getConfig = () => {

@@ -3,7 +3,11 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { parsePagination, buildPagination } = require("../utils/pagination");
 
-/* ================= GET (user) ================= */
+/* ================= LẤY THÔNG TIN NGƯỜI DÙNG ================= */
+/**
+ * [USER] Lấy thông tin hồ sơ của người dùng hiện tại
+ * Bao gồm: Tên người dùng, email, vai trò và trạng thái VIP.
+ */
 exports.getProfile = (req, res) => {
   const userId = req.user.id;
 
@@ -27,12 +31,16 @@ exports.getProfile = (req, res) => {
   });
 };
 
-/* ================= REGISTER-ĐĂNG KÝ ================= */
+/* ================= ĐĂNG KÝ TÀI KHOẢN ================= */
+/**
+ * [PUBLIC] Đăng ký tài khoản người dùng mới
+ * Quy trình: Kiểm tra email tồn tại, mã hóa mật khẩu, sau đó lưu vào DB và gửi thông báo cho admin.
+ */
 exports.register = async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
-    // ✅ CHECK EMAIL TRƯỚC
+    // ✅ KIỂM TRA EMAIL TRƯỚC
     const checkSql = "SELECT * FROM users WHERE email = ?";
 
     db.query(checkSql, [email], async (err, results) => {
@@ -44,7 +52,7 @@ exports.register = async (req, res) => {
         });
       }
 
-      // ✅ HASH SAU KHI CHECK OK
+      // ✅ MÃ HÓA MẬT KHẨU SAU KHI KIỂM TRA OK
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const insertSql = `
@@ -77,7 +85,11 @@ exports.register = async (req, res) => {
   }
 };
 
-/* ================= LOGIN-ĐĂNG NHẬP ================= */
+/* ================= ĐĂNG NHẬP ================= */
+/**
+ * [PUBLIC] Đăng nhập người dùng
+ * Quy trình: Kiểm tra email, so sánh mật khẩu và tạo JWT token có thời hạn 1 ngày.
+ */
 exports.login = (req, res) => {
   const { email, password } = req.body;
 
@@ -94,17 +106,17 @@ exports.login = (req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Wrong password" });
+      return res.status(400).json({ message: "Sai Mật Khẩu" });
     }
 
-    // ✅ tạo token
+    // Tạo mã thông báo xác thực (JWT token)
     const token = jwt.sign(
       { id: user.id, role_id: user.role_id },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
-    // ✅ TRẢ THÊM USER (QUAN TRỌNG NHẤT)
+    // Trả về thông tin người dùng kèm theo token
     res.json({
       message: "Login successful",
       token,
@@ -122,6 +134,10 @@ exports.login = (req, res) => {
 
 
 /* ================= CHANGE PASSWORD (user) ================= */
+/**
+ * [USER] Đổi mật khẩu
+ * Quy trình: Xác thực mật khẩu cũ, mã hóa mật khẩu mới và lưu vào DB kèm theo thông báo bảo mật.
+ */
 exports.changePassword = async (req, res) => {
   try {
     const { oldPass, newPass } = req.body;
@@ -174,6 +190,9 @@ exports.changePassword = async (req, res) => {
 
 
 /* ================= UPDATE (USER) ================= */
+/**
+ * [USER] Cập nhật thông tin cá nhân (chỉ username)
+ */
 exports.updateUserforUser = (req, res) => {
   const { username } = req.body;
   const id = req.user.id;
@@ -202,6 +221,10 @@ exports.updateUserforUser = (req, res) => {
 };
 
 /* ================= GET ALL USERS (ADMIN) ================= */
+/**
+ * [ADMIN] Lấy danh sách tất cả người dùng
+ * Hỗ trợ: Tìm kiếm theo tên/email, lọc theo vai trò (Admin/VIP) và phân trang.
+ */
 exports.getAllUsers = async (req, res) => {
 
   // Kiểm tra quyền admin
@@ -217,7 +240,7 @@ exports.getAllUsers = async (req, res) => {
 
 
   try {
-    // 1️⃣ Count total users (with search if provided)
+    // 1️⃣ Đếm tổng số người dùng (có hỗ trợ tìm kiếm nếu được cung cấp)
     let countSql = `SELECT COUNT(*) AS total FROM users WHERE 1=1`;
     let countParams = [];
     if (search) {
@@ -234,13 +257,13 @@ exports.getAllUsers = async (req, res) => {
     const [countRows] = await db.promise().query(countSql, countParams);
     const total = countRows[0]?.total || 0;
 
-    // 2️⃣ Count total VIP users (always global, not affected by current search)
+    // 2️⃣ Đếm tổng số người dùng VIP (toàn hệ thống, không bị ảnh hưởng bởi tìm kiếm hiện tại)
     const [vipRows] = await db.promise().query(
       `SELECT COUNT(*) AS totalVip FROM users WHERE is_vip = 1`
     );
     const totalVip = vipRows[0]?.totalVip || 0;
 
-    // 3️⃣ Get users for current page
+    // 3️⃣ Lấy danh sách người dùng cho trang hiện tại
     let sql = `
       SELECT 
         users.id,
@@ -286,7 +309,7 @@ exports.getAllUsers = async (req, res) => {
 exports.getUserById = (req, res) => {
   const { id } = req.params;
 
-  // Check quyền admin (có thể bỏ vì đã có middleware isAdmin)
+  // Kiểm tra quyền admin (đã được xử lý bởi middleware isAdmin nhưng vẫn giữ kiểm tra bảo mật)
   if (req.user.role_id !== 1) {
     return res.status(403).json({
       message: "Bạn không có quyền truy cập",
@@ -322,6 +345,9 @@ exports.getUserById = (req, res) => {
 };
 
 /* ================= UPDATE USER (ADMIN) ================= */
+/**
+ * [ADMIN] Cập nhật vai trò (role) của người dùng
+ */
 exports.updateUserforAdmin = (req, res) => {
   const { username, email, role_id } = req.body;
   const { id } = req.params;
@@ -340,6 +366,10 @@ exports.updateUserforAdmin = (req, res) => {
 };
 
 /* ================= DELETE USER (ADMIN) ================= */
+/**
+ * [ADMIN] Xóa tài khoản người dùng
+ * Ràng buộc: Không thể tự xóa chính mình và không thể xóa tài khoản Admin khác.
+ */
 exports.deleteUser = (req, res) => {
   const { id } = req.params;
   const currentUserId = req.user.id;

@@ -1,6 +1,6 @@
 const db = require("../db");
 
-/* ================= GET ALL GENRES ================= */
+/* ================= LẤY TẤT CẢ THỂ LOẠI (ADMIN) ================= */
 exports.getAllGenres = (req, res) => {
   try {
     db.query("SELECT * FROM genres", (err, genres) => {
@@ -15,7 +15,7 @@ exports.getAllGenres = (req, res) => {
   }
 };
 
-/* ================= GET PUBLIC GENRES ================= */
+/* ================= LẤY DANH SÁCH THỂ LOẠI CÔNG KHAI ================= */
 exports.getPublicGenres = (req, res) => {
   try {
     db.query("SELECT * FROM genres ORDER BY name ASC", (err, genres) => {
@@ -30,7 +30,7 @@ exports.getPublicGenres = (req, res) => {
   }
 };
 
-/* ================= GET GENRE BY ID ================= */
+/* ================= LẤY THỂ LOẠI THEO ID ================= */
 exports.getGenreById = (req, res) => {
   try {
     db.query(
@@ -52,7 +52,7 @@ exports.getGenreById = (req, res) => {
   }
 };
 
-/* ================= CREATE GENRE ================= */
+/* ================= TẠO THỂ LOẠI MỚI ================= */
 exports.createGenre = (req, res) => {
   try {
     const { name } = req.body;
@@ -78,7 +78,7 @@ exports.createGenre = (req, res) => {
   }
 };
 
-/* ================= UPDATE GENRE ================= */
+/* ================= CẬP NHẬT THỂ LOẠI ================= */
 exports.updateGenre = (req, res) => {
   try {
     const { name } = req.body;
@@ -103,7 +103,7 @@ exports.updateGenre = (req, res) => {
   }
 };
 
-/* ================= DELETE GENRE ================= */
+/* ================= XÓA THỂ LOẠI ================= */
 exports.deleteGenre = (req, res) => {
   try {
     db.query(

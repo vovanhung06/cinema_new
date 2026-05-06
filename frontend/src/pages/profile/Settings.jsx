@@ -22,14 +22,14 @@ const Settings = () => {
            initial={{ opacity: 0, y: 20 }}
            animate={{ opacity: 1, y: 0 }}
         >
-          <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">System Preferences</p>
+          <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Tùy chọn Hệ thống</p>
           <h2 className="text-3xl md:text-5xl font-black text-on-surface italic tracking-tighter uppercase">Cấu hình <span className="text-glow text-primary">Hệ thống.</span></h2>
           <div className="absolute -bottom-4 left-0 w-20 h-1 bg-primary rounded-full"></div>
         </motion.div>
       </header>
 
       <div className="grid grid-cols-1 gap-12">
-        {/* Category: Experience */}
+        {/* Phân loại: Trải nghiệm */}
         <motion.section 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -82,7 +82,7 @@ const Settings = () => {
           </div>
         </motion.section>
 
-        {/* Category: Streaming & Content */}
+        {/* Phân loại: Truyền tải & Nội dung */}
         <motion.section 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

@@ -285,10 +285,10 @@ export default function Statistics() {
             <h3 className="text-xl font-bold font-headline mb-1">Phim xem nhiều nhất</h3>
             <p className="text-sm text-on-surface-variant">Top xu hướng trong khoảng thời gian đã chọn</p>
           </div>
-          <button className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-primary-container hover:bg-primary-container/10 px-4 py-2 rounded-xl transition-all">
+          {/* <button className="flex items-center gap-2 text-sm font-bold uppercase tracking-widest text-primary-container hover:bg-primary-container/10 px-4 py-2 rounded-xl transition-all">
             <span>Chi tiết</span>
             <ArrowRight className="w-4 h-4" />
-          </button>
+          </button> */}
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left">
@@ -356,7 +356,7 @@ export default function Statistics() {
               <Receipt className="w-5 h-5 text-primary" />
               Lịch sử Doanh thu
             </h3>
-            <p className="text-[10px] md:text-sm text-on-surface-variant font-medium">Báo cáo giao dịch từ <code className="bg-surface-container px-1.5 py-0.5 rounded text-primary text-[10px] font-mono whitespace-nowrap">vip_history</code></p>
+            {/* <p className="text-[10px] md:text-sm text-on-surface-variant font-medium">Báo cáo giao dịch từ <code className="bg-surface-container px-1.5 py-0.5 rounded text-primary text-[10px] font-mono whitespace-nowrap">vip_history</code></p> */}
           </div>
           {/* Summary mini-cards */}
           <div className="flex gap-3 flex-wrap">

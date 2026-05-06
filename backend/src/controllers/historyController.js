@@ -1,6 +1,10 @@
 const db = require("../db");
 
-// Record watch history
+
+/**
+ * [USER] Lưu lịch sử xem phim
+ * Quy trình: Nếu đã xem thì cập nhật thời gian xem mới nhất, nếu chưa thì thêm bản ghi mới.
+ */
 exports.addToHistory = async (req, res) => {
   const { movie_id } = req.body;
   const user_id = req.user.id;
@@ -10,7 +14,7 @@ exports.addToHistory = async (req, res) => {
   }
 
   try {
-    // Manual UPSERT for compatibity with table that lacks composite unique key
+    // Xử lý cập nhật hoặc thêm mới lịch sử xem phim
     const updateSql = `UPDATE watch_history SET updated_at = CURRENT_TIMESTAMP WHERE user_id = ? AND movie_id = ?`;
     const [updateResult] = await db.promise().query(updateSql, [user_id, movie_id]);
 
@@ -26,7 +30,10 @@ exports.addToHistory = async (req, res) => {
   }
 };
 
-// Get user's recent history
+
+/**
+ * [USER] Lấy danh sách lịch sử xem phim của chính mình
+ */
 exports.getHistoryMe = async (req, res) => {
   const user_id = req.user.id;
   const limit = parseInt(req.query.limit) || 20;
@@ -62,7 +69,10 @@ exports.getHistoryMe = async (req, res) => {
   }
 };
 
-// Delete single history item
+
+/**
+ * [USER] Xóa một phim khỏi lịch sử xem
+ */
 exports.deleteHistoryItem = async (req, res) => {
     const { movie_id } = req.params;
     const user_id = req.user.id;
@@ -75,7 +85,10 @@ exports.deleteHistoryItem = async (req, res) => {
     }
 };
 
-// Clear all history
+
+/**
+ * [USER] Xóa toàn bộ lịch sử xem phim
+ */
 exports.clearHistory = async (req, res) => {
     const user_id = req.user.id;
 

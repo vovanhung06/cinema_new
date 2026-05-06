@@ -75,25 +75,25 @@ const Billing = () => {
            initial={{ opacity: 0, y: 20 }}
            animate={{ opacity: 1, y: 0 }}
         >
-          <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Subscription & Billing</p>
+          <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Gói dịch vụ & Thanh toán</p>
           <h2 className="text-3xl md:text-5xl font-black text-on-surface italic tracking-tighter uppercase">Thanh toán & <span className="text-glow text-primary">Dịch vụ.</span></h2>
         </motion.div>
         
-        <div className="flex items-center gap-4">
+        {/* <div className="flex items-center gap-4">
            <div className="px-5 py-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-2xl text-[10px] font-black uppercase tracking-widest text-emerald-400 flex items-center gap-2">
               <ShieldCheck className="w-4 h-4" /> Tài khoản Đã Xác Thực
            </div>
-        </div>
+        </div> */}
       </header>
 
       <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
-        {/* Current Plan - High Impact */}
+        {/* Gói hiện tại - Hiệu ứng thị giác cao */}
         <div className="xl:col-span-12">
           <motion.div 
             whileHover={{ scale: 1.01 }}
             className="relative rounded-[2.5rem] md:rounded-[3.5rem] p-6 md:p-12 text-on-surface overflow-hidden shadow-2xl min-h-[300px] md:min-h-[350px] flex flex-col xl:flex-row justify-between items-center group shadow-primary/20"
           >
-            {/* Background Layer with Premium Gradient */}
+            {/* Lớp nền với hiệu ứng Gradient cao cấp */}
             <div className={`absolute inset-0 bg-gradient-to-br ${isVipActive(user) ? 'from-purple-900 via-indigo-950 to-black' : 'from-primary via-primary-container to-black'} -z-10 transition-transform duration-700 group-hover:scale-110`}></div>
 
             <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_70%_30%,rgba(255,255,255,0.1)_0%,transparent_70%)] -z-10"></div>
@@ -105,7 +105,7 @@ const Billing = () => {
                   animate={{ opacity: 1, x: 0 }}
                   className={`inline-block px-5 py-2 ${isVipActive(user) ? 'bg-amber-400/20 text-amber-400 border-amber-400/30' : 'bg-white/10 text-on-surface/80 border-outline-variant/20'} backdrop-blur-xl rounded-2xl text-[10px] font-black uppercase tracking-[0.4em] border`}
                 >
-                  {isVipActive(user) ? '⭐ Current Premium VIP' : 'Recommended Premium Plan'}
+                  {isVipActive(user) ? '⭐ Gói Premium VIP Hiện tại' : 'Gói Premium Đề xuất'}
 
                 </motion.div>
                 <h3 className={`text-4xl md:text-6xl lg:text-7xl font-black italic truncate uppercase tracking-tighter leading-none ${isVipActive(user) ? 'text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-amber-200 animate-pulse-slow' : 'text-on-surface'}`}>
@@ -216,7 +216,7 @@ const Billing = () => {
                </button>
              </div>
            </div>
-         {/* Billing History Section */}
+         {/* Phần Lịch sử Giao dịch */}
          <div className={user?.is_vip ? "xl:col-span-12 space-y-8" : "xl:col-span-7 space-y-8"}>
            <div className="glass-dark rounded-[3rem] border border-outline-variant/20 shadow-2xl relative overflow-hidden group">
               <div className="p-6 md:p-10 pb-4 flex items-center justify-between">
@@ -258,7 +258,7 @@ const Billing = () => {
                          <td className="px-10 py-6 text-right">
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/10 rounded-full border border-emerald-500/20">
                                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div>
-                               <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Success</span>
+                                <span className="text-[9px] font-black text-emerald-500 uppercase tracking-widest">Thành công</span>
                             </div>
                          </td>
                        </motion.tr>
@@ -279,7 +279,7 @@ const Billing = () => {
          </div>
        </div>
 
-       {/* Confirm Cancel VIP Modal */}
+       {/* Modal Xác nhận Hủy VIP */}
        <AnimatePresence>
          {isConfirmModalOpen && (
            <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 sm:p-4">
@@ -340,7 +340,7 @@ const Billing = () => {
          )}
        </AnimatePresence>
 
-       {/* Success Modal */}
+       {/* Modal Thành công */}
        <AnimatePresence>
          {isSuccessModalOpen && (
            <div className="fixed inset-0 z-[110] flex items-center justify-center p-6 sm:p-4">

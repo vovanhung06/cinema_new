@@ -97,7 +97,7 @@ const Notifications = () => {
            initial={{ opacity: 0, y: 20 }}
            animate={{ opacity: 1, y: 0 }}
         >
-          <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">System Alerts</p>
+          <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Cảnh báo hệ thống</p>
           <h2 className="text-3xl md:text-5xl font-black text-on-surface italic tracking-tighter uppercase">Trung tâm <span className="text-glow text-primary">Thông báo.</span></h2>
         </motion.div>
         

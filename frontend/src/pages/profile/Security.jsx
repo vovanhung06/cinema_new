@@ -8,17 +8,13 @@ const Security = ({ showPassword, setShowPassword }) => {
   const { changePassword } = useAuth();
 
   // 🔥 STATE FORM
-  const [form, setForm] = useState({
-    oldPass: "",
-    newPass: "",
-    confirmPass: "",
-  });
+  // KHỞI TẠO TRẠNG THÁI FORM (STATE FORM)
 
   const [loading, setLoading] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  // 🔥 HANDLE SUBMIT
+  // XỬ LÝ GỬI FORM (HANDLE SUBMIT)
   const handleChangePassword = async () => {
     setSuccessMsg("");
     setErrorMsg("");
@@ -65,7 +61,7 @@ const Security = ({ showPassword, setShowPassword }) => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Privacy & Protection</p>
+          <p className="text-primary font-black uppercase tracking-[0.4em] text-[10px] mb-4">Quyền riêng tư & Bảo vệ</p>
           <h2 className="text-3xl md:text-5xl font-black text-on-surface italic tracking-tighter uppercase">
             Bảo mật <span className="text-glow text-primary">Tài khoản.</span>
           </h2>
@@ -73,7 +69,7 @@ const Security = ({ showPassword, setShowPassword }) => {
         </motion.div>
       </header>
 
-      {/* Password Management */}
+      {/* Quản lý Mật khẩu */}
       <motion.section
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -112,7 +108,7 @@ const Security = ({ showPassword, setShowPassword }) => {
           </div>
 
           <div className="space-y-6">
-            {/* NEW PASSWORD */}
+            {/* MẬT KHẨU MỚI */}
             <div className="space-y-4">
               <label className="text-[10px] font-black text-on-surface-variant/40 uppercase tracking-[0.3em] ml-2">
                 Mật khẩu mới
@@ -121,12 +117,12 @@ const Security = ({ showPassword, setShowPassword }) => {
                 value={form.newPass}
                 onChange={(e) => setForm({ ...form, newPass: e.target.value })}
                 className="w-full bg-surface border border-outline-variant/20 rounded-2xl py-5 px-6 text-sm font-black text-on-surface tracking-widest focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-                placeholder="New password"
+                placeholder="Mật khẩu mới"
                 type="password"
               />
             </div>
 
-            {/* CONFIRM PASSWORD */}
+            {/* XÁC NHẬN MẬT KHẨU */}
             <div className="space-y-4">
               <label className="text-[10px] font-black text-on-surface-variant/40 uppercase tracking-[0.3em] ml-2">
                 Xác nhận mật khẩu
@@ -135,7 +131,7 @@ const Security = ({ showPassword, setShowPassword }) => {
                 value={form.confirmPass}
                 onChange={(e) => setForm({ ...form, confirmPass: e.target.value })}
                 className="w-full bg-surface border border-outline-variant/20 rounded-2xl py-5 px-6 text-sm font-black text-on-surface tracking-widest focus:ring-2 focus:ring-primary/20 transition-all outline-none"
-                placeholder="Repeat new password"
+                placeholder="Nhập lại mật khẩu mới"
                 type="password"
               />
             </div>
@@ -167,7 +163,7 @@ const Security = ({ showPassword, setShowPassword }) => {
             )}
           </AnimatePresence>
 
-          {/* BUTTON */}
+          {/* NÚT CẬP NHẬT (BUTTON) */}
           <button
             onClick={handleChangePassword}
             disabled={loading}
@@ -180,7 +176,7 @@ const Security = ({ showPassword, setShowPassword }) => {
       </motion.section>
 
       {/* Privacy Alert */}
-      <motion.div
+      {/* <motion.div
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         className="p-6 md:p-8 bg-red-500/10 border border-red-500/20 rounded-[2rem] md:rounded-[2.5rem] flex flex-col sm:flex-row items-start gap-4 md:gap-6"
@@ -194,7 +190,7 @@ const Security = ({ showPassword, setShowPassword }) => {
             Nếu bạn nhận thấy bất kỳ hoạt động đáng ngờ nào, hãy lập tức thay đổi mật khẩu và đăng xuất khỏi mọi thiết bị.
           </p>
         </div>
-      </motion.div>
+      </motion.div> */}
     </div>
   );
 };

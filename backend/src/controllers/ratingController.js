@@ -1,5 +1,9 @@
 const db = require("../db");
 
+/**
+ * [USER] Gửi đánh giá (số sao) cho phim
+ * Quy trình: Kiểm tra xem người dùng đã đánh giá chưa. Nếu rồi thì cập nhật, nếu chưa thì thêm mới.
+ */
 exports.createOrUpdateRating = (req, res) => {
   const user_id = req.user.id;
   const { movieId, value } = req.body;
@@ -47,6 +51,9 @@ exports.createOrUpdateRating = (req, res) => {
   });
 };
 
+/**
+ * [PUBLIC] Lấy danh sách tất cả đánh giá của một bộ phim kèm theo điểm trung bình
+ */
 exports.getRatingsByMovie = (req, res) => {
   const movieId = req.params.movieId;
 
@@ -81,6 +88,9 @@ exports.getRatingsByMovie = (req, res) => {
   });
 };
 
+/**
+ * [USER] Lấy thông tin đánh giá của chính người dùng hiện tại đối với một bộ phim
+ */
 exports.getUserRatingByMovie = (req, res) => {
   const movieId = req.params.movieId;
   const user_id = req.user.id;

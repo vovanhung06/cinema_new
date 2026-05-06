@@ -8,11 +8,16 @@ import { useAuth } from '../hooks/useAuth';
 import { motion } from 'motion/react';
 import { ChevronDown } from 'lucide-react';
 
+/**
+ * Trang chọn gói VIP (VIP Selection Page)
+ * Hiển thị thông tin về các gói cước VIP, quyền lợi và bảng so sánh tính năng.
+ */
 export default function VIPSelection() {
   const { user } = useAuth();
   const [vipPlan, setVipPlan] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Lấy danh sách gói VIP từ Backend khi trang tải
   useEffect(() => {
     const fetchVip = async () => {
       try {
@@ -29,6 +34,7 @@ export default function VIPSelection() {
     fetchVip();
   }, []);
 
+  // Định nghĩa các gói cước để hiển thị trên giao diện (Card)
   const plans = vipPlan ? [
     {
       title: vipPlan.title,

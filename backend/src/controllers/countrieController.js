@@ -1,6 +1,6 @@
 const db = require("../db");
 
-/* ================= GET ALL COUNTRIES ================= */
+/* ================= LẤY TẤT CẢ QUỐC GIA (ADMIN) ================= */
 exports.getAllCountries = (req, res) => {
   try {
     // kiểm tra quyền admin
@@ -22,7 +22,7 @@ exports.getAllCountries = (req, res) => {
   }
 };
 
-/* ================= GET PUBLIC COUNTRIES ================= */
+/* ================= LẤY DANH SÁCH QUỐC GIA CÔNG KHAI ================= */
 exports.getPublicCountries = (req, res) => {
   try {
     db.query("SELECT * FROM countries ORDER BY name ASC", (err, countries) => {
@@ -37,7 +37,7 @@ exports.getPublicCountries = (req, res) => {
   }
 };
 
-/* ================= GET COUNTRY BY ID ================= */
+/* ================= LẤY QUỐC GIA THEO ID ================= */
 exports.getCountryById = (req, res) => {
   try {
     db.query(
@@ -59,7 +59,7 @@ exports.getCountryById = (req, res) => {
   }
 };
 
-/* ================= CREATE COUNTRY ================= */
+/* ================= TẠO QUỐC GIA MỚI ================= */
 exports.createCountry = (req, res) => {
   try {
     const { name } = req.body;
@@ -88,7 +88,7 @@ exports.createCountry = (req, res) => {
   }
 };
 
-/* ================= UPDATE COUNTRY ================= */
+/* ================= CẬP NHẬT QUỐC GIA ================= */
 exports.updateCountry = (req, res) => {
   try {
     const { name } = req.body;
@@ -116,7 +116,7 @@ exports.updateCountry = (req, res) => {
   }
 };
 
-/* ================= DELETE COUNTRY ================= */
+/* ================= XÓA QUỐC GIA ================= */
 exports.deleteCountry = (req, res) => {
   try {
     db.query(

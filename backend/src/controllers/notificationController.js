@@ -1,5 +1,8 @@
 const db = require("../db");
 
+/**
+ * [USER] Lấy toàn bộ danh sách thông báo của người dùng hiện tại
+ */
 exports.getUserNotifications = (req, res) => {
   const userId = req.user.id;
   const sql = "SELECT * FROM notifications WHERE user_id = ? ORDER BY created_at DESC";
@@ -9,6 +12,9 @@ exports.getUserNotifications = (req, res) => {
   });
 };
 
+/**
+ * [USER] Lấy số lượng thông báo chưa đọc
+ */
 exports.getUnreadCount = (req, res) => {
   const userId = req.user.id;
   const sql = "SELECT COUNT(*) as unreadCount FROM notifications WHERE user_id = ? AND is_read = FALSE";
@@ -18,6 +24,9 @@ exports.getUnreadCount = (req, res) => {
   });
 };
 
+/**
+ * [USER] Đánh dấu một thông báo là đã đọc
+ */
 exports.markAsRead = (req, res) => {
   const userId = req.user.id;
   const notificationId = req.params.id;
@@ -28,6 +37,9 @@ exports.markAsRead = (req, res) => {
   });
 };
 
+/**
+ * [USER] Đánh dấu tất cả thông báo là đã đọc
+ */
 exports.markAllAsRead = (req, res) => {
   const userId = req.user.id;
   const sql = "UPDATE notifications SET is_read = TRUE WHERE user_id = ?";
@@ -37,6 +49,9 @@ exports.markAllAsRead = (req, res) => {
   });
 };
 
+/**
+ * [USER] Xóa toàn bộ các thông báo đã đọc
+ */
 exports.deleteAllRead = (req, res) => {
   const userId = req.user.id;
   const sql = "DELETE FROM notifications WHERE user_id = ? AND is_read = TRUE";
@@ -46,6 +61,9 @@ exports.deleteAllRead = (req, res) => {
   });
 };
 
+/**
+ * [USER] Xóa một thông báo cụ thể
+ */
 exports.deleteNotification = (req, res) => {
   const userId = req.user.id;
   const notificationId = req.params.id;
@@ -56,7 +74,7 @@ exports.deleteNotification = (req, res) => {
   });
 };
 
-// Admin route or internal test route
+// Route cho Admin hoặc kiểm thử nội bộ
 exports.createNotification = (req, res) => {
   const { user_id, title, message, type } = req.body;
   if (!user_id || !title || !message) {

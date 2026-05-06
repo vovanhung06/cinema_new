@@ -43,6 +43,11 @@ const getAuthHeaders = () => {
   return { headers: { Authorization: `Bearer ${token}` } };
 };
 
+/**
+ * Trang thanh toán (Checkout Page)
+ * Xử lý thanh toán qua mã QR (VietQR) và tự động xác nhận qua Webhook.
+ * Bao gồm logic đếm ngược thời gian hết hạn mã QR và Polling kiểm tra trạng thái giao dịch.
+ */
 export default function Checkout() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -112,6 +117,7 @@ export default function Checkout() {
   }, [randomCode, user, isSuccess, isExpired, timeLeft]);
 
   // Register session with backend
+  // Đăng ký phiên thanh toán với Backend để chuẩn bị xác nhận Webhook
   const registerSession = useCallback(async (code) => {
     if (!user) return;
     try {
@@ -140,6 +146,7 @@ export default function Checkout() {
   }, [registerSession, user]);
 
   // Countdown timer + QR expiry
+  // Quản lý đồng hồ đếm ngược và xử lý khi mã QR hết hạn
   useEffect(() => {
     if (isSuccess || isExpired) return;
 
@@ -162,6 +169,7 @@ export default function Checkout() {
   }, [isSuccess, isExpired, randomCode, registerSession]);
 
   // Polling: check session status
+  // Polling: Liên tục kiểm tra trạng thái thanh toán từ Server mỗi 5 giây
   useEffect(() => {
     if (isSuccess || isExpired || !user) return;
 

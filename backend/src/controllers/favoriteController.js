@@ -1,6 +1,9 @@
 const db = require("../db");
 
-/* ================= FAVORITES: GET FAVORITES ================= */
+/* ================= DANH SÁCH YÊU THÍCH: LẤY DANH SÁCH ================= */
+/**
+ * [USER] Lấy danh sách phim yêu thích của người dùng hiện tại
+ */
 exports.getFavorites = (req, res) => {
   const userId = req.user.id;
 
@@ -31,7 +34,10 @@ exports.getFavorites = (req, res) => {
   });
 };
 
-/* ================= FAVORITES: ADD FAVORITE ================= */
+/* ================= DANH SÁCH YÊU THÍCH: THÊM YÊU THÍCH ================= */
+/**
+ * [USER] Thêm một bộ phim vào danh sách yêu thích
+ */
 exports.addFavorite = (req, res) => {
   const userId = req.user.id;
   const { movie_id } = req.body;
@@ -48,7 +54,10 @@ exports.addFavorite = (req, res) => {
   });
 };
 
-/* ================= FAVORITES: REMOVE FAVORITE ================= */
+/* ================= DANH SÁCH YÊU THÍCH: XÓA YÊU THÍCH ================= */
+/**
+ * [USER] Xóa một bộ phim khỏi danh sách yêu thích
+ */
 exports.removeFavorite = (req, res) => {
   const userId = req.user.id;
   const { movie_id } = req.params;
