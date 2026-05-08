@@ -14,6 +14,11 @@ const Security = ({ showPassword, setShowPassword }) => {
   const [successMsg, setSuccessMsg] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
+  const [form, setForm] = useState({
+    oldPass: "",
+    newPass: "",
+    confirmPass: "",
+  });
   // XỬ LÝ GỬI FORM (HANDLE SUBMIT)
   const handleChangePassword = async () => {
     setSuccessMsg("");
