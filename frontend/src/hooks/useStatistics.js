@@ -42,7 +42,9 @@ export function useStatistics() {
     topMovies: data?.topMovies || [],
     userStats: data?.userStats || { total: 0, vip: 0, new: 0, vipPercentage: '0%' },
     vipTrend: data?.vipTrend || { labels: [], counts: [] },
+    viewTrend: data?.viewTrend || { labels: [], counts: [] },
     timeRange,
+
     handleTimeRangeChange,
     loading,
     error

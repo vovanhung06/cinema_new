@@ -23,6 +23,8 @@ router.get("/search", movieController.searchMovies);
 router.get("/public/filter", movieController.filterMovies);
 router.get("/public", movieController.getPublicMovies);
 router.get("/:id", movieController.getMovieById);
+router.post("/:id/view", require("../middlewares/usersMiddleware").verifyTokenOptional, movieController.recordView);
+
 
 // ================= ADMIN (PROTECTED) =================
 

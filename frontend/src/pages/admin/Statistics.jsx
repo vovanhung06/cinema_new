@@ -17,7 +17,8 @@ import {
   Clock,
   RefreshCw,
   CheckCircle2,
-  XCircle
+  XCircle,
+  Eye
 } from 'lucide-react';
 import { cn } from '../../lib/utils.js';
 import { useStatistics } from '../../hooks/useStatistics.js';
@@ -31,6 +32,7 @@ export default function Statistics() {
     topMovies,
     userStats,
     vipTrend,
+    viewTrend,
     timeRange,
     handleTimeRangeChange,
     loading,
@@ -276,7 +278,75 @@ export default function Statistics() {
             })}
           </div>
         </div>
+
+        {/* View Trends Chart (New Section) */}
+        <div className="col-span-12 bg-surface-container-low rounded-xl p-8 border border-outline-variant/10 shadow-2xl relative overflow-hidden group mt-6">
+          <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity pointer-events-none">
+            <Eye className="w-48 h-48 text-blue-500" />
+          </div>
+
+          <div className="flex justify-between items-start mb-12">
+            <div className="space-y-1">
+              <h3 className="text-2xl font-black font-headline flex items-center gap-3">
+                <div className="p-2.5 bg-blue-500/10 rounded-xl">
+                  <Eye className="w-6 h-6 text-blue-500" />
+                </div>
+                Thống kê Lượt xem Phim
+              </h3>
+              <p className="text-on-surface-variant max-w-lg">Tổng số lượt xem được ghi nhận qua từng giai đoạn ({timeRange}).</p>
+            </div>
+            <div className="flex flex-col items-end gap-2 shrink-0">
+              <div className="flex items-center gap-2 bg-blue-600 text-white px-3 md:px-5 py-2 md:py-2.5 rounded-xl shadow-lg shadow-blue-500/20">
+                <Eye className="w-4 h-4 md:w-5 md:h-5 fill-white" />
+                <span className="text-[10px] md:text-sm font-black uppercase tracking-widest">{viewTrend.counts.reduce((a, b) => a + b, 0).toLocaleString()} Views</span>
+              </div>
+              <span className="text-[8px] md:text-[10px] font-bold text-on-surface-variant italic uppercase tracking-tighter">Real-time Data</span>
+            </div>
+          </div>
+
+          <div className="relative h-72 w-full mt-4 flex items-end justify-between gap-4 px-2">
+            {/* Background Grid Lines (Horizontal) */}
+            <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-20">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="w-full border-t border-dashed border-outline-variant" />
+              ))}
+            </div>
+
+            {viewTrend.counts.map((val, i) => {
+              const max = Math.max(...viewTrend.counts, 10);
+              const heightPercent = (val / max) * 100;
+
+              return (
+                <div key={i} className="flex-1 flex flex-col items-center justify-end relative group/bar z-10 h-full">
+                  {/* Value Label */}
+                  <div className="mb-3 text-sm font-black text-blue-400 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                    {val > 0 ? val : ''}
+                  </div>
+
+                  {/* Bar */}
+                  <div
+                    className={cn(
+                      "w-full max-w-[80px] rounded-t-2xl transition-all duration-700 ease-out relative shadow-lg",
+                      val > 0 ? "bg-blue-500" : "bg-surface-container-highest",
+                      "group-hover/bar:bg-blue-400 group-hover/bar:scale-105"
+                    )}
+                    style={{ height: `${Math.max(5, heightPercent)}%` }}
+                  >
+                    {/* Glossy Effect */}
+                    <div className="absolute inset-0 bg-white/10 rounded-t-2xl opacity-0 group-hover/bar:opacity-100 transition-opacity" />
+                  </div>
+
+                  {/* Label */}
+                  <div className="mt-6 text-[10px] font-black text-on-surface-variant uppercase tracking-widest text-center whitespace-nowrap overflow-hidden text-ellipsis w-full">
+                    {viewTrend.labels[i]}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
+
 
       {/* Top Movies Table */}
       <section className="bg-surface-container-low rounded-xl overflow-hidden shadow-xl border border-outline-variant/10">

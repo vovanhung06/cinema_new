@@ -3,6 +3,7 @@ import Plyr from 'plyr';
 import Hls from 'hls.js';
 import { deobfuscate } from '../utils/obfuscate';
 import { addToHistory } from '../service/history_service';
+import { recordMovieView } from '../service/movie_service';
 import 'plyr/dist/plyr.css';
 
 const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { } }) => {
@@ -88,6 +89,7 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
               clearInterval(watchTimerRef.current);
               hasLoggedHistoryRef.current = true;
               addToHistory(movieId).catch(err => console.error("History log failed:", err));
+              recordMovieView(movieId).catch(err => console.error("View record failed:", err));
             }
           }, 1000);
         }

@@ -206,3 +206,19 @@ export const uploadMovieVideo = async (movieId, videoFile, onUploadProgress) => 
     throw error;
   }
 };
+
+// Ghi nhận một lượt xem phim
+export const recordMovieView = async (id) => {
+  try {
+    const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+    const headers = token ? { Authorization: `Bearer ${token}` } : {};
+    
+    const response = await axios.post(`${API_BASE_URL}/movies/${id}/view`, {}, { headers });
+    return response.data;
+  } catch (error) {
+    // Không ném lỗi ra ngoài để tránh làm gián đoạn trải nghiệm người dùng nếu API view bị lỗi
+    console.error('Error recording movie view:', error);
+    return { success: false };
+  }
+};
+

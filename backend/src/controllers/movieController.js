@@ -713,3 +713,33 @@ exports.getMovieYears = async (req, res) => {
     res.status(500).json(err);
   }
 };
+
+// ================= [PUBLIC] GHI NHẬN LƯỢT XEM =================
+/**
+ * [PUBLIC] Ghi nhận một lượt xem phim
+ * Có thể là khách (user_id = null) hoặc user đã đăng nhập.
+ */
+exports.recordView = async (req, res) => {
+  const { id } = req.params;
+  const user_id = req.user ? req.user.id : null;
+
+  try {
+    // Thêm bản ghi vào movie_views
+    // Giả định bảng movie_views có (movie_id, user_id, viewed_at)
+    // viewed_at thường có default là CURRENT_TIMESTAMP
+    const sql = `INSERT INTO movie_views (movie_id, user_id) VALUES (?, ?)`;
+    await db.promise().query(sql, [id, user_id]);
+
+    res.status(200).json({
+      success: true,
+      message: "View recorded"
+    });
+  } catch (err) {
+    console.error("RECORD VIEW ERROR:", err);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi khi ghi nhận lượt xem",
+      error: err.message
+    });
+  }
+};

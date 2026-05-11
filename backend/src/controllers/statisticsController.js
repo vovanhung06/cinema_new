@@ -208,6 +208,58 @@ exports.getStatistics = async (req, res) => {
             vipPercentage: Math.round((vipUsersRows[0].total / (totalUsersRows[0].total || 1)) * 100) + '%'
         };
 
+        // 6. Xu hướng Lượt xem (Movie Views Trend)
+        let viewTrendLabels = [];
+        let viewTrendCounts = [];
+        
+        if (timeRange === 'month') {
+            const [viewRows] = await db.promise().query(`
+                SELECT DATE_FORMAT(viewed_at, '%m/%Y') as label, COUNT(*) as count
+                FROM movie_views
+                WHERE viewed_at >= DATE_SUB(LAST_DAY(NOW()), INTERVAL 6 MONTH)
+                GROUP BY label
+                ORDER BY MIN(viewed_at) ASC
+            `);
+            for (let i = 5; i >= 0; i--) {
+                let d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+                let lbl = `${(d.getMonth() + 1).toString().padStart(2, '0')}/${d.getFullYear()}`;
+                viewTrendLabels.push(labels[5-i] || (d.getMonth() + 1).toString());
+                let found = viewRows.find(r => r.label === lbl);
+                viewTrendCounts.push(found ? parseInt(found.count) : 0);
+            }
+        } else if (timeRange === 'quarter') {
+            const [viewRows] = await db.promise().query(`
+                SELECT CONCAT('Q', QUARTER(viewed_at), '/', YEAR(viewed_at)) as label, COUNT(*) as count
+                FROM movie_views
+                WHERE viewed_at >= DATE_SUB(NOW(), INTERVAL 1 YEAR)
+                GROUP BY label
+                ORDER BY MIN(viewed_at) ASC
+            `);
+            for (let i = 3; i >= 0; i--) {
+                let d = new Date(); d.setMonth(d.getMonth() - (i * 3));
+                let q = Math.ceil((d.getMonth() + 1) / 3);
+                let lbl = `Q${q}/${d.getFullYear()}`;
+                viewTrendLabels.push('Quý ' + q);
+                let found = viewRows.find(r => r.label === lbl);
+                viewTrendCounts.push(found ? parseInt(found.count) : 0);
+            }
+        } else { // năm
+            const [viewRows] = await db.promise().query(`
+                SELECT YEAR(viewed_at) as label, COUNT(*) as count
+                FROM movie_views
+                WHERE viewed_at >= DATE_SUB(NOW(), INTERVAL 5 YEAR)
+                GROUP BY label
+                ORDER BY label ASC
+            `);
+            for (let i = 4; i >= 0; i--) {
+                let yr = now.getFullYear() - i;
+                viewTrendLabels.push(yr.toString());
+                let found = viewRows.find(r => r.label == yr);
+                viewTrendCounts.push(found ? parseInt(found.count) : 0);
+            }
+        }
+
+
         // Tính toán Tỷ lệ tăng trưởng (so sánh tổng thời kỳ hiện tại với trước đó)
         const currentTotal = heights[heights.length - 1] || 0;
         const prevTotal = heights[heights.length - 2] || 0;
@@ -239,9 +291,14 @@ exports.getStatistics = async (req, res) => {
                 vipTrend: {
                     labels: vipTrendLabels,
                     counts: vipTrendCounts
+                },
+                viewTrend: {
+                    labels: viewTrendLabels,
+                    counts: viewTrendCounts
                 }
             }
         });
+
 
     } catch (error) {
         console.error("GET STATS ERROR:", error);
