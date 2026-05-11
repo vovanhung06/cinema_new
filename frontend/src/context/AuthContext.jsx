@@ -80,8 +80,8 @@ export const AuthProvider = ({ children }) => {
                 ? 'admin'
                 : 'user'
               : res.data.role_id === 1
-              ? 'admin'
-              : 'user',
+                ? 'admin'
+                : 'user',
           is_vip: !!res.data.is_vip,
           vip_expired_at: res.data.vip_expired_at,
           vipStatus: res.data.is_vip ? "VIP MEMBER" : "STANDARD",
@@ -125,8 +125,8 @@ export const AuthProvider = ({ children }) => {
               ? "admin"
               : "user"
             : res.data.role_id === 1
-            ? "admin"
-            : "user",
+              ? "admin"
+              : "user",
       };
 
 
@@ -160,8 +160,8 @@ export const AuthProvider = ({ children }) => {
               ? 'admin'
               : 'user'
             : res.data.role_id === 1
-            ? 'admin'
-            : 'user',
+              ? 'admin'
+              : 'user',
       };
 
 
@@ -177,13 +177,13 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-const changePassword = async (data) => {
-  try {
-    await changePasswordAPI(data);
-  } catch (err) {
-    throw err;
-  }
-};
+  const changePassword = async (data) => {
+    try {
+      await changePasswordAPI(data);
+    } catch (err) {
+      throw err;
+    }
+  };
 
   const login = (token, user, remember = false) => {
     setToken(token);
@@ -208,6 +208,8 @@ const changePassword = async (data) => {
 
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("checkout_plan");
+    localStorage.removeItem("checkout_session");
     sessionStorage.removeItem("token");
     sessionStorage.removeItem("user");
   };

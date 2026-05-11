@@ -109,14 +109,16 @@ exports.login = (req, res) => {
       return res.status(400).json({ message: "Sai Mật Khẩu" });
     }
 
-    // Tạo mã thông báo xác thực (JWT token)
     const token = jwt.sign(
-      { id: user.id, role_id: user.role_id },
+      {
+        id: user.id,
+        role_id: user.role_id,
+        username: user.username  // ← thêm dòng này
+      },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
-    // Trả về thông tin người dùng kèm theo token
     res.json({
       message: "Login successful",
       token,
