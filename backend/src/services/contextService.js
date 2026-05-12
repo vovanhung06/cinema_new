@@ -183,7 +183,7 @@ exports.getWatchHistory = async (userId, limit = 4) => {
 Bạn chưa xem bộ phim nào gần đây. Hãy bắt đầu khám phá kho phim của Cinema New nhé! 😊`;
 
         const baseContext = formatMovieContext("LỊCH SỬ XEM PHIM (GẦN NHẤT)", rows);
-        
+
         // Thêm ghi chú riêng cho lịch sử
         return `${baseContext}
         
@@ -198,39 +198,76 @@ Bạn chưa xem bộ phim nào gần đây. Hãy bắt đầu khám phá kho phi
  * [NEW] TÌM PHIM THEO TÂM TRẠNG (Mood)
  */
 exports.getMoviesByMood = async (mood) => {
-    // [HEURISTIC] Map mood to Vietnamese genre in DB
     const moodMap = {
         'buồn': 'Tình cảm', 'thất tình': 'Tình cảm', 'cô đơn': 'Tình cảm',
         'vui': 'Hài hước', 'hài': 'Hài hước', 'hài hước': 'Hài hước',
         'chill': 'Hoạt hình', 'nhẹ nhàng': 'Hoạt hình',
-        'sợ': 'Kinh dị', 'kinh dị': 'Kinh dị', 
+        'sợ': 'Kinh dị', 'kinh dị': 'Kinh dị',
         'căng thẳng': 'Hành động', 'hành động': 'Hành động',
-        'hào hứng': 'Hành động', 'phiêu lưu': 'Phiêu lưu',
-        'tâm lý': 'Tâm lý', 'sâu sắc': 'Tâm lý'
+        'đánh nhau': 'Hành động', 'võ thuật': 'Hành động',
+        'chiến đấu': 'Hành động', 'bắn súng': 'Hành động',
+        'gay cấn': 'Hành động', 'kịch tính': 'Hành động',
+        'hồi hộp': 'Hành động', 'lãng mạn': 'Tình cảm',
+        'tình yêu': 'Tình cảm', 'ma': 'Kinh dị', 'rùng rợn': 'Kinh dị',
+        'phiêu lưu': 'Phiêu lưu', 'tâm lý': 'Tâm lý', 'sâu sắc': 'Tâm lý'
     };
 
+    // ── Bước 1: Map trực tiếp toàn chuỗi ──
     const targetGenre = moodMap[mood.toLowerCase()];
     if (targetGenre) {
-        console.log(`🧠 [MoodMapping] ${mood} -> ${targetGenre}`);
         return await getMoviesByGenre(targetGenre);
     }
 
-    // Fallback: Tìm trong description
+    // ── Bước 2: Tách từ, tìm từng từ / bigram trong moodMap ──
+    const words = mood.toLowerCase().split(/\s+/);
+    for (let i = 0; i < words.length; i++) {
+        // Bigram trước
+        if (i < words.length - 1) {
+            const bigram = `${words[i]} ${words[i + 1]}`;
+            if (moodMap[bigram]) return await getMoviesByGenre(moodMap[bigram]);
+        }
+        // Đơn từ
+        if (moodMap[words[i]]) return await getMoviesByGenre(moodMap[words[i]]);
+    }
+
+    // ── Bước 3: Tìm trong title + description (QUAN TRỌNG) ──
     try {
+        // Tách các từ có nghĩa (bỏ từ dừng)
+        const stopWords = ['mà', 'có', 'và', 'với', 'của', 'cho', 'là', 'thì', 'một', 'những', 'các', 'phim', 'bộ', 'cái', 'này'];
+        const keywords = words.filter(w => w.length > 2 && !stopWords.includes(w));
+
+        if (keywords.length === 0) return null;
+
+        // Build điều kiện LIKE cho từng keyword
+        const conditions = keywords.map(() =>
+            `(m.title LIKE ? OR m.description LIKE ?)`
+        ).join(' OR ');
+
+        const params = keywords.flatMap(k => [`%${k}%`, `%${k}%`]);
+
         const [rows] = await db.promise().query(`
-            SELECT m.id, m.title, m.avatar_url, m.required_vip_level,
-                   IFNULL(ROUND(AVG(r.rating), 1), 0) AS rating
+            SELECT 
+                m.id, m.title, m.avatar_url, m.required_vip_level,
+                m.description,
+                IFNULL(ROUND(AVG(r.rating), 1), 0) AS rating,
+                -- Đếm số keyword khớp để sort relevance
+                (
+                    ${keywords.map(() => `(CASE WHEN m.title LIKE ? OR m.description LIKE ? THEN 1 ELSE 0 END)`).join(' + ')}
+                ) AS relevance_score
             FROM movies m
             LEFT JOIN ratings r ON m.id = r.movie_id
-            WHERE m.description LIKE ? OR m.title LIKE ?
+            WHERE ${conditions}
             GROUP BY m.id
-            ORDER BY rating DESC LIMIT 5
-        `, [`%${mood}%`, `%${mood}%`]);
+            ORDER BY relevance_score DESC, rating DESC
+            LIMIT 6
+        `, [...keywords.flatMap(k => [`%${k}%`, `%${k}%`]), ...params]);
 
         if (rows.length === 0) return null;
 
-        return formatMovieContext(`PHIM PHÙ HỢP TÂM TRẠNG: ${mood}`, rows);
+        return formatMovieContext(`PHIM PHÙ HỢP VỚI "${mood}"`, rows);
+
     } catch (err) {
+        console.error("❌ [getMoviesByMood] DB search error:", err);
         return null;
     }
 };
@@ -288,7 +325,7 @@ exports.getMovieDetail = async (movieName) => {
 
         const m = rows[0];
         const card = {
-            id: m.id, title: m.title, poster: m.avatar_url, 
+            id: m.id, title: m.title, poster: m.avatar_url,
             rating: m.rating, year: m.release_date ? new Date(m.release_date).getFullYear() : null,
             genre: m.genres, is_vip: m.required_vip_level > 0
         };
@@ -383,7 +420,7 @@ async function getMoviesByGenre(genreName) {
 
 function formatMovieContext(title, movies) {
     const listDescription = movies.map((m, i) => `${i + 1}. ${m.title} (Rating: ${m.rating}, VIP: ${m.required_vip_level > 0 ? 'Có' : 'Không'})`).join('\n');
-    
+
     // Tạo mảng các JSON moviecard để AI dễ copy-paste
     const cards = movies.map(m => ({
         id: m.id,

@@ -61,6 +61,13 @@ VÍ DỤ:
 User: "Tìm phim hành động" -> {"intent":"MOVIE", "subIntent":"search_by_genre", "entities":{"genre":"Hành Động"}, "confidence":1.0}
 User: "Phim nào buồn buồn" -> {"intent":"MOVIE", "subIntent":"search_by_mood", "entities":{"mood":"buồn"}, "confidence":0.9}
 User: "Giá VIP bao nhiêu?" -> {"intent":"VIP", "subIntent":"pricing", "entities":{}, "confidence":1.0}
+User: "phim về các siêu anh hùng" -> {"intent":"MOVIE","subIntent":"search_by_genre","entities":{"genre":"Hành Động"},"confidence":0.9}
+User: "phim siêu nhân" -> {"intent":"MOVIE","subIntent":"search_by_genre","entities":{"genre":"Hành Động"},"confidence":0.85}
+User: "phim Marvel" -> {"intent":"MOVIE","subIntent":"search_by_name","entities":{"movieName":"Marvel"},"confidence":0.9}
+User: "phim đánh nhau" -> {"intent":"MOVIE","subIntent":"search_by_genre","entities":{"genre":"Hành Động"},"confidence":0.9}
+User: "phim đánh nhau mà có 1 nhân vật chính" -> {"intent":"MOVIE","subIntent":"search_by_genre","entities":{"genre":"Hành Động"},"confidence":0.85}
+User: "phim võ thuật" -> {"intent":"MOVIE","subIntent":"search_by_genre","entities":{"genre":"Hành Động"},"confidence":0.9}
+User: "phim bắn súng" -> {"intent":"MOVIE","subIntent":"search_by_genre","entities":{"genre":"Hành Động"},"confidence":0.9}
 `;
 
     const messages = [
@@ -71,7 +78,7 @@ User: "Giá VIP bao nhiêu?" -> {"intent":"VIP", "subIntent":"pricing", "entitie
 
     try {
         console.log(`🧠 [Layer 1] Detecting intent for: "${message.substring(0, 50)}..."`);
-        
+
         // Luôn ưu tiên cloud cho phân loại chính xác
         const response = await axios({
             method: 'POST',
@@ -96,7 +103,7 @@ User: "Giá VIP bao nhiêu?" -> {"intent":"VIP", "subIntent":"pricing", "entitie
 
     } catch (err) {
         console.error("⚠️  [Layer 1] Intent Detection Failed:", err.message);
-        
+
         // Fallback sang local nếu cloud lỗi
         try {
             console.log("🔄 [Layer 1] Falling back to local for intent detection...");

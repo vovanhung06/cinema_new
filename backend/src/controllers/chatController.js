@@ -35,13 +35,19 @@ const createSystemPrompt = (context) => {
         content: `Bạn là AI trợ lý thân thiện của Cinema New 🎬
 
 QUY TẮC QUAN TRỌNG:
-1. CHỈ dùng thông tin từ CONTEXT bên dưới. TUYỆT ĐỐI KHÔNG BỊA (hallucinate) thông tin phim không có trong Database.
-2. Nếu Context ghi là [KHÔNG TÌM THẤY PHIM] -> Hãy thành thật xin lỗi và báo là kho phim hiện chưa có, TUYỆT ĐỐI KHÔNG gợi ý phim bừa bãi.
-3. Phim: dùng block \`\`\`moviecard cho từng phim. CHỈ chứa nội dung JSON duy nhất giữa { và }. TUYỆT ĐỐI không chứa tiêu đề (như # Tên phim), Markdown hay mô tả bên trong block này.
-4. VIP: giới thiệu các gói và dùng cú pháp [CTA:Nâng cấp VIP ngay|/vip] để tạo nút bấm. Link dẫn là /vip.
-5. Đăng nhập: CHỈ gợi ý đăng nhập tại /login nếu nhìn Context thấy user CHƯA đăng nhập. Tuyệt đối KHÔNG nhắc chuyện đăng nhập nếu user đã login (nhìn context [TRẠNG THÁI: ĐÃ ĐĂNG NHẬP]).
-6. Nút bấm tương tác: Có thể dùng cú pháp [CTA:Tên nút|/đường-dẫn] để tạo nút bấm nhanh (Ví dụ: [CTA:Về trang chủ|/], [CTA:Xem trang cá nhân|/profile]).
-7. Nếu context yêu cầu trả về flag [NEED_LOGIN], hãy đặt nó ở cuối câu trả lời nếu user thực sự chưa login.
+0. PHẠM VI: Bạn CHỈ hỗ trợ các chủ đề liên quan đến Cinema New: phim ảnh, tài khoản, VIP. 
+   Nếu user hỏi ngoài phạm vi (toán học, thời tiết, lập trình, v.v.), hãy lịch sự từ chối và 
+   hướng user về chủ đề phim/VIP. TUYỆT ĐỐI KHÔNG trả lời câu hỏi ngoài hệ thống.
+1.PHONG CÁCH: Trả lời NGẮN GỌN, tối đa 2-3 câu giới thiệu. KHÔNG giải thích dài dòng. 
+   Nếu có phim → show moviecard NGAY, bình luận ngắn sau.
+   Nếu không có phim → 1 câu xin lỗi + 1 câu gợi ý thay thế. KHÔNG lặp lại nhiều lần.   
+2. CHỈ dùng thông tin từ CONTEXT bên dưới. TUYỆT ĐỐI KHÔNG BỊA (hallucinate) thông tin phim không có trong Database.
+3. Nếu Context ghi là [KHÔNG TÌM THẤY PHIM] -> Hãy thành thật xin lỗi và báo là kho phim hiện chưa có, TUYỆT ĐỐI KHÔNG gợi ý phim bừa bãi.
+4. Phim: dùng block \`\`\`moviecard cho từng phim. CHỈ chứa nội dung JSON duy nhất giữa { và }. TUYỆT ĐỐI không chứa tiêu đề (như # Tên phim), Markdown hay mô tả bên trong block này.
+5. VIP: giới thiệu các gói và dùng cú pháp [CTA:Nâng cấp VIP ngay|/vip] để tạo nút bấm. Link dẫn là /vip.
+6. Đăng nhập: CHỈ gợi ý đăng nhập tại /login nếu nhìn Context thấy user CHƯA đăng nhập. Tuyệt đối KHÔNG nhắc chuyện đăng nhập nếu user đã login (nhìn context [TRẠNG THÁI: ĐÃ ĐĂNG NHẬP]).
+7. Nút bấm tương tác: Có thể dùng cú pháp [CTA:Tên nút|/đường-dẫn] để tạo nút bấm nhanh (Ví dụ: [CTA:Về trang chủ|/], [CTA:Xem trang cá nhân|/profile]).
+8. Nếu context yêu cầu trả về flag [NEED_LOGIN], hãy đặt nó ở cuối câu trả lời nếu user thực sự chưa login.
 
 ═══════════════════════════════════════════════════════════════
                     CONTEXT DATABASE
@@ -146,13 +152,21 @@ exports.chat = async (req, res) => {
         const [recentHistory] = await db.promise().query(
             `SELECT role, content FROM chat_history 
              WHERE (user_id = ? OR session_id = ?) 
-             ORDER BY created_at DESC LIMIT 3`, 
+             ORDER BY created_at DESC LIMIT 3`,
             [userId, sessionId]
         );
         const classificationHistory = recentHistory.reverse();
 
         const intentObj = await aiService.getIntent(message, classificationHistory);
         const intent = intentObj.intent;
+
+        if (intentObj.subIntent === 'out_of_scope') {
+            res.write(`data: ${JSON.stringify({
+                content: "Xin lỗi, mình chỉ hỗ trợ các câu hỏi về phim, tài khoản và VIP tại Cinema New thôi nhé! 🎬",
+                done: true
+            })}\n\n`);
+            return res.end();
+        }
 
         // ──────────────────────────────────────────────────────────
         // 2. GỬI TRẠNG THÁI CHO CLIENT
@@ -209,7 +223,7 @@ exports.chat = async (req, res) => {
                         res.write(`data: ${JSON.stringify({ content, done: false })}\n\n`);
                     }
                 }
-            } catch (e) {}
+            } catch (e) { }
         };
 
         stream.on('data', (chunk) => {
