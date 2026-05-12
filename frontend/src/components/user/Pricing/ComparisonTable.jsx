@@ -1,11 +1,21 @@
 import { CheckCircle2, XCircle, ShieldCheck, Zap } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useAuth } from '../../../hooks/useAuth';
+import { clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
+function cn(...inputs) {
+  return twMerge(clsx(inputs));
+}
 
 export default function ComparisonTable() {
+  const { user } = useAuth();
+  const isVip = !!user?.is_vip;
+
   const features = [
     { name: 'Kho phim miễn phí', free: true, vip: true },
     { name: 'Quảng cáo khi xem', free: 'Có quảng cáo', vip: 'Không quảng cáo', highlight: true },
-    // { name: 'Độ phân giải tối đa', free: '720p HD', vip: '4K Ultra HD + HDR', highlight: true },
+    { name: 'Độ phân giải tối đa', free: 'HD', vip: 'Chất lượng cao', highlight: true },
     { name: 'Phim độc quyền Cinema+', free: false, vip: true }
   ];
 
@@ -17,17 +27,24 @@ export default function ComparisonTable() {
         <thead>
           <tr className="border-b border-white/5">
             <th className="p-8 text-[10px] font-black text-white/30 uppercase tracking-[0.3em]">Tính năng</th>
-            <th className="p-8 text-center">
+            <th className={cn(
+              "p-8 text-center transition-all duration-700 relative",
+              !isVip && "bg-white/5"
+            )}>
+              {!isVip && <div className="absolute top-0 left-0 w-full h-1 bg-white/40"></div>}
               <div className="flex flex-col items-center gap-2">
                 <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">Cơ bản</span>
                 <span className="text-sm font-black text-white uppercase italic">Miễn phí</span>
               </div>
             </th>
-            <th className="p-8 text-center bg-white/5 relative">
-              <div className="absolute top-0 left-0 w-full h-1 bg-red-600"></div>
+            <th className={cn(
+              "p-8 text-center transition-all duration-700 relative",
+              isVip && "bg-white/5"
+            )}>
+              {isVip && <div className="absolute top-0 left-0 w-full h-1 bg-red-600"></div>}
               <div className="flex flex-col items-center gap-2">
                 <span className="text-[10px] font-black text-red-500 uppercase tracking-[0.3em] flex items-center gap-2">
-                  <Zap className="w-3 h-3 animate-pulse" /> Đề xuất
+                  <Zap className="w-3 h-3 animate-pulse" /> {isVip ? 'Gói của bạn' : 'Đề xuất'}
                 </span>
                 <span className="text-xl font-black text-white uppercase italic flex items-center gap-2">
                   VIP <ShieldCheck className="w-5 h-5 text-red-500" />
@@ -47,7 +64,10 @@ export default function ComparisonTable() {
               className="group hover:bg-white/[0.02] transition-colors"
             >
               <td className="p-8 text-xs font-black text-white/60 uppercase tracking-widest group-hover:text-white transition-colors">{feature.name}</td>
-              <td className="p-8 text-center">
+              <td className={cn(
+                "p-8 text-center transition-all duration-700",
+                !isVip && "bg-white/[0.03]"
+              )}>
                 {typeof feature.free === 'boolean' ? (
                   feature.free ? (
                     <CheckCircle2 className="w-5 h-5 text-emerald-500 mx-auto opacity-40" />
@@ -58,7 +78,10 @@ export default function ComparisonTable() {
                   <span className="text-[11px] font-black text-white/40 uppercase tracking-widest italic">{feature.free}</span>
                 )}
               </td>
-              <td className="p-8 text-center bg-white/[0.03]">
+              <td className={cn(
+                "p-8 text-center transition-all duration-700",
+                isVip && "bg-white/[0.03]"
+              )}>
                 {typeof feature.vip === 'boolean' ? (
                   feature.vip ? (
                     <div className="relative inline-block">

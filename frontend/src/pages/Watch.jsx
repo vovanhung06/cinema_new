@@ -52,7 +52,6 @@ const Watch = () => {
   } = useRating(id);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showControls, setShowControls] = useState(true);
-  const [sourceType, setSourceType] = useState('db'); // 'db', 'mp4'
   const controlsTimeoutRef = useRef(null);
 
   useEffect(() => {
@@ -154,31 +153,19 @@ const Watch = () => {
                     </div>
                   </div>
                 </div>
-              ) : movie.movie_url ? (
+              ) : (movie.movie_url || movie.mp4_url) ? (
                 <>
-                  {/* Điều khiển dành cho nhà phát triển để chọn nguồn video */}
-                  <div className={`absolute top-6 right-6 z-50 flex gap-3 transition-opacity duration-300 ${!isPlaying || showControls ? 'opacity-100' : 'opacity-0'}`}>
-                    <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSourceType('db'); }}
-                      className={`px-4 py-2 text-[10px] uppercase font-black tracking-widest rounded-xl backdrop-blur-xl border transition-all ${sourceType === 'db' ? 'bg-primary/90 text-white border-primary/50 shadow-[0_0_20px_rgba(229,9,20,0.4)]' : 'bg-black/50 text-white/50 border-white/10 hover:bg-white/10 hover:text-white hover:border-white/20'}`}
-                      title="Phát từ CSDL"
-                    >
-                      Phát HLS
-                    </button>
-                    <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setSourceType('mp4'); }}
-                      className={`px-4 py-2 text-[10px] uppercase font-black tracking-widest rounded-xl backdrop-blur-xl border transition-all ${sourceType === 'mp4' ? 'bg-green-600/90 text-white border-green-500/50 shadow-[0_0_20px_rgba(22,163,74,0.4)]' : 'bg-black/50 text-white/50 border-white/10 hover:bg-white/10 hover:text-white hover:border-white/20'}`}
-                      title="Link Test file .MP4 direct"
-                    >
-                      Phát MP4
-                    </button>
-                  </div>
+                  {/* Tự động chọn nguồn: VIP dùng movie_url (HLS), Thường dùng mp4_url */}
 
                   <PlyrPlayer
-                    url={obfuscate(
-                      sourceType === 'db' ? movie.movie_url :
-                        'https://cinema.io.vn/mp4/video2.mp4'
-                    )}
+                    url={obfuscate((() => {
+                      const url = movie.required_vip_level > 0 ? movie.movie_url : movie.mp4_url;
+                      console.log('movie_url:', movie.movie_url);
+                      console.log('mp4_url:', movie.mp4_url);
+                      console.log('required_vip_level:', movie.required_vip_level);
+                      console.log('selected url:', url);
+                      return url;
+                    })())}
                     poster={movie.image}
                     title={movie.title}
                     movieId={movie.id}
@@ -200,7 +187,7 @@ const Watch = () => {
                   >
                     <div className="text-center p-10 glass-dark rounded-[3rem]">
                       <h2 className="text-2xl font-black uppercase tracking-[0.3em] text-white/90">Video không khả dụng</h2>
-                      <p className="text-[10px] font-black uppercase tracking-[0.5em] text-primary mt-4">Vui lòng thử lại sau hoặc đổi máy chủ</p>
+                      <p className="text-[10px] font-black uppercase tracking-[0.5em] text-primary mt-4">Vui lòng thử lại sau</p>
                     </div>
                   </motion.div>
                 </div>

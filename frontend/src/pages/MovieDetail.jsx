@@ -400,7 +400,7 @@ const MovieDetail = () => {
                   <div className="text-center space-y-4">
                     <Info className="w-16 h-16 text-primary/50 mx-auto" />
                     <p className="text-white font-black uppercase tracking-widest">Trailer không khả dụng</p>
-                    <p className="text-on-surface-variant text-sm">Vui lòng thử lại sau hoặc xem ngay phim</p>
+                    <p className="text-on-surface-variant text-sm">Vui lòng thử lại sau</p>
                   </div>
                 </div>
               )}

@@ -113,16 +113,16 @@ export default function VIPSelection() {
         </motion.div>
 
         <div className="max-w-xl mx-auto">
-          {loading ? (
-            <div className="flex flex-col items-center justify-center py-20 gap-4">
-              <div className="w-12 h-12 border-4 border-red-600/20 border-t-red-600 rounded-full animate-spin"></div>
-              <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Đang khởi tạo cấu hình...</p>
-            </div>
-          ) : plans.length > 0 ? (
-            plans.map((plan, index) => (
-              <PricingCard key={index} {...plan} isVip={user?.is_vip} vipExpiry={user?.vip_expired_at} />
-            ))
-          ) : (
+            {loading ? (
+              <div className="flex flex-col items-center justify-center py-20 gap-4">
+                <div className="w-12 h-12 border-4 border-red-600/20 border-t-red-600 rounded-full animate-spin"></div>
+                <p className="text-[10px] font-black text-white/40 uppercase tracking-widest">Đang khởi tạo cấu hình...</p>
+              </div>
+            ) : plans.length > 0 ? (
+              plans.map((plan, index) => (
+                <PricingCard key={index} {...plan} isVip={user?.is_vip} vipExpiry={user?.vip_expired_at} />
+              ))
+            ) : (
             <div className="text-neutral-400 text-center py-20 glass-dark rounded-[2rem] border border-white/5">
               <p className="font-black uppercase text-[10px] tracking-widest">Hiện chưa có gói VIP khả dụng.</p>
             </div>

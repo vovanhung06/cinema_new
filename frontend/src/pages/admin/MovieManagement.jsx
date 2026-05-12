@@ -138,7 +138,7 @@ export default function MovieManagement() {
                     <Search className="w-4 h-4 text-on-surface-variant" />
                     <input
                       className="bg-transparent border-none text-sm focus:ring-0 outline-none w-full placeholder:text-on-surface-variant/40"
-                      placeholder="Tên phim, đạo diễn..."
+                      placeholder="Tên phim..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
                     />

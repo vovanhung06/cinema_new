@@ -54,6 +54,7 @@ exports.getAllMovies = async (req, res) => {
         m.description,
         m.release_date,
         m.movie_url,
+        m.mp4_url,
         m.trailer_url,
         m.avatar_url,
         m.background_url,
@@ -147,6 +148,8 @@ exports.getPublicMovies = async (req, res) => {
         m.release_date,
         m.avatar_url,
         m.background_url,
+        m.movie_url,
+        m.mp4_url,
         m.trailer_url,
         c.name AS country,
         GROUP_CONCAT(g.name) AS genres,
@@ -225,6 +228,7 @@ exports.createMovie = (req, res) => {
     trailer_url,
     avatar_url,
     background_url,
+    mp4_url,
     required_vip_level,
     country_id,
     genre_ids
@@ -232,8 +236,8 @@ exports.createMovie = (req, res) => {
 
   const sql = `
     INSERT INTO movies
-    (title, description, release_date, movie_url, trailer_url, avatar_url, background_url, required_vip_level, country_id)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    (title, description, release_date, movie_url, mp4_url, trailer_url, avatar_url, background_url, required_vip_level, country_id)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
 
   db.query(
@@ -243,6 +247,7 @@ exports.createMovie = (req, res) => {
       description,
       release_date,
       movie_url,
+      mp4_url,
       trailer_url,
       avatar_url,
       background_url,
@@ -304,6 +309,7 @@ exports.updateMovie = (req, res) => {
     trailer_url,
     avatar_url,
     background_url,
+    mp4_url,
     required_vip_level,
     country_id,
     genre_ids
@@ -316,6 +322,7 @@ exports.updateMovie = (req, res) => {
       description = ?,
       release_date = ?,
       movie_url = ?,
+      mp4_url = ?,
       trailer_url = ?,
       avatar_url = ?,
       background_url = ?,
@@ -331,6 +338,7 @@ exports.updateMovie = (req, res) => {
       description,
       release_date,
       movie_url,
+      mp4_url,
       trailer_url,
       avatar_url,
       background_url,
@@ -433,6 +441,7 @@ exports.getMovieById = (req, res) => {
       m.description,
       m.release_date,
       m.movie_url,
+      m.mp4_url,
       m.trailer_url,
       m.avatar_url,
       m.background_url,
@@ -651,6 +660,8 @@ exports.filterMovies = async (req, res) => {
       m.avatar_url,
       m.background_url,
       m.release_date,
+      m.movie_url,
+      m.mp4_url,
       c.name AS country,
       GROUP_CONCAT(DISTINCT g.name) AS genres,
       m.required_vip_level,

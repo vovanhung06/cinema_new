@@ -42,7 +42,7 @@ export default function CommentManagement() {
   const stats = [
     { label: 'Tổng số bình luận', value: totalComments, sub: 'Toàn hệ thống', color: 'text-blue-400', icon: MessageSquare },
     { label: 'Bình luận mới', value: comments.length, sub: 'Trên trang này', color: 'text-green-400', icon: Sparkles },
-    { label: 'Cần kiểm duyệt', value: '0', sub: 'Tự động lọc', color: 'text-yellow-400', icon: AlertTriangle },
+   // { label: 'Cần kiểm duyệt', value: '0', sub: 'Tự động lọc', color: 'text-yellow-400', icon: AlertTriangle },
   ];
 
   return (
