@@ -24,11 +24,12 @@ exports.sepayWebhook = async (req, res) => {
         const randomCode = match[2];
 
         // Đánh dấu phiên thanh toán là đã hoàn thành
+        paymentSessions.completeSession(randomCode);
 
         // Kiểm tra xem người dùng có tồn tại không
         const [userCheck] = await db.promise().query('SELECT id, username FROM users WHERE id = ?', [userId]);
         if (userCheck.length === 0) {
-            return res.json({ success: false, message: "Email không tồn tại" });
+            return res.json({ success: false, message: "Người dùng không tồn tại" });
         }
 
         // Tính toán ngày hết hạn (30 ngày)
