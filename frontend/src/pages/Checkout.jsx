@@ -58,12 +58,13 @@ export default function Checkout() {
   }, [user, loading, navigate]);
 
   // ─── Guard 2: đã là VIP → không cần thanh toán, redirect về home ─────────
+  // Thêm !isSuccess để không redirect khi đang hiển thị màn hình thành công
   useEffect(() => {
-    if (!loading && user && user.is_vip) {
+    if (!loading && user && user.is_vip && !isSuccess) {
       clearCheckoutStorage();
       navigate('/', { replace: true });
     }
-  }, [user, loading, navigate]);
+  }, [user, loading, navigate, isSuccess]);
 
   // ─── Khởi tạo plan — gắn userId khi lưu, kiểm tra userId khi đọc lại ────
   const [plan] = useState(() => {
@@ -206,8 +207,10 @@ export default function Checkout() {
           clearInterval(pollRef.current);
           clearInterval(timerRef.current);
           clearCheckoutStorage();
-          await refreshProfile();
+          // ✅ Set success TRƯỚC để màn hình thành công render ngay,
+          // tránh Guard 2 redirect khi refreshProfile cập nhật is_vip = true
           setIsSuccess(true);
+          await refreshProfile();
           setTimeout(() => navigate('/'), 3000);
         }
       } catch (e) {
