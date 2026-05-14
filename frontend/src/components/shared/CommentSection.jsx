@@ -2,13 +2,29 @@ import { motion } from 'motion/react';
 import { Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-const CommentSection = ({ 
-  comments, 
-  averageRating, 
+// Thêm function này vào đầu file CommentSection.jsx
+const formatDateTime = (dateStr) => {
+  if (!dateStr) return '';
+  // Bỏ chữ Z hoặc +00:00 nếu có, thêm +07:00 vào
+  const normalized = dateStr.toString().replace('Z', '').replace('+00:00', '');
+  const date = new Date(normalized + '+07:00');
+
+  const hh = String(date.getHours()).padStart(2, '0');
+  const mm = String(date.getMinutes()).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mo = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = date.getFullYear();
+
+  return `${hh}:${mm} ${dd}/${mo}/${yyyy}`;
+};
+
+const CommentSection = ({
+  comments,
+  averageRating,
   ratingCount,
   page = 1,
   setPage,
-  pagination 
+  pagination
 }) => {
   return (
     <section className="space-y-10">
@@ -51,7 +67,7 @@ const CommentSection = ({
                 className="relative"
               >
                 <div className="absolute -left-13 top-2 w-10 h-10 rounded-xl overflow-hidden border border-white/10 shadow-lg">
-                  <img
+                  <img 
                     src={comment.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.user || 'User')}&background=random`}
                     alt={comment.user}
                     className="w-full h-full object-cover"
@@ -62,7 +78,7 @@ const CommentSection = ({
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div>
                       <h4 className="font-black text-sm text-white uppercase tracking-tight">{comment.user}</h4>
-                      <p className="text-[10px] uppercase tracking-[0.25em] text-on-surface-variant mt-1">{comment.time || comment.createdAt}</p>
+                      <p className="text-[10px] uppercase tracking-[0.25em] text-on-surface-variant mt-1">{comment.time || formatDateTime(comment.createdAt)}</p>
                     </div>
                   </div>
                   <p className="text-sm font-medium text-on-surface-variant leading-relaxed">{comment.content}</p>
@@ -88,8 +104,8 @@ const CommentSection = ({
                       onClick={() => setPage(p)}
                       className={cn(
                         "w-10 h-10 rounded-xl text-xs font-black transition-all",
-                        p === page 
-                          ? "bg-primary text-white shadow-lg shadow-primary/20" 
+                        p === page
+                          ? "bg-primary text-white shadow-lg shadow-primary/20"
                           : "glass border border-white/5 text-on-surface-variant hover:bg-white/10"
                       )}
                     >
