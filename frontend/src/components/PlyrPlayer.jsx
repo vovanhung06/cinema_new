@@ -15,11 +15,13 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
   const hasLoggedHistoryRef = useRef(false);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isNative, setIsNative] = useState(false); // ← dùng native video cho MP4
 
   useEffect(() => {
     // Reset watch tracking on new movie
     watchSecondsRef.current = 0;
     hasLoggedHistoryRef.current = false;
+    setIsNative(false);
     if (watchTimerRef.current) clearInterval(watchTimerRef.current);
 
     if (!videoRef.current || !url) {
@@ -33,7 +35,6 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
     const decodedUrl = deobfuscate(url);
 
     let hls = null;
-    let plyr = null;
 
     const handleNativeError = (e) => {
       console.error('Lỗi video gốc:', video.error);
@@ -42,8 +43,27 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
     };
     video.addEventListener('error', handleNativeError);
 
+    // Tracking cho native video (MP4)
+    const handleNativePlaying = () => {
+      onPlayStateChange(true);
+      if (!hasLoggedHistoryRef.current && movieId) {
+        watchTimerRef.current = setInterval(() => {
+          watchSecondsRef.current += 1;
+          if (watchSecondsRef.current >= 10) {
+            clearInterval(watchTimerRef.current);
+            hasLoggedHistoryRef.current = true;
+            addToHistory(movieId).catch(err => console.error("History log failed:", err));
+            recordMovieView(movieId).catch(err => console.error("View record failed:", err));
+          }
+        }, 1000);
+      }
+    };
+    const handleNativePause = () => {
+      onPlayStateChange(false);
+      clearInterval(watchTimerRef.current);
+    };
+
     const setupPlyr = (qualityOptions = {}) => {
-      // If plyr already exists, destroy it first
       if (plyrRef.current) {
         plyrRef.current.destroy();
       }
@@ -80,7 +100,6 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
       newPlyr.on('play', () => onPlayStateChange(true));
       newPlyr.on('pause', () => onPlayStateChange(false));
 
-      // History tracking logic (10 seconds cumulative)
       newPlyr.on('playing', () => {
         if (!hasLoggedHistoryRef.current && movieId) {
           watchTimerRef.current = setInterval(() => {
@@ -102,11 +121,8 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
 
       newPlyr.on('error', (err) => {
         console.error('Plyr error:', err?.detail?.code || err);
-        // Chỉ hiện lỗi giao diện chặn nếu không phải HLS (vì HLS tự lo recovery)
-        if (!decodedUrl.includes('.m3u8')) {
-          setIsLoading(false);
-          setError('Đã xảy ra lỗi kết nối với máy chủ chứa phim (Plyr Error).');
-        }
+        setIsLoading(false);
+        setError('Đã xảy ra lỗi kết nối với máy chủ chứa phim (Plyr Error).');
       });
 
       return newPlyr;
@@ -114,6 +130,7 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
 
     try {
       if (decodedUrl.includes('.m3u8')) {
+        // ── HLS: dùng Plyr + hls.js ──
         video.setAttribute('crossorigin', 'anonymous');
         if (Hls.isSupported()) {
           hls = new Hls({
@@ -126,13 +143,13 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
             abrBandWidthUpFactor: 0.7,
             abrEwmaFastVoD: 3,
             abrEwmaSlowVoD: 9,
-            maxLoadingDelay: 4,              // ← abort segment nếu load quá 4s
+            maxLoadingDelay: 4,
             maxBufferLength: 20,
             maxMaxBufferLength: 40,
             backBufferLength: 15,
           });
           hlsRef.current = hls;
-          window.__hls__ = hls; // ← dòng này
+          window.__hls__ = hls;
 
           let isAbrSwitching = false;
 
@@ -141,16 +158,15 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
 
           hls.on(Hls.Events.MANIFEST_PARSED, (event, data) => {
             const levels = data.levels;
-            // Sắp xếp từ thấp đến cao để hiển thị đúng
             const availableQualities = levels.map(l => l.height);
 
             const qualityConfig = {
-              default: -1, // ← Auto mặc định, KHÔNG lock level nào
-              options: [-1, ...availableQualities], // ← Thêm -1 = Auto vào menu
+              default: -1,
+              options: [-1, ...availableQualities],
               forced: true,
               onChange: (newQuality) => {
                 if (!hlsRef.current) return;
-                if (isAbrSwitching) return; // ← bỏ qua nếu do ABR tự đổi
+                if (isAbrSwitching) return;
                 if (newQuality === -1) {
                   hlsRef.current.currentLevel = -1;
                 } else {
@@ -176,11 +192,9 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
             if (data.fatal) {
               switch (data.type) {
                 case Hls.ErrorTypes.NETWORK_ERROR:
-                  console.error('HLS Network Error, attempting recovery...');
                   hls.startLoad();
                   break;
                 case Hls.ErrorTypes.MEDIA_ERROR:
-                  console.error('HLS Media Error, attempting recovery...');
                   hls.recoverMediaError();
                   break;
                 default:
@@ -191,16 +205,18 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
               }
             }
           });
+
           hls.on(Hls.Events.LEVEL_SWITCHED, (event, data) => {
             if (plyrRef.current) {
               const currentHeight = hls.levels[data.level]?.height;
               if (currentHeight) {
-                isAbrSwitching = true;         // ← báo đang ABR switch
+                isAbrSwitching = true;
                 plyrRef.current.quality = currentHeight;
-                isAbrSwitching = false;        // ← reset lại
+                isAbrSwitching = false;
               }
             }
           });
+
         } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
           // Native Safari HLS
           video.src = decodedUrl;
@@ -213,23 +229,20 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
           setError('Trình duyệt của bạn không hỗ trợ định dạng phim HLS này.');
           setIsLoading(false);
         }
+
       } else {
-        // Normal MP4 fallback
+        // ── MP4: dùng native HTML5 video, KHÔNG dùng Plyr ──
         video.removeAttribute('crossorigin');
-        const p = setupPlyr();
-        p.source = {
-          type: 'video',
-          title: title || 'Cinema+ Player',
-          sources: [
-            {
-              src: decodedUrl,
-              type: 'video/mp4'
-            }
-          ],
-          poster: poster
-        };
+        video.src = decodedUrl;
+        video.load();
+        setIsNative(true);
         setIsLoading(false);
+
+        video.addEventListener('playing', handleNativePlaying);
+        video.addEventListener('pause', handleNativePause);
+        video.addEventListener('ended', handleNativePause);
       }
+
     } catch (e) {
       console.error('Error initializing PlyrPlayer:', e);
       setError('Đã xảy ra lỗi khi khởi tạo trình phát phim.');
@@ -238,6 +251,9 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
 
     return () => {
       video.removeEventListener('error', handleNativeError);
+      video.removeEventListener('playing', handleNativePlaying);
+      video.removeEventListener('pause', handleNativePause);
+      video.removeEventListener('ended', handleNativePause);
       if (hlsRef.current) {
         hlsRef.current.destroy();
         hlsRef.current = null;
@@ -250,7 +266,7 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
         clearInterval(watchTimerRef.current);
       }
     };
-  }, [url, title, movieId]); // Re-init on URL or title change
+  }, [url, title, movieId]);
 
   return (
     <div key={url} className="relative w-full h-full bg-black rounded-3xl lg:rounded-[3rem] overflow-hidden group/player shadow-2xl">
@@ -288,7 +304,6 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
         </div>
       )}
 
-      {/* Isolate video so Plyr DOM mutations do not break React's sibling tracking */}
       <div className="w-full h-full absolute inset-0 z-0">
         <video
           ref={videoRef}
@@ -297,10 +312,11 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
           playsInline
           webkit-playsinline="true"
           preload="auto"
+          controls={isNative}
+          controlsList="nodownload"
         />
       </div>
 
-      {/* Subtle bottom gradient cover to hide potential flickering on init */}
       {!isLoading && !error && (
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-black/60 to-transparent pointer-events-none group-hover/player:opacity-0 transition-opacity duration-700 z-10"></div>
       )}

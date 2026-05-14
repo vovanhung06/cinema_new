@@ -244,7 +244,7 @@ const Navbar = () => {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setIsSearchFocused(true)}
-                  placeholder="Tìm kiếm phim, diễn viên..."
+                  placeholder="Tìm kiếm phim..."
                   className="bg-transparent border-none focus:ring-0 text-sm w-full text-on-surface placeholder:text-on-surface-variant/40 outline-none font-medium"
                 />
                 <AnimatePresence>
