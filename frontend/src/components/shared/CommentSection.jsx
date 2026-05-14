@@ -67,7 +67,7 @@ const CommentSection = ({
                 className="relative"
               >
                 <div className="absolute -left-13 top-2 w-10 h-10 rounded-xl overflow-hidden border border-white/10 shadow-lg">
-                  <img
+                  <img 
                     src={comment.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(comment.user || 'User')}&background=random`}
                     alt={comment.user}
                     className="w-full h-full object-cover"
