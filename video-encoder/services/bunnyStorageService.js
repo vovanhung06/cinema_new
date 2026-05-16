@@ -24,14 +24,14 @@ async function deleteFolder(remoteFolderPath) {
     await axios.delete(url, {
       headers: { AccessKey: ACCESS_KEY },
     });
-    console.log(`[bunnyStorage] 🗑️  Đã xóa folder cũ: ${normalizedPath}`);
+    console.log(`[bunnyStorage]   Đã xóa folder cũ: ${normalizedPath}`);
   } catch (error) {
     // 404 = folder chưa tồn tại → bỏ qua, không throw
     if (error.response?.status === 404) {
-      console.log(`[bunnyStorage] ℹ️  Folder chưa tồn tại, bỏ qua xóa: ${normalizedPath}`);
+      console.log(`[bunnyStorage]  Folder chưa tồn tại, bỏ qua xóa: ${normalizedPath}`);
       return;
     }
-    console.error(`[bunnyStorage] ❌ Xóa folder thất bại: ${normalizedPath}`, error.message);
+    console.error(`[bunnyStorage]  Xóa folder thất bại: ${normalizedPath}`, error.message);
     throw error;
   }
 }
@@ -58,17 +58,17 @@ async function uploadFile(localFilePath, remotePath) {
     } catch (error) {
       const isLast = attempt === MAX_RETRIES;
       if (isLast) {
-        console.error(`[bunnyStorage] ❌ Upload thất bại sau ${MAX_RETRIES} lần: ${remotePath}`);
+        console.error(`[bunnyStorage]  Upload thất bại sau ${MAX_RETRIES} lần: ${remotePath}`);
         throw error;
       }
-      console.warn(`[bunnyStorage] ⚠️ Retry ${attempt}/${MAX_RETRIES}: ${path.basename(localFilePath)}`);
+      console.warn(`[bunnyStorage]  Retry ${attempt}/${MAX_RETRIES}: ${path.basename(localFilePath)}`);
       await new Promise(r => setTimeout(r, 1000 * attempt));
     }
   }
 }
 
 /**
- * Thu thập tất cả file trong folder (đệ quy)
+ * Thu thập tất cả file trong folder 
  */
 function collectFiles(localFolderPath, remoteFolderPath) {
   const results = [];
@@ -114,7 +114,7 @@ async function uploadFolder(localFolderPath, remoteFolderPath) {
     );
   }
 
-  console.log(`\n[bunnyStorage] ✅ Upload hoàn tất: ${total} files`);
+  console.log(`\n[bunnyStorage]  Upload hoàn tất: ${total} files`);
 }
 
 module.exports = { uploadFile, uploadFolder, deleteFolder };

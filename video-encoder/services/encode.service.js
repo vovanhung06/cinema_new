@@ -179,9 +179,9 @@ function cleanup(movieOutputDir, inputPath) {
   try {
     fs.rmSync(movieOutputDir, { recursive: true, force: true });
     fs.unlinkSync(inputPath);
-    console.log(`[encode] 🗑️  Đã xóa file tạm và file gốc`);
+    console.log(`[encode]   Đã xóa file tạm và file gốc`);
   } catch (err) {
-    console.warn(`[encode] ⚠️  Cleanup: ${err.message}`);
+    console.warn(`[encode]   Cleanup: ${err.message}`);
   }
 }
 
@@ -241,7 +241,7 @@ async function convertToHLS(filename, movieId) {
         .on('progress', (p) => {
           if (p.percent) process.stdout.write(`\r[encode] Tiến độ: ${Math.round(p.percent)}%`);
         })
-        .on('end', () => { clearTimeout(timeout); console.log('\n[encode] ✅ Encode hoàn tất'); resolve(); })
+        .on('end', () => { clearTimeout(timeout); console.log('\n[encode]  Encode hoàn tất'); resolve(); })
         .on('error', (err) => { clearTimeout(timeout); reject(new Error(`FFmpeg: ${err.message}`)); })
         .run();
     });
@@ -249,7 +249,7 @@ async function convertToHLS(filename, movieId) {
     // ── Master Playlist ──
     const masterContent = buildMasterPlaylist(variants);
     fs.writeFileSync(path.join(hlsOutputDir, 'master.m3u8'), masterContent);
-    console.log('[encode] ✅ master.m3u8 tạo xong');
+    console.log('[encode]  master.m3u8 tạo xong');
 
     // ── Upload ──
     const remotePath = `hls/${movieId}`;
@@ -261,7 +261,7 @@ async function convertToHLS(filename, movieId) {
 
     // ── Return URL ──
     const hlsUrl = `${process.env.BUNNY_PULL_ZONE_URL}/${movieId}/master.m3u8`;
-    console.log(`[encode] 🚀 ${hlsUrl}`);
+    console.log(`[encode]  ${hlsUrl}`);
     return hlsUrl;
 
   } finally {

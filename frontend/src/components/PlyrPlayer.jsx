@@ -15,7 +15,7 @@ const PlyrPlayer = ({ url, poster, title, movieId, onPlayStateChange = () => { }
   const hasLoggedHistoryRef = useRef(false);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [isNative, setIsNative] = useState(false); // ← dùng native video cho MP4
+  const [isNative, setIsNative] = useState(false);
 
   useEffect(() => {
     // Reset watch tracking on new movie

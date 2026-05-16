@@ -82,7 +82,7 @@ export default function UserManagement() {
       <div className="bg-surface-container-low rounded-2xl overflow-hidden border border-outline-variant/10">
         <div className="p-4 md:p-6 border-b border-surface-container-high flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex gap-4 overflow-x-auto w-full sm:w-auto no-scrollbar">
-            <button 
+            <button
               onClick={() => setFilter('all')}
               className={cn(
                 "text-sm font-bold transition-all pb-1 border-b-2 whitespace-nowrap",
@@ -91,7 +91,7 @@ export default function UserManagement() {
             >
               Tất cả
             </button>
-            <button 
+            <button
               onClick={() => setFilter('admin')}
               className={cn(
                 "text-sm font-bold transition-all pb-1 border-b-2 whitespace-nowrap",
@@ -100,7 +100,7 @@ export default function UserManagement() {
             >
               Quản trị viên
             </button>
-            <button 
+            <button
               onClick={() => setFilter('vip')}
               className={cn(
                 "text-sm font-bold transition-all pb-1 border-b-2 whitespace-nowrap",
@@ -160,14 +160,14 @@ export default function UserManagement() {
                   </td>
                   <td className="px-6 py-4 text-sm font-bold text-primary-container">{user.tier}</td>
                   <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-2">
+                    {/* <div className="flex justify-end gap-2">
                       <button
                         onClick={() => handleDeleteClick(user)}
                         className="p-2 rounded-lg bg-surface-container-highest text-on-surface-variant hover:text-primary-container transition-all"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
-                    </div>
+                    </div> */}
                   </td>
                 </tr>
               ))}
@@ -179,33 +179,32 @@ export default function UserManagement() {
           <div className="p-6 border-t border-outline-variant/10 flex flex-col md:flex-row items-center justify-between gap-4 bg-surface-container-high/10">
             <p className="text-xs font-bold text-on-surface-variant uppercase tracking-widest">
               Hiển thị {(pagination.page - 1) * pagination.limit + 1}-
-              {Math.min(pagination.page * pagination.limit, pagination.total)} 
+              {Math.min(pagination.page * pagination.limit, pagination.total)}
               {` `}trên {pagination.total} thành viên
             </p>
             <div className="flex gap-2">
-              <button 
+              <button
                 onClick={() => setPage(page - 1)}
                 disabled={page <= 1}
                 className="p-2 rounded-xl bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 transition-all"
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              
+
               {Array.from({ length: pagination.totalPages }, (_, i) => i + 1).map((p) => (
-                <button 
+                <button
                   key={p}
                   onClick={() => setPage(p)}
-                  className={`w-8 h-8 rounded-xl text-xs font-bold transition-all ${
-                    p === page 
-                      ? 'bg-primary-container text-white shadow-lg shadow-primary-container/20 font-black' 
-                      : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
-                  }`}
+                  className={`w-8 h-8 rounded-xl text-xs font-bold transition-all ${p === page
+                    ? 'bg-primary-container text-white shadow-lg shadow-primary-container/20 font-black'
+                    : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
+                    }`}
                 >
                   {p}
                 </button>
               ))}
 
-              <button 
+              <button
                 onClick={() => setPage(page + 1)}
                 disabled={page >= pagination.totalPages}
                 className="p-2 rounded-xl bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high disabled:opacity-30 transition-all"

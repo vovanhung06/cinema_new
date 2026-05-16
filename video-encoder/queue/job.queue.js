@@ -17,7 +17,7 @@ function safeReadJSON(file) {
     if (!raw) return [];
     return JSON.parse(raw);
   } catch (err) {
-    console.error(`[job.queue] ⚠️  Không đọc được ${file}:`, err.message);
+    console.error(`[job.queue]   Không đọc được ${file}:`, err.message);
     // Backup file bị hỏng
     try {
       fs.copyFileSync(file, `${file}.corrupt.${Date.now()}`);
@@ -69,7 +69,7 @@ function requeueJob(job) {
   const jobs = safeReadJSON(JOB_FILE);
   jobs.push(job);
   atomicWriteJSON(JOB_FILE, jobs);
-  console.log(`[job.queue] 🔄 Requeue job: movieId=${job.movieId} (attempt ${job.attempt})`);
+  console.log(`[job.queue]  Requeue job: movieId=${job.movieId} (attempt ${job.attempt})`);
 }
 
 /**
@@ -83,7 +83,7 @@ function saveFailedJob(job, errorMessage) {
     error: errorMessage,
   });
   atomicWriteJSON(FAILED_JOB_FILE, failed);
-  console.log(`[job.queue] 💀 Lưu job thất bại: movieId=${job.movieId}`);
+  console.log(`[job.queue]  Lưu job thất bại: movieId=${job.movieId}`);
 }
 
 /**
@@ -99,7 +99,7 @@ function addJob(file, movieId) {
   };
   jobs.push(job);
   atomicWriteJSON(JOB_FILE, jobs);
-  console.log(`[job.queue] ➕ Thêm job: movieId=${movieId}, file=${file}`);
+  console.log(`[job.queue]  Thêm job: movieId=${movieId}, file=${file}`);
   return job;
 }
 

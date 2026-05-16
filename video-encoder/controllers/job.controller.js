@@ -2,7 +2,7 @@ const { getNextJob, requeueJob, saveFailedJob } = require('../queue/job.queue');
 const { convertToHLS } = require('../services/encode.service');
 const { updateMovieHLS } = require('../services/movie.service');
 
-const MAX_RETRY = 3; // Số lần thử tối đa mỗi job
+const MAX_RETRY = 3;
 
 /**
  * Xử lý job tiếp theo trong queue
@@ -22,21 +22,21 @@ async function processNextJob() {
   try {
     // ── Bước 1: Encode video → HLS, upload Bunny, nhận về URL ──────────────
     const hlsUrl = await convertToHLS(job.file, job.movieId);
-    console.log(`[job.controller] ✅ HLS URL: ${hlsUrl}`);
+    console.log(`[job.controller]  HLS URL: ${hlsUrl}`);
 
     // ── Bước 2: Lưu URL vào database ────────────────────────────────────────
     await updateMovieHLS(job.movieId, hlsUrl);
-    console.log(`[job.controller] ✅ Đã lưu URL vào DB: movieId=${job.movieId}`);
+    console.log(`[job.controller]  Đã lưu URL vào DB: movieId=${job.movieId}`);
 
     return { success: true, job, hlsUrl };
 
   } catch (error) {
-    console.error(`[job.controller] ❌ Job thất bại (lần ${attempt}): ${error.message}`);
+    console.error(`[job.controller]  Job thất bại (lần ${attempt}): ${error.message}`);
 
     if (attempt < MAX_RETRY) {
       // Còn lượt retry → đưa lại vào queue với attempt tăng lên
       const delay = attempt * 10000; // 10s, 20s
-      console.log(`[job.controller] 🔄 Sẽ retry sau ${delay / 1000}s...`);
+      console.log(`[job.controller]  Sẽ retry sau ${delay / 1000}s...`);
 
       setTimeout(() => {
         requeueJob({ ...job, attempt: attempt + 1 });
@@ -44,7 +44,7 @@ async function processNextJob() {
 
     } else {
       // Hết lượt retry → lưu vào failed queue
-      console.error(`[job.controller] 💀 Job thất bại sau ${MAX_RETRY} lần: movieId=${job.movieId}`);
+      console.error(`[job.controller]  Job thất bại sau ${MAX_RETRY} lần: movieId=${job.movieId}`);
       saveFailedJob(job, error.message);
     }
 

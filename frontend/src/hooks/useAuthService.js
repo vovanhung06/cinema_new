@@ -93,8 +93,6 @@ export const useAuthService = () => {
     try {
       const token = getToken();
       if (token) {
-        // Only remove token locally, the backend doesn't have a logout endpoint
-        // but we'll keep this structure for future use
       }
 
       removeToken();
@@ -102,7 +100,6 @@ export const useAuthService = () => {
       return true;
     } catch (err) {
       console.error("LOGOUT ERROR:", err);
-      // Still remove token even if logout fails
       removeToken();
       throw err;
     } finally {

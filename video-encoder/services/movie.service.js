@@ -8,7 +8,7 @@ async function updateMovieHLS(movieId, hlsUrl) {
       WHERE id = ?
     `;
 
-    const [result] = await db.query(sql, [hlsUrl, movieId]); // ✅ FIX ở đây
+    const [result] = await db.query(sql, [hlsUrl, movieId]);
 
     console.log('[movie.service] Updated movie HLS:', movieId, hlsUrl);
     return result;

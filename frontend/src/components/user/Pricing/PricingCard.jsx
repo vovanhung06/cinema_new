@@ -22,7 +22,7 @@ export default function PricingCard({
   vipExpiry
 }) {
   const navigate = useNavigate();
-  const { token, user, setLoginModalOpen } = useAuth(); // 👈 thêm user
+  const { token, user, setLoginModalOpen } = useAuth();
 
   const handleClick = () => {
     // Chưa login → mở modal login
@@ -41,7 +41,7 @@ export default function PricingCard({
           name: title,
           price: price,
           period: period,
-          features: features, // 👈 truyền thêm features để hiển thị ở checkout
+          features: features,
         }
       }
     });
