@@ -36,6 +36,14 @@ const Register = () => {
     const normalizedEmail = email.trim().toLowerCase();
     const trimmedUsername = username.trim();
 
+    // ✅ validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(normalizedEmail)) {
+      setError('Email không đúng định dạng');
+      setLoading(false);
+      return;
+    }
+
     // ✅ validate password match
     if (password !== confirm) {
       setError('Mật khẩu không khớp');
